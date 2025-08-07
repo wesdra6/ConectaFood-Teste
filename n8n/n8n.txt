@@ -1,0 +1,7824 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        7824,
+        -960
+      ],
+      "id": "da2ee167-c55b-4e77-bede-f34e9a466799",
+      "name": "Respond to Webhook FTP"
+    },
+    {
+      "parameters": {
+        "content": "# SUPABASE \n",
+        "height": 1224,
+        "width": 720,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2240,
+        -1040
+      ],
+      "id": "2bdca8bb-a111-4c88-87d1-774346dd88ec",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "enviar-imagem",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        7152,
+        -960
+      ],
+      "id": "07fa7f06-c121-43ca-b34a-fa69efb5c785",
+      "name": "Webhook-FTP",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://storage.uptecnology.com.br/api/upload",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "MTc1MTQwNjgxOTg3Nw==.YzU1OTliMTI2NTNkNGE1OTExZjMzODZiMDJjYzUxNWYuN2U0YzM1NGE0ZjlmNTRkZTllMTcyMzI5ZGVlOTYwMDUyM2VmMDgwYWI1YTMxZWYzNTQ1OTIzMGFiNTdkNjQ1OGUyNmY1ZDg1NzhmZmI2ZjNlMzY0ZmE4YTg5NmIzZTcyZTNkNGQ5Mzg1ZTllODNiZjYzMmVlYjg5NjdmNTc2ODkzMTljMzAzODA1MGNhMGI4Y2EwMTQyYmI0NTZlNTJhZQ=="
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "food",
+              "inputDataFieldName": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7344,
+        -960
+      ],
+      "id": "45b49a24-e3f5-4e39-96ad-4a2d865d0594",
+      "name": "Upload para Zipline",
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## UPLOAD ZIPLINE",
+        "height": 520,
+        "width": 960,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        7104,
+        -1040
+      ],
+      "id": "57837432-2d71-4c52-9c85-9f5d34fa42b4",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0767a16f-bf76-40f4-96bf-ddbc08fa5173",
+              "leftValue": "={{ $json.error.message }}",
+              "rightValue": "already exists",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7552,
+        -752
+      ],
+      "id": "51319332-9900-4473-a85e-837d30cd45e9",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "path": "exibir-imagem",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        7152,
+        -432
+      ],
+      "id": "2011da3c-9715-4d06-890d-801bbc03efa8",
+      "name": "Webhook-FTP-Request",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "url": "https://ferramentas-zipline.m3trfw.easypanel.host/api/user/files",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "page",
+              "value": "={{ $json.query.page }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "MTc0ODk5ODA4NjA1Mg==.YmNjMDA2YTM2ZjNhODRjMTM0NTY0ZTk2ZTk2ZjFjM2IuNTk3YzE4MTdhYmJkMGQ3ZDQwODA2NzAzNTlkOGI2YmVjM2Q4ZGMwZmVlYTEwNzE0NmRhNWY2ZDJiNDc5ODhlYTliZGZlNzY5NzcxYTlhMGFkYTJiYWEyODMzOTZlN2U3ZjY2ZmY4OGMwNGQzNWY0NzliNjdkZDAzN2U1ZmZmZDA4ZGM4MzI0YWU1NTZlMWM1YjVlMTIzZWFkZmFiMTFmYw=="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7344,
+        -432
+      ],
+      "id": "aecc8070-e5e8-465d-b4d1-56eead1df5bb",
+      "name": "Buscar imagens",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## EXIBIR IMAGENS ZIPLINE",
+        "height": 240,
+        "width": 620,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        7104,
+        -496
+      ],
+      "id": "f642f89f-373f-422c-b19c-a93525cbb4e9",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        7520,
+        -432
+      ],
+      "id": "b6825467-c08c-4e0e-a3b3-8e395cd42887",
+      "name": "Respond to Webhook Request",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e046f735-c714-4fce-8cf8-8a72eac385d5",
+              "name": "imageUrlToCopy",
+              "value": "={{ $json.files[0].url }}?zipline_id={{ $json.files[0].id }}",
+              "type": "string"
+            },
+            {
+              "id": "80027380-4c5a-4568-9ad1-4de2273829b9",
+              "name": "ziplineFileId",
+              "value": "={{ $json.files[0].id }}",
+              "type": "string"
+            },
+            {
+              "id": "fbe108e0-3018-4aea-a634-78397a3d1a2e",
+              "name": "success",
+              "value": "={{ true }}",
+              "type": "boolean"
+            },
+            {
+              "id": "fbaec1c5-171b-4408-9ec0-ce81f51dca73",
+              "name": "urlParaCopiarComId",
+              "value": "={{ $json.files[0].url }}?ziplineFileId={{ $json.files[0].id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7552,
+        -960
+      ],
+      "id": "21abd867-fe93-47b4-b56d-84e813b62751",
+      "name": "Pegar_ID_da_Imagem"
+    },
+    {
+      "parameters": {
+        "content": "# --- PRODUTOS ---",
+        "height": 100,
+        "width": 720,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2240,
+        -960
+      ],
+      "id": "d58ef2fb-dafb-45b5-a14d-d105830a84fb",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "\n# (Admin) Atualiza um produto existente >>\nupdate_product",
+        "height": 100,
+        "width": 720,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2960,
+        -608
+      ],
+      "id": "8edeae93-fe3e-49c2-bd35-8dff08aa8759",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "\n# (Admin) Cria um novo produto >>\ncreate_product",
+        "height": 100,
+        "width": 580,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2816,
+        -816
+      ],
+      "id": "51bc6dee-3ec9-4e79-80e1-550c7bb073da",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "tableId": "produtos",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nome",
+              "fieldValue": "={{ $json.body.nome }}"
+            },
+            {
+              "fieldId": "preco",
+              "fieldValue": "={{ $json.body.preco }}"
+            },
+            {
+              "fieldId": "descricao",
+              "fieldValue": "={{ $json.body.descricao }}"
+            },
+            {
+              "fieldId": "ingredientes",
+              "fieldValue": "={{ $json.body.ingredientes }}"
+            },
+            {
+              "fieldId": "imagens_urls",
+              "fieldValue": "={{ $json.body.imagens_urls }}"
+            },
+            {
+              "fieldId": "categoria_id",
+              "fieldValue": "={{ $json.body.categoria_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1984,
+        -832
+      ],
+      "id": "67162129-d3b3-420b-9c1c-49f69ab13d04",
+      "name": "produto-criar",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "produtos",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nome",
+              "fieldValue": "={{ $json.body.nome }}"
+            },
+            {
+              "fieldId": "categoria_id",
+              "fieldValue": "={{ $json.body.categoria_id }}"
+            },
+            {
+              "fieldId": "preco",
+              "fieldValue": "={{ $json.body.preco }}"
+            },
+            {
+              "fieldId": "descricao",
+              "fieldValue": "={{ $json.body.descricao }}"
+            },
+            {
+              "fieldId": "ingredientes",
+              "fieldValue": "={{ $json.body.ingredientes }}"
+            },
+            {
+              "fieldId": "imagens_urls",
+              "fieldValue": "={{ $json.body.imagens_urls }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1984,
+        -640
+      ],
+      "id": "1ee752fc-80f5-4ee2-ac34-4ddfa3d8f019",
+      "name": "produto-atualizar",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "produto/atualizar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2176,
+        -640
+      ],
+      "id": "bed45801-9b69-471c-8a3c-3e48f2179cfa",
+      "name": "Webhook-produto-atualizar",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"id\": {{ $('produto-criar').item.json.id }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        -1776,
+        -832
+      ],
+      "id": "220e0b8a-a9c7-4fcb-affe-86482d72f0e9",
+      "name": "Respond",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"success\": true,\n  \"message\": \"Produto atualizado com sucesso!\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        -1776,
+        -640
+      ],
+      "id": "25b05532-da49-48fb-b037-1ad9232ca7d4",
+      "name": "Respond1",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "content": "\n# (Admin) Desativar produto >>\ndelete_product",
+        "height": 100,
+        "width": 720,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2976,
+        -416
+      ],
+      "id": "21d0ba2a-33ec-45b9-9436-50f355a173bb",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Produto deletado com sucesso!\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        -1776,
+        -432
+      ],
+      "id": "d08e3457-56fc-494a-8dd5-f644c4de4d2f",
+      "name": "Respond2",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "produto/desativar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2176,
+        -432
+      ],
+      "id": "a0a55325-fdba-4829-aae9-f10e90138f6f",
+      "name": "Webhook-produto-deletar",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "content": "\n# (Cliente/Admin/Caixa) Busca a lista de todos os produtos >> \nget_all_products",
+        "width": 720,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2960,
+        -240
+      ],
+      "id": "d5cd4a22-aaeb-4302-8b73-d1842f917c98",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        -1776,
+        -240
+      ],
+      "id": "1423a5c8-97e0-44b4-adf7-7f40e2874493",
+      "name": "Respond3",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "path": "produtos/listar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2176,
+        -240
+      ],
+      "id": "bd7875aa-4142-42ed-9d5d-4cf0713d5a01",
+      "name": "Webhook-produtos-listar",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_produtos_vitrine",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ativo",
+              "condition": "is",
+              "keyValue": "true"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1984,
+        -240
+      ],
+      "id": "557e7087-5a91-44c5-a2e0-b7ebfc8c4bd4",
+      "name": "produtos-listar",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "# SUPABASE \n",
+        "height": 1260,
+        "width": 700,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -1040
+      ],
+      "id": "29edcfaf-9f6d-402d-90f1-cf8a81239bc1",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "# --- PEDIDOS ---",
+        "height": 100,
+        "width": 700,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -928
+      ],
+      "id": "cf6e4c20-33ca-43a2-b7b8-272401bef801",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "content": "\n# (Caixa) Atendente lança um pedido de Mesa ou Balcão >>\ncreate_order_internal",
+        "height": 140,
+        "width": 720,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        -784
+      ],
+      "id": "e3f155fb-7f20-4c62-b297-802cc51b2f5e",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "content": "\n# (Admin/Cozinha) Atualiza o status de um pedido (ex: 'preparando', 'entregue') >>\nupdate_order_status",
+        "height": 140,
+        "width": 760,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1408,
+        -576
+      ],
+      "id": "3f95387d-339b-43da-9cae-9dd2f671f908",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "\n# (Cliente) Busca o status de um pedido específico >>\nget_order_status",
+        "height": 140,
+        "width": 720,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        -384
+      ],
+      "id": "27328a4f-60a1-4bfc-9da4-9bd05c5143ed",
+      "name": "Sticky Note15"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        -176,
+        -384
+      ],
+      "id": "ed6ce3d7-a34b-43fb-802d-7caacc0c0194",
+      "name": "Respond8",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "content": "# SUPABASE \n",
+        "height": 1500,
+        "width": 896,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        -1040
+      ],
+      "id": "bf4f7f58-c28c-4b8d-8b14-1ef9c443b7e2",
+      "name": "Sticky Note16"
+    },
+    {
+      "parameters": {
+        "content": "# --- MESAS ---",
+        "height": 100,
+        "width": 896,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        -960
+      ],
+      "id": "e3ebb34c-3afa-4038-afe2-df38d5994b9e",
+      "name": "Sticky Note17"
+    },
+    {
+      "parameters": {
+        "content": "\n# (Caixa) Atualiza o status de uma mesa (ex: 'LIVRE', 'OCUPADA') >>\nupdate_table_status",
+        "width": 720,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -400
+      ],
+      "id": "d29d778a-4897-4a6d-84c2-04c8699b1ed5",
+      "name": "Sticky Note18"
+    },
+    {
+      "parameters": {
+        "content": "\n# (Caixa) Busca o status de todas as mesas >>\nget_all_tables",
+        "width": 580,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        704,
+        -592
+      ],
+      "id": "e7a78a03-3208-4a3f-b650-1e23d906f855",
+      "name": "Sticky Note19"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        1744,
+        -592
+      ],
+      "id": "cbfcf448-efd6-4a38-a1c3-53fa65ce0222",
+      "name": "Respond9",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        1744,
+        -400
+      ],
+      "id": "396c1fe6-1466-4436-8071-754980ed7392",
+      "name": "Respond10",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "path": "pedido/buscar-status",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -576,
+        -384
+      ],
+      "id": "39d3cd42-1772-432d-8996-4196078074ba",
+      "name": "Webhook-pedido-buscar-status",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_pedidos_consulta",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id_pedido_publico",
+              "condition": "like",
+              "keyValue": "={{ $json.query.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -384
+      ],
+      "id": "ce99c7d5-2af6-4355-9956-b13fb53cce19",
+      "name": "pedido-buscar-status",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "path": "mesas/listar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        -592
+      ],
+      "id": "eee17597-d20a-496c-9c84-56b2811a7444",
+      "name": "Webhook-mesas-listar",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_mesas_com_garcom",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        -592
+      ],
+      "id": "39dd0ff7-884b-40be-97e5-01d9514b2bb8",
+      "name": "mesas-listar",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mesa/atualizar-status",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        -400
+      ],
+      "id": "d175328b-56b5-4748-82a6-1dbb9014f1be",
+      "name": "Webhook-mesa-atualizar-status",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "mesas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "=LIVRE"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        -400
+      ],
+      "id": "6cae487e-8c57-497d-8014-6c97e8c67d15",
+      "name": "atualizar-status",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "produto/criar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2176,
+        -832
+      ],
+      "id": "446bd56f-6036-4cf1-a179-b4d7ca4f0bcb",
+      "name": "Webhook-produto-criar",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4d436358-09e0-4540-9ebe-c825d73c7eca",
+              "name": "total_calculado",
+              "value": "={{ $json.body.itens.reduce((acc, item) => acc + (item.quantidade * item.preco_unitario), 0) }}",
+              "type": "string"
+            },
+            {
+              "id": "6b68779e-2b98-4052-98f5-bfd4cb8d6729",
+              "name": "id_pedido_publico",
+              "value": "={{ Math.floor(Math.random() * 900000) + 100000 }}",
+              "type": "string"
+            },
+            {
+              "id": "ce9870a3-e8a9-467b-966f-3de4c6a32ff9",
+              "name": "body.nome_cliente",
+              "value": "={{ $json.body.nome_cliente }}",
+              "type": "string"
+            },
+            {
+              "id": "b56ec774-2bd8-46cd-8fa3-d58f736e0bc0",
+              "name": "body.whatsapp_cliente",
+              "value": "={{ $json.body.whatsapp_cliente }}",
+              "type": "string"
+            },
+            {
+              "id": "7b2ca56b-ce3e-438f-bf8b-916c81a30829",
+              "name": "body.origem",
+              "value": "={{ $json.body.origem }}",
+              "type": "string"
+            },
+            {
+              "id": "225fc7c2-17b1-48a6-9bad-a302639c7c99",
+              "name": "body.itens",
+              "value": "={{ $json.body.itens }}",
+              "type": "array"
+            },
+            {
+              "id": "7a8a254b-7701-4cab-8e03-cda981ca87ff",
+              "name": "body.rua",
+              "value": "={{ $json.body.rua }}",
+              "type": "string"
+            },
+            {
+              "id": "964f2b25-ad96-4c94-8732-19c606227f9f",
+              "name": "body.quadra",
+              "value": "={{ $json.body.quadra }}",
+              "type": "string"
+            },
+            {
+              "id": "1629ab8a-78ab-4313-9f09-b69ca3364094",
+              "name": "body.lote",
+              "value": "={{ $json.body.lote }}",
+              "type": "string"
+            },
+            {
+              "id": "5b874a01-7c52-4a0f-91a7-9cb43aaf7298",
+              "name": "body.bairro",
+              "value": "={{ $json.body.bairro }}",
+              "type": "string"
+            },
+            {
+              "id": "ca8a819a-b74b-4f29-9901-d4d4a73ab6e8",
+              "name": "body.referencia",
+              "value": "={{ $json.body.referencia }}",
+              "type": "string"
+            },
+            {
+              "id": "25b8ac55-55b3-4dca-9911-edff504591ec",
+              "name": "body.itens[0].produto_id",
+              "value": "={{ $json.body.itens[0].produto_id }}",
+              "type": "number"
+            },
+            {
+              "id": "17d54fb1-24f2-467e-ae16-ba6b62e02e95",
+              "name": "body.itens[0].quantidade",
+              "value": "={{ $json.body.itens[0].quantidade }}",
+              "type": "number"
+            },
+            {
+              "id": "509d55f3-8a74-474f-99a6-fe6d6cebf572",
+              "name": "confirmado",
+              "value": "confirmado",
+              "type": "string"
+            },
+            {
+              "id": "a2ce71e6-4c1d-4ba4-b993-0fcdc1dfadfd",
+              "name": "body.nome_cliente",
+              "value": "={{ $json.body.nome_cliente }}",
+              "type": "string"
+            },
+            {
+              "id": "37a553a0-9f12-4c4d-a0ca-333ac49a8959",
+              "name": "body.whatsapp_cliente",
+              "value": "={{ $json.body.whatsapp_cliente }}",
+              "type": "string"
+            },
+            {
+              "id": "ff2ccb7d-9fd4-47d9-8823-a863797fc7a9",
+              "name": "body.forma_pagamento",
+              "value": "={{ $json.body.forma_pagamento }}",
+              "type": "string"
+            },
+            {
+              "id": "39285a17-00b9-4e33-8539-0edee4117a75",
+              "name": "body.observacoes",
+              "value": "={{ $json.body.observacoes }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -912,
+        528
+      ],
+      "id": "c92c1edb-bbe2-4882-95f8-1a2c83f0cecc",
+      "name": "Cálculo do Total",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "content": "# CRIA O PEDIDO EXTERNO",
+        "height": 540,
+        "width": 1580,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        288
+      ],
+      "id": "67e07fd4-e823-47e1-a372-69ed5eb8b1c1",
+      "name": "Sticky Note20"
+    },
+    {
+      "parameters": {
+        "content": "# BUSCA O PEDIDO E ENVIA PRA COZINHA",
+        "height": 380,
+        "width": 1580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        864
+      ],
+      "id": "028e622a-1a7c-4237-befb-3c3b21e60623",
+      "name": "Sticky Note21"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pedido/criar-app",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1104,
+        528
+      ],
+      "id": "5cf16b98-0685-47bb-a31c-fa4a66216bd8",
+      "name": "Webhook-pedido",
+      "webhookId": "79d7cc69-1d23-47bd-8007-404e91c9f62e"
+    },
+    {
+      "parameters": {
+        "path": "pedidos/listar-todos",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1056,
+        992
+      ],
+      "id": "85bc2cea-c873-40bc-a304-f6b6f794371e",
+      "name": "Webhook-listar-todos",
+      "webhookId": "79d7cc69-1d23-47bd-8007-404e91c9f62e"
+    },
+    {
+      "parameters": {
+        "tableId": "pedidos",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "id_pedido_publico",
+              "fieldValue": "={{ $('Cálculo do Total').item.json.id_pedido_publico }}"
+            },
+            {
+              "fieldId": "nome_cliente",
+              "fieldValue": "={{ $('Cálculo do Total').item.json.body.nome_cliente }}"
+            },
+            {
+              "fieldId": "whatsapp_cliente",
+              "fieldValue": "={{ $json.body.whatsapp_cliente }}"
+            },
+            {
+              "fieldId": "total",
+              "fieldValue": "={{ $('Cálculo do Total').item.json.total_calculado }}"
+            },
+            {
+              "fieldId": "origem",
+              "fieldValue": "={{ $('Cálculo do Total').item.json.body.origem }}"
+            },
+            {
+              "fieldId": "rua",
+              "fieldValue": "={{ $('Cálculo do Total').item.json.body.rua }}"
+            },
+            {
+              "fieldId": "quadra",
+              "fieldValue": "={{ $('Cálculo do Total').item.json.body.quadra }}"
+            },
+            {
+              "fieldId": "lote",
+              "fieldValue": "={{ $('Cálculo do Total').item.json.body.lote }}"
+            },
+            {
+              "fieldId": "referencia",
+              "fieldValue": "={{ $('Cálculo do Total').item.json.body.referencia }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $('Cálculo do Total').item.json.confirmado }}"
+            },
+            {
+              "fieldId": "bairro",
+              "fieldValue": "={{ $json.body.bairro }}"
+            },
+            {
+              "fieldId": "forma_pagamento",
+              "fieldValue": "={{ $json.body.forma_pagamento }}"
+            },
+            {
+              "fieldId": "observacoes",
+              "fieldValue": "={{ $json.body.observacoes }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        528
+      ],
+      "id": "81f2c99b-8025-4775-9165-2c8de7963d9f",
+      "name": "create_order",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body.itens",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        528
+      ],
+      "id": "a99e9279-1679-4b0c-8aa8-78ce6a1176fc",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "tableId": "itens_pedido",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "pedido_id",
+              "fieldValue": "={{ $('junta-itens').item.json.id_do_pedido }}"
+            },
+            {
+              "fieldId": "produto_id",
+              "fieldValue": "={{ $json[\"body.itens\"].produto_id }}"
+            },
+            {
+              "fieldId": "quantidade",
+              "fieldValue": "={{ $json[\"body.itens\"].quantidade }}"
+            },
+            {
+              "fieldId": "preco_unitario",
+              "fieldValue": "={{ $json[\"body.itens\"].preco_unitario }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        256,
+        544
+      ],
+      "id": "fe429bfc-e713-49c9-b9cc-e2c760f2b60a",
+      "name": "registra-itens",
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00621c06-61cc-4b33-a5b3-b2ad4234572e",
+              "name": "body.itens",
+              "value": "={{ $('Cálculo do Total').item.json.body.itens }}",
+              "type": "array"
+            },
+            {
+              "id": "8fe6fac8-8322-43d6-92b1-b401b9463205",
+              "name": "id_do_pedido",
+              "value": "={{ $('create_order').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -352,
+        528
+      ],
+      "id": "a982f1c1-5886-492e-968b-19262d6202f0",
+      "name": "junta-itens"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -16,
+        528
+      ],
+      "id": "f78b0d44-8ac1-4d2c-aeb6-e50d339feb05",
+      "name": "LoopItens"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"success\": true,\n  \"id_pedido_publico\": \"{{ $('Cálculo do Total').item.json.id_pedido_publico }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        176,
+        352
+      ],
+      "id": "d98352b0-d00f-4b50-aa1d-8a34b1eb492c",
+      "name": "Respond-itens"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "produtos",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "ativo",
+              "fieldValue": "false"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1984,
+        -432
+      ],
+      "id": "67d7d980-1dad-46f6-9407-975439150fb6",
+      "name": "deactivate_product",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "# ENVIAR STATUS WHATSAPP",
+        "height": 620,
+        "width": 1580,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        1296
+      ],
+      "id": "395106ec-ebd8-4b78-873d-0cfec03cc848",
+      "name": "Sticky Note22"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.status }}",
+                    "rightValue": "EM_PREPARO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5105ec25-a40e-4a63-bb01-abba57c348e1"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Em preparo"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "788e8281-1250-4a9e-b67a-18a8159a5b10",
+                    "leftValue": "={{ $json.body.status }}",
+                    "rightValue": "PRONTO_PARA_ENTREGA",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Esperando entregador"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5925ed89-26b3-4789-9411-8856b9bc5ead",
+                    "leftValue": "={{ $json.body.status }}",
+                    "rightValue": "A_CAMINHO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Saiu para entrega"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -832,
+        1536
+      ],
+      "id": "28827e84-84f0-451b-8aa8-aa61fd6aac65",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pedido/enviar-status-whatsapp",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        1552
+      ],
+      "id": "91504d00-43f2-45be-8109-84bbc371882c",
+      "name": "Webhook-send-whatsapp-status",
+      "webhookId": "79d7cc69-1d23-47bd-8007-404e91c9f62e"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f4238038-f8db-4712-a77e-5db773f44c69",
+              "name": "boa_noticia",
+              "value": "Boas notícias, ... seu pedido foi confirmado e já está sendo preparado! 👨‍🍳🔥",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -544,
+        1392
+      ],
+      "id": "8cc78181-3464-4583-b77d-144f550fa51f",
+      "name": "EM PREPARO"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ecdb9cab-6e01-4091-961f-5dcbf474dca0",
+              "name": "pronto",
+              "value": "🥳 Seu pedido está pronto!  Já estamos embalando para o entregador.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -544,
+        1552
+      ],
+      "id": "1c621c4d-c518-4fe4-819c-e608693029b2",
+      "name": "PRONTO"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7ff1c8cd-0d9c-4d61-bea8-bc269095b02f",
+              "name": "a_caminho",
+              "value": "Pode colocar a mesa! 🛵💨 Nosso entregador já saiu com seu pedido.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -544,
+        1712
+      ],
+      "id": "08ccb6d1-1be4-4108-8195-97329fb7d281",
+      "name": "A CAMINHO"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evolution-up.uptecnology.com.br/message/sendText/food",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "=31598AB10245-41AE-9BF9-EEA05FCF4CCE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "=55{{ $('Cálculo do Total').item.json.body.whatsapp_cliente }}@s.whatsapp.net"
+            },
+            {
+              "name": "text",
+              "value": "=👋 Oii,  {{ $('Cálculo do Total').item.json.body.nome_cliente }}\n\nRecebemos seu pedido e ele já está na nossa fila!\nNúmero *{{ $('Cálculo do Total').item.json.id_pedido_publico }}*\n\nEnviaremos todas as atualizações do seu pedido diretamente aqui no seu WhatsApp.\n\nMas, tem a opção de acompanhar pelo nosso app\n\n👇\nhttps://food.uptecnology.com.br/acompanhar.html\n\nAgradecemos a preferência! 😊"
+            },
+            {
+              "name": "delay",
+              "value": "={{ 5200 }}"
+            },
+            {
+              "name": "presence",
+              "value": "composing"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bdb487c5-7804-433e-8626-6690557cbfa9",
+      "name": "Evolution-criar-id",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -544,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evolution-up.uptecnology.com.br/message/sendText/food",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "=31598AB10245-41AE-9BF9-EEA05FCF4CCE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "=55{{ $('Webhook-send-whatsapp-status').item.json.body.whatsapp_cliente }}@s.whatsapp.net"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.mensagem_final }}"
+            },
+            {
+              "name": "delay",
+              "value": "={{ 5200 }}"
+            },
+            {
+              "name": "presence",
+              "value": "composing"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "488d4376-2d6a-48a4-a60b-e986e7afc235",
+      "name": "Evolution-status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -32,
+        1552
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# ENVIAR PEDIDO PARA ENTREGADOR ========= DAR BAIXA NO PEDIDO ENTREGUE",
+        "height": 320,
+        "width": 1580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        1952
+      ],
+      "id": "15627aab-a3c0-4451-ad3a-2cf83af37880",
+      "name": "Sticky Note23"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "delivery/send-details",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1072,
+        2048
+      ],
+      "id": "9ae3c216-feb2-43c2-8686-22bf66288a71",
+      "name": "Webhook-send-details",
+      "webhookId": "79d7cc69-1d23-47bd-8007-404e91c9f62e"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://evolution-up.uptecnology.com.br/message/sendText/food",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "=31598AB10245-41AE-9BF9-EEA05FCF4CCE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $json.entregador_id }}@s.whatsapp.net"
+            },
+            {
+              "name": "text",
+              "value": "=🛵 *NOVA ENTREGA DISPONÍVEL!*\n     PEDIDO:  *{{ $json.id_pedido_publico }}*\n\n*CLIENTE:* \n{{ $json.nome_cliente }}\n\n📌==================\n\n🏡 *ENDEREÇO:*\n*{{ $json.bairro }}*\n*Rua:* {{ $json.rua }}, Qd. {{ $json.quadra }}, Lote {{ $json.lote }}\n\n✅ *REFERÊNCIA:* \n{{ $json.referencia }}\n\n*VALOR:* R$: *{{ $json.total }}*\n\n*CONTATO:* {{ $json.whatsapp_cliente }}\n\n💰 *FORMA DE PAGAMENTO:* {{ $json.forma_pagamento }}\n\n==================\n\n📢 *CONFIRMAR ENTREGA*\n\nhttps://food-teste.uptecnology.com.br/entregador.html\n\n"
+            },
+            {
+              "name": "delay",
+              "value": "={{ 5200 }}"
+            },
+            {
+              "name": "presence",
+              "value": "composing"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9bcefba5-d95f-4511-9094-ca5d004a3748",
+      "name": "Evolution-entregador",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -704,
+        2048
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\": true}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -512,
+        2048
+      ],
+      "id": "41f45f7a-367b-4eb6-9791-dfca360958af",
+      "name": "Respond entregador"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -656,
+        992
+      ],
+      "id": "466db096-607e-4387-bbc1-c247bf748ccf",
+      "name": "Respond-pedidos"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_pedidos_ativos",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        992
+      ],
+      "id": "a8a84863-743a-41db-b015-8b08ad58e632",
+      "name": "Get many rows",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pega todos os dados que chegam do nó 'Merge'\nconst dadosEntrada = $input.item.json;\n\n// Pega o nome do cliente para uma mensagem mais pessoal\nconst nomeCliente = dadosEntrada.nome_cliente || 'Cliente';\n\n// Descobre qual das mensagens existe e a armazena.\n// O \"||\" funciona como um \"OU\". Ele pega o primeiro valor que não for nulo/vazio.\n// Isso torna o código à prova de futuro. Se adicionar um novo status, é só adicionar aqui.\nlet textoDaMensagem = dadosEntrada.boa_noticia || dadosEntrada.pronto || dadosEntrada.a_caminho || 'Seu pedido teve uma atualização.';\n\n// Monta o objeto de saída.\n// A mágica do \"...dadosEntrada\" é que ele copia todos os campos que já vieram\n// (como whatsapp_cliente, id_pedido_publico, etc.) e nós apenas adicionamos o novo campo.\nconst dadosSaida = {\n  ...dadosEntrada,\n  mensagem_final: textoDaMensagem\n};\n\n// Retorna o objeto completo e padronizado para o próximo nó.\nreturn dadosSaida;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        1552
+      ],
+      "id": "87cf0a16-556c-4350-bcd2-b31cd693f87e",
+      "name": "balaioDeItens"
+    },
+    {
+      "parameters": {
+        "content": "# LANÇAR PEDIDO INTERNO",
+        "height": 540,
+        "width": 2240,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        3184
+      ],
+      "id": "2a85c332-32cf-42f0-8f16-98b3282e28d1",
+      "name": "Sticky Note25"
+    },
+    {
+      "parameters": {
+        "content": "\n# (Caixa) PRODUTOS LISTAR INTERNO >>\nget_produtos_listar_interno",
+        "width": 720,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -192
+      ],
+      "id": "d98fad2d-6129-4111-9e27-c6d280b1fcaa",
+      "name": "Sticky Note26"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        1744,
+        -192
+      ],
+      "id": "3dfb910a-ef70-4e77-922d-cf919751d1d8",
+      "name": "Respond12",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "produtos",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ativo",
+              "condition": "eq",
+              "keyValue": "true"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        -192
+      ],
+      "id": "b4152bf0-e044-49bc-9dfe-43c88e8d9981",
+      "name": "listar-interno",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "# CANCELAR PEDIDO INTEIRO",
+        "height": 428,
+        "width": 1440,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        3760
+      ],
+      "id": "0c9f7a21-7585-4f79-a3b1-1ad231bb4dfd",
+      "name": "Sticky Note29"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pedido/atualizar-status",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "29a3334d-d42d-4758-91fa-b5c511d32f5d",
+      "name": "Webhook-pedido-atualizar-status",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -576,
+        -576
+      ],
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "pedidos",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $json.body.status }}"
+            },
+            {
+              "fieldId": "forma_pagamento",
+              "fieldValue": "={{ $json.body.forma_pagamento }}"
+            }
+          ]
+        }
+      },
+      "id": "23dd2927-774e-4a69-822a-b1eca62df6b8",
+      "name": "pedido-atualizar-status",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -576
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n    \"success\": true,\n    \"message\": \"Status atualizado com sucesso!\"\n}",
+        "options": {}
+      },
+      "id": "88fd99fc-f67a-4fad-9d4c-bf39665b0019",
+      "name": "Respond6",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -176,
+        -576
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"success\": true, \"message\": \"Pedido cancelado com sucesso!\" }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        32,
+        3968
+      ],
+      "id": "3565caac-77ad-428f-baf8-c5be1a683906",
+      "name": "Respond Success3"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "itens_pedido",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "pedido_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -624,
+        3952
+      ],
+      "id": "02a8d04e-8f24-4131-b28a-c4b563160054",
+      "name": "Get_Todos_Itens_Do_Pedido2",
+      "alwaysOutputData": true,
+      "executeOnce": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pedido/cancelar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        3952
+      ],
+      "id": "ebf06d95-1525-40b3-b5c7-f2b9e13fca14",
+      "name": "Webhook-cancelar-pedido-inteiro",
+      "webhookId": "79d7cc69-1d23-47bd-8007-404e91c9f62e"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "pedidos",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.pedido_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "CANCELADO"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -832,
+        3952
+      ],
+      "id": "ec7de589-16e2-43fe-a812-ed0d3983a323",
+      "name": "Update_Status_Pedido_Cancelado",
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "95255542-b425-4e17-a6cc-c996f2abe7d2",
+              "leftValue": "={{ $json.body.id_mesa }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -416,
+        3952
+      ],
+      "id": "7c5d3463-4f4b-47bf-819a-006ab040386d",
+      "name": "IF_Pedido_Tem_Mesa"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "mesas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id_mesa }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "LIVRE"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        3824
+      ],
+      "id": "7c5324e7-5a44-4117-9157-38ea5c500554",
+      "name": "Update_Status_Mesa_Livre",
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pedido/lancar-interno",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "710c07a2-5bf8-4f2a-b9f1-1ccad2765b81",
+      "name": "Webhook: Lançar Pedido Interno",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1024,
+        3328
+      ],
+      "webhookId": "9d8b7a0c-6f1e-4c7b-8a9d-5f4a1b2c3d0e"
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputItem = $input.item;\nconst randomPart = Math.random().toString(36).substr(2, 6).toUpperCase();\ninputItem.json.publicId = randomPart;\nreturn inputItem;"
+      },
+      "id": "2e7aa665-f7c6-46c9-9475-de235b2326ab",
+      "name": "1. Generate Public ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        3328
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "pedidos",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "id_pedido_publico",
+              "fieldValue": "={{ $json.publicId }}"
+            },
+            {
+              "fieldId": "nome_cliente",
+              "fieldValue": "={{ $json.body.origem === 'MESA' ? 'Mesa ' + $json.body.numero_mesa : 'Balcão' }}"
+            },
+            {
+              "fieldId": "total",
+              "fieldValue": "={{ $json.body.total }}"
+            },
+            {
+              "fieldId": "origem",
+              "fieldValue": "={{ $json.body.origem }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "CONFIRMADO"
+            },
+            {
+              "fieldId": "id_mesa",
+              "fieldValue": "={{ $json.body.id_mesa }}"
+            },
+            {
+              "fieldId": "whatsapp_cliente",
+              "fieldValue": "PED-INTERNO"
+            }
+          ]
+        }
+      },
+      "id": "7e857734-c784-42a7-9eb3-5ba6dffad1ab",
+      "name": "2. Create Pedido (Master)",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        3328
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "itensParaLoop",
+        "options": {}
+      },
+      "id": "7eb184ba-2d76-4484-9c8c-84fab4b9537d",
+      "name": "4. Split Out Itens",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        3328
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "itens_pedido",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "pedido_id",
+              "fieldValue": "={{ $('3. Prepare for Loop').item.json.id_pedido_criado }}"
+            },
+            {
+              "fieldId": "produto_id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldId": "quantidade",
+              "fieldValue": "={{ $json.quantidade }}"
+            },
+            {
+              "fieldId": "preco_unitario",
+              "fieldValue": "={{ $json.preco }}"
+            }
+          ]
+        }
+      },
+      "id": "37195255-ec3e-4d0d-b034-50d09b2662d9",
+      "name": "5. Registrar Item do Pedido",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        416,
+        3456
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "996e52e4-e9b5-4d31-8929-2255e7955aeb",
+      "name": "6. Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        128,
+        3328
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "mesas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "numero_mesa",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook: Lançar Pedido Interno').item.json.body.numero_mesa }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "OCUPADA"
+            }
+          ]
+        }
+      },
+      "id": "c837f28d-5ba2-49b5-8820-881c02824593",
+      "name": "8. Update Mesa para Ocupada",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        640,
+        3216
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "c58f562d-3875-4dee-a9b0-1034caee5d03",
+      "name": "9. Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        656,
+        3424
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6e338c23-d6c6-43b9-a2e6-51d08d98d003",
+              "name": "itensParaLoop",
+              "value": "={{ $('1. Generate Public ID').item.json.body.itens }}",
+              "type": "array"
+            },
+            {
+              "id": "87c53d06-1875-498c-be3a-67a6d8d64111",
+              "name": "id_pedido_criado",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "e98e0a29-f472-4d7a-a629-9e798e3b5e1a",
+              "name": "id_mesa_do_pedido",
+              "value": "={{ $('1. Generate Public ID').item.json.body.id_mesa }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5a956d2b-153f-4f95-820c-2c353e30e114",
+      "name": "3. Prepare for Loop",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -352,
+        3328
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "10257b76-ad34-4dee-9cad-b9d14d00aa4d",
+              "leftValue": "={{ $('Webhook: Lançar Pedido Interno').item.json.body.numero_mesa }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        3296
+      ],
+      "id": "445b5bf9-3805-47ce-81c3-c00c37c34ee0",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"success\": true, \"message\": \"Já existe uma imagem com esse nome no servidor, renomeie\" }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        7792,
+        -752
+      ],
+      "id": "bede87cf-0c4c-4454-a3e8-6e167da5494b",
+      "name": "Respond to Webhook FTP1"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        1744,
+        -800
+      ],
+      "id": "eb0fc650-6d0c-442c-9f73-18e77d536999",
+      "name": "Respond13",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mesas/criar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        -800
+      ],
+      "id": "74062f71-d81b-4b30-b82a-e11a2ac9cb3d",
+      "name": "Webhook-mesas-criar",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "tableId": "mesas",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "numero_mesa",
+              "fieldValue": "={{ $json.body.numero_mesa }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "LIVRE"
+            },
+            {
+              "fieldId": "garcom_responsavel",
+              "fieldValue": "={{ $json.body.garcom_responsavel }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        -800
+      ],
+      "id": "9c083059-3971-472c-8b3b-5646697f9279",
+      "name": "mesas-criar",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "\n# (MESA) FINALIZAR LIBERAR MESA >>\nfinalize_order_and_table",
+        "width": 720
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        560,
+        32
+      ],
+      "id": "fe7cd8e9-2879-48f4-940f-19522414692f",
+      "name": "Sticky Note39"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        2032,
+        48
+      ],
+      "id": "f830220e-0103-415a-b506-bd315fee2908",
+      "name": "Respond14",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pedido/finalizar-e-liberar-mesa",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        32
+      ],
+      "id": "0d4030e6-3f48-4fb5-860a-e1cae7440052",
+      "name": "Webhook-finalizar-e-liberar-mesa",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "pedidos",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.pedido_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "ENTREGUE"
+            },
+            {
+              "fieldId": "forma_pagamento",
+              "fieldValue": "={{ $json.body.forma_pagamento }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        32
+      ],
+      "id": "08510abd-cc35-4269-9605-0df7708267f1",
+      "name": "finalizar-e-liberar-mesa",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4b08e581-9ac2-48ec-ae67-f09c860a7a17",
+              "leftValue": "={{ $json.id_mesa }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1712,
+        32
+      ],
+      "id": "daefc953-1a41-496b-99f2-5f6b3c5b9495",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "mesas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id_mesa }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "LIVRE"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1888,
+        -64
+      ],
+      "id": "1199efd0-7395-4588-8ab9-df785b1a3e54",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Pedido finalizado com sucesso!\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        128,
+        2048
+      ],
+      "id": "4d6a77e9-6aa5-4f22-8e29-500663dbc6bf",
+      "name": "Respond entregador1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pedido/atualizar-entregador",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        2048
+      ],
+      "id": "72f19a58-5236-41b7-9ec7-2af4fb61e09d",
+      "name": "Webhook-atualizar-entregador",
+      "webhookId": "79d7cc69-1d23-47bd-8007-404e91c9f62e"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "pedidos",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id_pedido_publico",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.codigo_pedido }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "ENTREGUE"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        2048
+      ],
+      "id": "529f34ed-6135-4e40-a48b-304dffcd6ae1",
+      "name": "atualizar-entregador",
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# SUPABASE \n",
+        "height": 1484,
+        "width": 976,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4272,
+        -1072
+      ],
+      "id": "8f983a52-d906-4ddf-bb06-fee5fa4d27ca",
+      "name": "Sticky Note40"
+    },
+    {
+      "parameters": {
+        "content": "# --- CATEGORIAS PRODUTOS\n ---",
+        "height": 100,
+        "width": 720,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4272,
+        -992
+      ],
+      "id": "67b858fc-4ed8-446a-8f37-4518b3986708",
+      "name": "Sticky Note41"
+    },
+    {
+      "parameters": {
+        "content": "\n# GET LISTAR CATEGORIAS >>\nget_all_categories",
+        "width": 580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3696,
+        -864
+      ],
+      "id": "61790300-f672-4e2a-852e-a099c6eb0f71",
+      "name": "Sticky Note42"
+    },
+    {
+      "parameters": {
+        "content": "\n# CREATE CRIAR CATEGORIAS >>\ncreate_category",
+        "width": 580,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3696,
+        -640
+      ],
+      "id": "5d254fe6-09d5-4c0c-8123-40db74a7fa3c",
+      "name": "Sticky Note43"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "fe9e4028-46ab-4817-b6cd-4ca4ead77dd2",
+      "name": "Respond GET2",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        4688,
+        -848
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_categorias_ordenadas"
+      },
+      "id": "01453761-72b7-402d-8e34-d05ce0d542d1",
+      "name": "Get-categorias-listar",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4512,
+        -848
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "categorias/listar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "98fe56af-42f7-4f18-b512-ec87b3eeb988",
+      "name": "webhook-categorias-listar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        4336,
+        -848
+      ],
+      "webhookId": "09f83f1d-f88a-4c22-9214-93836d52f6c8"
+    },
+    {
+      "parameters": {
+        "content": "\n# UPDATE ATUALIZAR CATEGORIAS >>\nupdate_category",
+        "width": 580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3696,
+        -432
+      ],
+      "id": "b710f1f9-82e0-4244-993d-8599f2269cd0",
+      "name": "Sticky Note44"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "5d0be860-e544-4834-af4f-7ecca42ba5a1",
+      "name": "Respond UPDATE3",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        4672,
+        -432
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "categoria/atualizar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "e7b2e404-66ec-4649-b243-f34d266117ef",
+      "name": "webhook-categoria-atualizar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        4336,
+        -432
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "categorias",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nome",
+              "fieldValue": "={{ $json.body.nome }}"
+            },
+            {
+              "fieldId": "cor_fundo",
+              "fieldValue": "={{ $json.body.cor_fundo }}"
+            },
+            {
+              "fieldId": "url_icone",
+              "fieldValue": "={{ $json.body.url_icone }}"
+            }
+          ]
+        }
+      },
+      "id": "e1cd6915-3310-495d-be90-18c2fdc44642",
+      "name": "categoria-atualizar",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4496,
+        -432
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "\n# REORDENAR CATEGORIAS >>\nreorder_categories",
+        "height": 416,
+        "width": 1540,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3696,
+        -224
+      ],
+      "id": "3ad60f33-1d70-434f-9d14-1088c6d37713",
+      "name": "Sticky Note45"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "aa59093e-6087-4fc5-8879-c18d5604f133",
+      "name": "Respond UPDATE4",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        5072,
+        -176
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "categorias",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Preparador_de_Fila').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "ordem_exibicao",
+              "fieldValue": "={{ $('Preparador_de_Fila').item.json.nova_ordem }}"
+            }
+          ]
+        }
+      },
+      "id": "8cbfd9f9-9feb-45cc-9aea-6be61f4160d9",
+      "name": "categoria-reordenar",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        5072,
+        -32
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "categorias/reordenar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "af899a1a-e192-464f-ac20-54a090eccd64",
+      "name": "webhook-categoria-reordenar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        4336,
+        -160
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst idsOrdenados = $json.body.ordem;\n\nconst itensParaAtualizar = idsOrdenados.map((id, index) => ({ \n  'id': id,\n  'nova_ordem': index \n}));\n\n// Retorna a lista de objetos diretamente.\nreturn itensParaAtualizar;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4528,
+        -160
+      ],
+      "id": "a85bdbfa-9b02-4582-b09f-b769ea4043bf",
+      "name": "Preparador_de_Fila"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "categoria/criar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "15adccb8-ec69-4ce6-84be-da5a94d4b7ef",
+      "name": "1. Webhook: Pedido Chega",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        4336,
+        -640
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_ordem_maxima_categoria"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4512,
+        -640
+      ],
+      "id": "c822afff-b427-4048-8f61-f715d0cb3e0b",
+      "name": "2. Espião (Get Max Ordem)",
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pega os dados do nó anterior (o nosso \"Espião\" que agora usa a VIEW)\nconst resultadoDaView = $input.first().json;\n\n// Pega os dados que vieram originalmente do nosso painel admin\n// IMPORTANTE: Mude o nome '1. Webhook: Pedido Chega' se o seu for diferente!\nconst webhookData = $('1. Webhook: Pedido Chega').item.json.body;\n\n// Pega o valor máximo diretamente da view.\nconst maxOrdem = resultadoDaView.max_ordem;\n\n// Calcula a próxima posição na fila\nconst novaOrdem = maxOrdem + 1;\n\n// Monta o pacote final de dados para enviar ao Supabase\nconst payloadFinal = {\n  ...webhookData,\n  ordem_exibicao: novaOrdem\n};\n\n// Retorna o pacote completo para o próximo nó\nreturn payloadFinal;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4688,
+        -640
+      ],
+      "id": "37b92a64-f35a-4f76-8a01-c554c946b570",
+      "name": "3. O Matemático (Prepara Dados)"
+    },
+    {
+      "parameters": {
+        "tableId": "categorias",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nome",
+              "fieldValue": "={{ $json.nome }}"
+            },
+            {
+              "fieldId": "cor_fundo",
+              "fieldValue": "={{ $json.cor_fundo }}"
+            },
+            {
+              "fieldId": "url_icone",
+              "fieldValue": "={{ $json.url_icone }}"
+            },
+            {
+              "fieldId": "ordem_exibicao",
+              "fieldValue": "={{ $json.ordem_exibicao }}"
+            }
+          ]
+        }
+      },
+      "id": "9d76e3a0-20cf-46e8-9ca1-0241bb45be6d",
+      "name": "4. O Criador (Supabase Create)",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4864,
+        -640
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "79aa3d32-2775-4db2-836e-62275e3205ef",
+      "name": "5. Respond (Sucesso!)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        5056,
+        -640
+      ]
+    },
+    {
+      "parameters": {
+        "content": "\n# DELET CATEGORIAS >>\ndelete_category",
+        "width": 580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3696,
+        224
+      ],
+      "id": "54c17577-00b1-43d1-91ac-8fc1784f1b69",
+      "name": "Sticky Note46"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "7a63a720-53ab-4fe3-9d61-f1b4416408c1",
+      "name": "Respond UPDATE5",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        4784,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "categoria/deletar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "8a048381-f537-4e0a-a637-5a8ca875d2cc",
+      "name": "webhook-categoria-deletar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        4336,
+        224
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "categorias",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        }
+      },
+      "id": "25414a5b-f320-474d-9206-4dd87d123aed",
+      "name": "categoria-deletar",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4560,
+        224
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        4736,
+        -160
+      ],
+      "id": "05277fc6-4f4a-4cd8-8e13-43ff438a5856",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "content": "# SUPABASE \n",
+        "height": 1600,
+        "width": 720,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5952,
+        -1072
+      ],
+      "id": "6e1db639-e61c-49f1-b8fd-98df3362ec4b",
+      "name": "Sticky Note47"
+    },
+    {
+      "parameters": {
+        "content": "# --- BANNERS\n ---",
+        "height": 100,
+        "width": 720,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5952,
+        -992
+      ],
+      "id": "43f4122a-4ea1-4997-8079-4bcc90541e2e",
+      "name": "Sticky Note48"
+    },
+    {
+      "parameters": {
+        "content": "\n# GET LISTAR BANNERS >>\nget_all_banners:",
+        "width": 580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5376,
+        -864
+      ],
+      "id": "4835d1d2-e20a-4edb-9b49-ca36f08f6e3c",
+      "name": "Sticky Note49"
+    },
+    {
+      "parameters": {
+        "content": "\n# CREATE BANNERS >>\ncreate_banner",
+        "width": 580,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5376,
+        -640
+      ],
+      "id": "0c0583d5-1a01-48dc-ba9b-ecb183716c8c",
+      "name": "Sticky Note50"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "78f3d861-361c-4fb4-8b02-a6943130abb6",
+      "name": "Respond GET3",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        6464,
+        -848
+      ]
+    },
+    {
+      "parameters": {
+        "content": "\n# UPDATE ATUALIZAR BANNERS >>\nupdate_banner",
+        "width": 580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5376,
+        -432
+      ],
+      "id": "1ab9c57e-2175-4901-8a12-d622ff010f2d",
+      "name": "Sticky Note51"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "c1995334-aa06-4048-bfb8-08a316482838",
+      "name": "Respond UPDATE6",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        6464,
+        -432
+      ]
+    },
+    {
+      "parameters": {
+        "content": "\n# REORDENAR BANNERS >>\nreorder_banners",
+        "height": 320,
+        "width": 1540,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5376,
+        -224
+      ],
+      "id": "cc9808cf-58ac-47e9-a882-da47c0fabbfe",
+      "name": "Sticky Note52"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "394c2a08-62c7-430a-8bb9-2d4f322b7895",
+      "name": "Respond UPDATE7",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        6736,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        6544,
+        -160
+      ],
+      "id": "5ca4cbb8-beab-4833-b07d-b71434a367b5",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "28a1c135-11ff-4f1a-8458-4a89badc8407",
+      "name": "5. Respond (Sucesso!)1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        6672,
+        -640
+      ]
+    },
+    {
+      "parameters": {
+        "content": "\n# DELETE BANNERS >>\ndelete_banner",
+        "height": 200,
+        "width": 1540,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5376,
+        144
+      ],
+      "id": "b1a56404-978c-4dac-9f85-67c253345269",
+      "name": "Sticky Note53"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "06608bcc-67ac-4712-b5ac-595942ad668c",
+      "name": "Respond UPDATE8",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        6656,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        6352,
+        -160
+      ],
+      "id": "f2c7c4b4-214f-4ddb-9830-43befe7c830f",
+      "name": "Split Out2"
+    },
+    {
+      "parameters": {
+        "content": "\n# ALTERNAR STATUS >>\ntoggle_banner_status",
+        "width": 580,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5376,
+        384
+      ],
+      "id": "a48b23ee-1758-4539-be8b-ddc26a1a20a7",
+      "name": "Sticky Note54"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "7bf026a5-85b0-442c-bc69-646f677bbf3d",
+      "name": "Respond UPDATE9",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        6464,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "path": "banners/listar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b078260d-5c18-482f-9039-426c3f5fc332",
+      "name": "webhook-banners-listar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        6016,
+        -848
+      ],
+      "webhookId": "09f83f1d-f88a-4c22-9214-93836d52f6c8"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_banners_ordenados"
+      },
+      "id": "4efb1eab-0155-4bcf-a19c-06abf91bc8f5",
+      "name": "banners-listar",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        6240,
+        -848
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "banner/criar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "4db68985-d662-4be4-a7b0-c15cd9cecc64",
+      "name": "Webhook-banner-criar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        6016,
+        -640
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "banner/atualizar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "873890a0-01ee-4116-b34a-588cf3dda79c",
+      "name": "webhook-banner-atualizar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        6016,
+        -432
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "banners_promocionais",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "url_imagem",
+              "fieldValue": "={{ $json.body.url_imagem }}"
+            },
+            {
+              "fieldId": "link_ancora",
+              "fieldValue": "={{ $json.body.link_ancora }}"
+            }
+          ]
+        }
+      },
+      "id": "6eaaecf2-af8c-4ee3-8353-94ba29baa3b0",
+      "name": "banner-atualizar",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        6240,
+        -432
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "banners/reordenar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "3f374789-62c4-4f93-966d-734a95cb8e20",
+      "name": "webhook-banners-reordenar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        6000,
+        -160
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "banner/deletar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "8fb8b64f-8548-4778-8a94-ae506e5558cf",
+      "name": "webhook-banner-deletar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        6016,
+        176
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "banner/alternar-status",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "5cb80b6c-6da3-4b7b-b601-b2738523e646",
+      "name": "webhook-banner-alternar-status",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        6016,
+        384
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "banners_promocionais",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "ativo",
+              "fieldValue": "=true"
+            }
+          ]
+        }
+      },
+      "id": "ad397399-9261-4675-a610-04f09e86767b",
+      "name": "banner-alternar-status",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        6240,
+        384
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_ordem_maxima_banner"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        6192,
+        -640
+      ],
+      "id": "b60a1deb-c646-4b66-9c27-7474cf70318e",
+      "name": "Espiao_banner-criar",
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const resultadoDaView = $input.first().json;\nconst webhookData = $('Webhook-banner-criar').item.json.body; // Mude 'Webhook' se o nome do seu nó for outro\n\n// Pega o valor máximo (-1 se for a primeira vez)\nconst maxOrdem = resultadoDaView.max_ordem;\n\n// Calcula a próxima posição ( -1 + 1 = 0 )\nconst novaOrdem = maxOrdem + 1;\n\nconst payloadFinal = {\n  ...webhookData,\n  ordem_exibicao: novaOrdem\n};\n\nreturn payloadFinal;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6352,
+        -640
+      ],
+      "id": "636cad83-bcc0-4d61-b156-82a5bd54e49a",
+      "name": "O_Matemático"
+    },
+    {
+      "parameters": {
+        "tableId": "banners_promocionais",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "url_imagem",
+              "fieldValue": "={{ $json.url_imagem }}"
+            },
+            {
+              "fieldId": "link_ancora",
+              "fieldValue": "={{ $json.link_ancora }}"
+            },
+            {
+              "fieldId": "ordem_exibicao",
+              "fieldValue": "={{ $json.ordem_exibicao }}"
+            },
+            {
+              "fieldId": "ativo",
+              "fieldValue": "true"
+            }
+          ]
+        }
+      },
+      "id": "aa186996-291d-4859-a369-257f7595f4fc",
+      "name": "Criador",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        6512,
+        -640
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "banners_promocionais",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        }
+      },
+      "id": "c6b78a30-40a3-4b12-962c-0132fcdbe896",
+      "name": "categoria-banner-deletar",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        6240,
+        176
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst idsOrdenados = $json.body.ordem;\n\nconst itensParaAtualizar = idsOrdenados.map((id, index) => ({ \n  'id': id,\n  'nova_ordem': index \n}));\n\n// Retorna a lista de objetos diretamente.\nreturn itensParaAtualizar;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6176,
+        -160
+      ],
+      "id": "0f910e7b-de51-4dec-9594-a1bed4554f44",
+      "name": "Prepara_Fila"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "banners_promocionais",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Prepara_Fila').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "ordem_exibicao",
+              "fieldValue": "={{ $('Prepara_Fila').item.json.nova_ordem }}"
+            }
+          ]
+        }
+      },
+      "id": "5ddf7c40-21ee-4f4f-a1ca-7f78f27037f3",
+      "name": "banner-reordenar",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        6736,
+        -80
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        4896,
+        -160
+      ],
+      "id": "e73cff00-29f8-402b-9ac5-530e1b41973a",
+      "name": "Loop Over Items2"
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://storage.uptecnology.com.br/api/user/files/{{$json[\"url_imagem\"].match(/ziplineFileId=([^&]+)/)[1]}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "MTc1MTQwNjgxOTg3Nw==.YzU1OTliMTI2NTNkNGE1OTExZjMzODZiMDJjYzUxNWYuN2U0YzM1NGE0ZjlmNTRkZTllMTcyMzI5ZGVlOTYwMDUyM2VmMDgwYWI1YTMxZWYzNTQ1OTIzMGFiNTdkNjQ1OGUyNmY1ZDg1NzhmZmI2ZjNlMzY0ZmE4YTg5NmIzZTcyZTNkNGQ5Mzg1ZTllODNiZjYzMmVlYjg5NjdmNTc2ODkzMTljMzAzODA1MGNhMGI4Y2EwMTQyYmI0NTZlNTJhZQ=="
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "id",
+              "value": "="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6416,
+        176
+      ],
+      "id": "d3f3d6e3-d5f6-48d1-8ff5-5910e76c0a24",
+      "name": "Delete_Zipline1",
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "277d4754-7e4c-4868-a717-0310d4b86b02",
+      "name": "Respond UPDATE10",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        7552,
+        -176
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "banner/deletar-limpar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "44060f17-fc12-4b5f-996d-c8266e121bb2",
+      "name": "webhook-banner-deletar-limpar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        7152,
+        -176
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://storage.uptecnology.com.br/api/user/files/{{ $json.body.fileIdentifier }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "MTc1MTQwNjgxOTg3Nw==.YzU1OTliMTI2NTNkNGE1OTExZjMzODZiMDJjYzUxNWYuN2U0YzM1NGE0ZjlmNTRkZTllMTcyMzI5ZGVlOTYwMDUyM2VmMDgwYWI1YTMxZWYzNTQ1OTIzMGFiNTdkNjQ1OGUyNmY1ZDg1NzhmZmI2ZjNlMzY0ZmE4YTg5NmIzZTcyZTNkNGQ5Mzg1ZTllODNiZjYzMmVlYjg5NjdmNTc2ODkzMTljMzAzODA1MGNhMGI4Y2EwMTQyYmI0NTZlNTJhZQ=="
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "id",
+              "value": "="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7360,
+        -176
+      ],
+      "id": "8d98bc1d-c12f-4efc-b2a9-69b2929c6e56",
+      "name": "Delete_Zipline-banner-limpar",
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## DELET BANNER BOTÃO LIMPAR",
+        "height": 240,
+        "width": 620,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        7104,
+        -240
+      ],
+      "id": "f757b2d9-159d-4b17-958a-a6f1253f1bbf",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "\n# BUSCA POR DATA >>\nget_finalized_orders_by_date",
+        "height": 140,
+        "width": 720,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        -160
+      ],
+      "id": "daf95d28-b1e5-40c9-989a-5b775a078274",
+      "name": "Sticky Note55"
+    },
+    {
+      "parameters": {
+        "content": "# SUPABASE \n",
+        "height": 564,
+        "width": 800,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3888,
+        -1040
+      ],
+      "id": "137db652-0c53-4da0-8eed-1dbb7fa06111",
+      "name": "Sticky Note56"
+    },
+    {
+      "parameters": {
+        "content": "# --- DASHBOARD FINANCEIRO ---",
+        "height": 100,
+        "width": 800,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3888,
+        -960
+      ],
+      "id": "9ee14a97-245a-476b-a1dd-5a86980e9c92",
+      "name": "Sticky Note57"
+    },
+    {
+      "parameters": {
+        "content": "\n# Relatório resumido Tela Admin >>\ndashboard/stats",
+        "height": 100,
+        "width": 580,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -4464,
+        -816
+      ],
+      "id": "373c869b-2151-46b5-8e62-9db6f19290d2",
+      "name": "Sticky Note59"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        -3424,
+        -832
+      ],
+      "id": "6fd55a8b-d601-45e8-bc95-c0c934ff139a",
+      "name": "Respond7",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_dashboard_pedidos_dia",
+        "filterType": "none"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -3616,
+        -832
+      ],
+      "id": "a7d535d3-144c-4c2f-87fd-6f86e2d085fe",
+      "name": "dashboard_stats",
+      "alwaysOutputData": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "path": "dashboard/stats",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -3824,
+        -832
+      ],
+      "id": "1ec592f7-9004-44cc-ad37-c2fa56efa40a",
+      "name": "Webhook-dashboard-stats",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "content": "\n# FINANCEIRO >>\nfinanceiro/relatorio",
+        "height": 100,
+        "width": 580,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -4464,
+        -640
+      ],
+      "id": "7b630924-5806-45bc-a5f9-d6952a3d5164",
+      "name": "Sticky Note60"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        -3424,
+        -656
+      ],
+      "id": "1d7ee9ed-5330-4c07-bc74-d47a571976c1",
+      "name": "Respond16",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "path": "financeiro/relatorio",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -3824,
+        -656
+      ],
+      "id": "918dd090-3ebd-4d51-898c-15824aad1903",
+      "name": "Webhook-financeiro-relatorio",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_financeiro_detalhado",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "data_local",
+              "condition": "gte",
+              "keyValue": "={{ $json.query.inicio }}"
+            },
+            {
+              "keyName": "data_local",
+              "condition": "lte",
+              "keyValue": "={{ $json.query.fim }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -3616,
+        -656
+      ],
+      "id": "3f845ded-8848-4f9f-9d8c-7ef71629f41b",
+      "name": "financeiro-relatorio",
+      "alwaysOutputData": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "produtos/listar-interno",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        -192
+      ],
+      "id": "6afc90ff-228a-471a-b704-2c0dc73f1937",
+      "name": "Webhook-caixa-listar-interno",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "content": "\n# (Cliente/Admin/Caixa) listar com tipo >> \nprodutos/listar-com-tipo",
+        "width": 720,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2960,
+        -32
+      ],
+      "id": "68a2bc9e-7517-4e83-adb6-57a190faa2b9",
+      "name": "Sticky Note35"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        -1776,
+        -32
+      ],
+      "id": "5bffe9b2-6880-498e-9d92-712d25914a43",
+      "name": "Respond17",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "path": "produtos/listar-com-tipo",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2176,
+        -32
+      ],
+      "id": "6a60402c-2f9d-418f-8157-d2be6e9289d7",
+      "name": "Webhook-produtos-listar-com-tipo",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_produtos_com_categoria",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ativo",
+              "condition": "is",
+              "keyValue": "true"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1984,
+        -32
+      ],
+      "id": "af400906-b8c8-42de-88ac-d3e2f1859cef",
+      "name": "produtos-listar-com-tipo",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "id": "0c18b5a6-0aac-4aa6-8160-66d1fbee4ad5",
+      "name": "3. Split Out Itens",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -496,
+        2480
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "itens_pedido",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "pedido_id",
+              "fieldValue": "={{ $json.pedido_id }}"
+            },
+            {
+              "fieldId": "produto_id",
+              "fieldValue": "={{ $json.produto_id }}"
+            },
+            {
+              "fieldId": "quantidade",
+              "fieldValue": "={{ $json.quantidade }}"
+            },
+            {
+              "fieldId": "preco_unitario",
+              "fieldValue": "={{ $json.preco_unitario }}"
+            }
+          ]
+        }
+      },
+      "id": "cbc34c39-3186-4afd-8285-ca1865e807a8",
+      "name": "4. Supabase: Insere Serviço",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        2480
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "30d7fdc2-4bee-43b3-821e-39c1f5ccbac7",
+      "name": "5. NoOp (Junta o Loop)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        2480
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "pedidos",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('1. Webhook: Finalizar com Serviços').item.json.body.pedido_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "total",
+              "fieldValue": "={{ $('1. Webhook: Finalizar com Serviços').item.json.body.novo_total }}"
+            },
+            {
+              "fieldId": "forma_pagamento",
+              "fieldValue": "={{ $('1. Webhook: Finalizar com Serviços').item.json.body.forma_pagamento }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "ENTREGUE"
+            }
+          ]
+        }
+      },
+      "id": "5a0a2c9c-bb9e-4416-b6d6-b2a71fd0abdb",
+      "name": "6. Supabase: Atualiza Pedido",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        112,
+        2480
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {},
+          "conditions": [
+            {
+              "id": "if-cond-mesa",
+              "leftValue": "={{ $('1. Webhook: Finalizar com Serviços').item.json.body.id_mesa }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "isNotEmpty"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "04ab9651-75d5-40f9-86ec-fc995eeffcec",
+      "name": "7. If (Tem Mesa?)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        304,
+        2480
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "mesas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('1. Webhook: Finalizar com Serviços').item.json.body.id_mesa }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "LIVRE"
+            }
+          ]
+        }
+      },
+      "id": "92ea4bba-8429-4572-8719-9783d02e1831",
+      "name": "8. Supabase: Libera Mesa",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        496,
+        2400
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "ad09e3f2-2015-46a7-8fff-a000fd5ee6cf",
+      "name": "9. Respond: Sucesso!",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        704,
+        2496
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# ADICIONAR/REMOVER PEDIDOS DELIVERY COM TAXA EXTRA",
+        "height": 320,
+        "width": 1900,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        2768
+      ],
+      "id": "17f96c7b-4ed4-42a3-85d2-99dfb1db813e",
+      "name": "Sticky Note37"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pedido/adicionar-item",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "edb15798-d544-4018-b258-d8e417b7e231",
+      "name": "webhook-pedido/adicionar-item",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1072,
+        2880
+      ],
+      "webhookId": "d4011cb1-6e16-4e1e-8432-6d036a48cd44"
+    },
+    {
+      "parameters": {
+        "tableId": "itens_pedido",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "pedido_id",
+              "fieldValue": "={{ $json.body.pedido_id }}"
+            },
+            {
+              "fieldId": "produto_id",
+              "fieldValue": "={{ $json.body.produto_id }}"
+            },
+            {
+              "fieldId": "quantidade",
+              "fieldValue": "={{ $json.body.quantidade }}"
+            },
+            {
+              "fieldId": "preco_unitario",
+              "fieldValue": "={{ $json.body.preco_unitario }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        2880
+      ],
+      "id": "1cfdbf53-cf25-401d-8234-000ad8e889ec",
+      "name": "pedido/adicionar-item",
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pedido/remover-item",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b5f46da3-2fc6-4186-9dbd-0f2dc4390ff3",
+      "name": "webhook-pedido/remover-item",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        2864
+      ],
+      "webhookId": "d4011cb1-6e16-4e1e-8432-6d036a48cd44"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"novo_item_id\": \"{{ $('pedido/adicionar-item').item.json.id }}\"\n}",
+        "options": {}
+      },
+      "id": "006436d6-28a7-4667-865a-c3499e535012",
+      "name": "9. Respond: Sucesso!1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -640,
+        2880
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "itens_pedido",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.item_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        2864
+      ],
+      "id": "877fb4a4-cd91-41bc-abca-e1c40bd04a5c",
+      "name": "Delete a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true\n}",
+        "options": {}
+      },
+      "id": "16a9ef12-f7f7-42f7-94b6-c4cef39cfad1",
+      "name": "9. Respond: Sucesso!2",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        192,
+        2864
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"success\": true\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        1728,
+        256
+      ],
+      "id": "db784c02-d399-450a-9a7a-4afab281e444",
+      "name": "Respond18",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mesas/deletar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        256
+      ],
+      "id": "3e33d34a-a6bc-40a9-a5eb-3ff94fad4fe2",
+      "name": "Webhook-mesas/deletar",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "mesas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        256
+      ],
+      "id": "1a7a4f19-08f0-4046-8eef-19e81ac01049",
+      "name": "mesas/deletar",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "\n# (MESA) DELETAR >>\nmesas/deletar",
+        "width": 720,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        560,
+        256
+      ],
+      "id": "347abfba-d1e9-49da-a299-6d7895c3b9af",
+      "name": "Sticky Note58"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_pedidos_finalizados",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "data_local",
+              "condition": "eq",
+              "keyValue": "={{ $json.query.data }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -176
+      ],
+      "id": "3b5266a1-966e-4bd7-b18e-4c44fc7ac981",
+      "name": "Busca_Finalizados_Por_Data",
+      "alwaysOutputData": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        -176,
+        -176
+      ],
+      "id": "5f58ede7-1186-46d9-86c8-ef6c84136e88",
+      "name": "Respond19",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "path": "pedidos/listar-por-data",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -576,
+        -176
+      ],
+      "id": "aad8f7fc-7e0b-439f-a052-f2080d1c3c55",
+      "name": "Webhook-listar-por-data",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "path": "pedido/buscar-finalizado-por-codigo",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -576,
+        16
+      ],
+      "id": "d1901f81-4d6e-45d7-9ad5-75c7da559311",
+      "name": "Webhook-buscar-finalizado-codigo",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_pedidos_finalizados",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id_pedido_publico",
+              "condition": "eq",
+              "keyValue": "={{ $json.query.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        16
+      ],
+      "id": "5c6f3e93-3c7e-44a6-825d-d45521c92fa0",
+      "name": "Busca_Pedido_Por_Codigo",
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        -176,
+        16
+      ],
+      "id": "713c0a1e-a65c-47ca-85a4-fd12d1c688b6",
+      "name": "Respond_Busca_Codigo"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "pedidos",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.pedido.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "entregador_id",
+              "fieldValue": "={{ $json.body.whatsapp_entregador }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        2048
+      ],
+      "id": "28219902-532a-44de-970b-7e14bf56f468",
+      "name": "Update-pedidos-financeiro",
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "garcons/listar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "072ed55e-1c0c-4860-9b99-505da3d25a05",
+      "name": "Webhook: Listar Garçons",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        2432,
+        -736
+      ],
+      "webhookId": "87a37905-a31a-4b2f-9a20-c21e81f32f72"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "garcons"
+      },
+      "id": "30d995d1-0238-4d1f-b4a5-fa76f459d1b5",
+      "name": "Supabase: Listar Garçons",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        -736
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "69505060-d3d0-47ff-83fa-c48bf277e48f",
+      "name": "Respond: Lista",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2832,
+        -736
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "garcom/criar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "266fefd8-2b01-47f0-8f7a-a9e9f1c04ab0",
+      "name": "Webhook: Criar Garçom",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        2432,
+        -528
+      ],
+      "webhookId": "e1ec4b20-4d32-47ba-b006-cf7abcab0796"
+    },
+    {
+      "parameters": {
+        "tableId": "garcons",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nome",
+              "fieldValue": "={{ $json.body.nome }}"
+            },
+            {
+              "fieldId": "pin",
+              "fieldValue": "={{ $json.body.pin }}"
+            }
+          ]
+        }
+      },
+      "id": "9181c6a3-dcd6-451a-8598-9b4e5807b8b5",
+      "name": "Supabase: Criar Garçom",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        -528
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "787df638-8573-4fb6-bd9f-43f9fa6340df",
+      "name": "Respond: Criado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2832,
+        -528
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "garcom/atualizar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "178bfa3a-e069-4d37-9af8-1b8d9ea0d6e9",
+      "name": "Webhook: Atualizar Garçom",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        2432,
+        -336
+      ],
+      "webhookId": "6a1f6772-10c9-48e3-b61d-686d2a1f0be4"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "garcons",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nome",
+              "fieldValue": "={{ $json.body.nome }}"
+            },
+            {
+              "fieldId": "pin",
+              "fieldValue": "={{ $json.body.pin }}"
+            }
+          ]
+        }
+      },
+      "id": "b1525d92-d973-4077-b43c-532dd40c503f",
+      "name": "Supabase: Atualizar Garçom",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        -336
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "8ff0df7a-0d0c-41d2-9696-b3e33d5688b9",
+      "name": "Respond: Atualizado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2832,
+        -336
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "garcom/deletar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "f417c5c7-47ec-43f3-8158-3f2cf2a902c3",
+      "name": "Webhook: Deletar Garçom",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        2432,
+        -128
+      ],
+      "webhookId": "7b758210-b504-4318-85ac-2fc9b665b1ae"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "garcons",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        }
+      },
+      "id": "3d5d2b20-8c89-4c13-9723-4d658960feba",
+      "name": "Supabase: Deletar Garçom",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        -128
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "67d9c679-abfa-48d4-b698-6c81bbde1d1f",
+      "name": "Respond: Deletado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2832,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# SUPABASE \n",
+        "height": 840,
+        "width": 720,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -5312,
+        -992
+      ],
+      "id": "bec065a6-19ea-4934-976e-4c41f2268c0d",
+      "name": "Sticky Note30"
+    },
+    {
+      "parameters": {
+        "content": "# --- CONFIGURAÇÕES LOJA ---",
+        "height": 100,
+        "width": 720,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -5312,
+        -912
+      ],
+      "id": "9dc73812-2760-4891-b7c2-33a3841ecd91",
+      "name": "Sticky Note31"
+    },
+    {
+      "parameters": {
+        "content": "\n# GET CONFIGURAÇÕES, LOGO, DETAILS ETC >>\nget_loja_config",
+        "width": 580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -5888,
+        -800
+      ],
+      "id": "6a7ea8ec-5f5f-4e80-9844-5b0aaacb7f84",
+      "name": "Sticky Note33"
+    },
+    {
+      "parameters": {
+        "content": "\n# UPDATE CONFIGURAÇÕES, LOGO, DETAILS ETC >>\nupdate_loja_config",
+        "width": 580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -5888,
+        -592
+      ],
+      "id": "b965fd8f-ed75-4e15-b214-1823a3bfac58",
+      "name": "Sticky Note34"
+    },
+    {
+      "parameters": {
+        "path": "loja/config/obter",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b296cc3b-e8a4-4f03-aacb-55f52f81209c",
+      "name": "GET Loja Config",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -5248,
+        -768
+      ],
+      "webhookId": "09f83f1d-f88a-4c22-9214-93836d52f6c8"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_loja_config",
+        "returnAll": true
+      },
+      "id": "6bcb72d8-a2c4-4caf-a3cc-4a27f82cdb1b",
+      "name": "Get Config from View",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -5024,
+        -768
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "84720592-c578-4dea-bd24-050452a871a3",
+      "name": "Respond GET",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        -4800,
+        -768
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "loja/config/atualizar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "438f1f7c-5059-49d2-b905-e35dd310c032",
+      "name": "UPDATE Loja Config",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -5248,
+        -560
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "loja_config",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "1"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nome_loja",
+              "fieldValue": "={{ $json.body.nome_loja }}"
+            },
+            {
+              "fieldId": "cnpj_cpf",
+              "fieldValue": "={{ $json.body.cnpj_cpf }}"
+            },
+            {
+              "fieldId": "endereco",
+              "fieldValue": "={{ $json.body.endereco }}"
+            },
+            {
+              "fieldId": "telefone",
+              "fieldValue": "={{ $json.body.telefone }}"
+            },
+            {
+              "fieldId": "logo_url",
+              "fieldValue": "={{ $json.body.logo_url }}"
+            },
+            {
+              "fieldId": "mensagem_rodape",
+              "fieldValue": "={{ $json.body.mensagem_rodape }}"
+            },
+            {
+              "fieldId": "logo_painel_url",
+              "fieldValue": "={{ $json.body.logo_painel_url }}"
+            },
+            {
+              "fieldId": "logo_vitrine_url",
+              "fieldValue": "={{ $json.body.logo_vitrine_url }}"
+            },
+            {
+              "fieldId": "taxa_entrega_fixa",
+              "fieldValue": "={{ $json.body.taxa_entrega_fixa }}"
+            },
+            {
+              "fieldId": "custo_entrega_freela",
+              "fieldValue": "={{ $json.body.custo_entrega_freela }}"
+            }
+          ]
+        }
+      },
+      "id": "18f5137e-8d17-4731-8b74-075f03403aea",
+      "name": "Update Config Table",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -5024,
+        -560
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "8d61db84-b83b-4141-98a1-b0a848e199e1",
+      "name": "Respond UPDATE",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -4800,
+        -560
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# SUPABASE \n",
+        "height": 2060,
+        "width": 1120,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2336,
+        -1024
+      ],
+      "id": "92ad7c2d-a463-45e8-a9ef-63335fa5c0dc",
+      "name": "Sticky Note24"
+    },
+    {
+      "parameters": {
+        "content": "# --- GARÇOM ---",
+        "height": 100,
+        "width": 1088,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2368,
+        -928
+      ],
+      "id": "39acd3e1-d302-439e-8d5d-2fb128cb89ba",
+      "name": "Sticky Note27"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "garcom/login",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "0b209f12-ec79-437f-9890-77db85fec819",
+      "name": "Webhook: Garçom Login",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        2432,
+        624
+      ],
+      "webhookId": "a0ef225d-24ac-46e7-945c-8bb238483c97"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "garcons",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.pin }}"
+            },
+            {
+              "keyName": "pin",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.pin }}"
+            }
+          ]
+        }
+      },
+      "id": "86361ae6-4b60-4719-834d-95ad60cbcc44",
+      "name": "Supabase: Busca Garçom",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2624,
+        624
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Webhook: Garçom Login').item.json.body.pin }}",
+              "rightValue": "={{ $json.pin }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "id": "ac949817-fb57-40fc-b167-24b3c3bef962"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9608224e-2026-4cae-80f3-794eecfe9c86",
+      "name": "If: PIN Correto?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2832,
+        624
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "448e6927-adce-47b7-ac7e-31ae57ce0399",
+      "name": "Respond: Sucesso",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        3056,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": false, \"message\": \"PIN incorreto\"}",
+        "options": {}
+      },
+      "id": "722d2a64-e60d-404f-aa67-3cf761ceca9e",
+      "name": "Respond: Falha",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        3056,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "path": "garcons/resumo",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "f3738d4e-a21b-455a-bef5-1c5ef6b42319",
+      "name": "Webhook: Garçons Resumo",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        2432,
+        848
+      ],
+      "webhookId": "341c9c95-deeb-41c3-9e9d-2320c58cc1aa"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_garcons_resumo"
+      },
+      "id": "7786df43-b05c-4543-8e27-4744f08c0785",
+      "name": "Supabase: Busca Resumo",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2624,
+        848
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "7994a74a-caf8-480b-a3b1-e042162e73a3",
+      "name": "Respond: Resumo",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2832,
+        848
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mesas/atualizar-atribuicao",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "2b179496-446b-4548-b2bb-4eaf9642f118",
+      "name": "Webhook: Atribuir Mesas",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        2432,
+        112
+      ],
+      "webhookId": "2e21a161-783b-4162-af6c-9b3051f7d7ee"
+    },
+    {
+      "parameters": {
+        "jsCode": "const garcomId = $json.body.garcom_id;\nconst mesasIds = $json.body.mesas_ids || [];\nreturn mesasIds.map(mesaId => ({ json: { mesa_id: parseInt(mesaId), garcom_id_para_atribuir: garcomId } }));"
+      },
+      "id": "8638123d-d20b-4e3b-80a1-ff7a6c9b717b",
+      "name": "1. Code: Prepara Itens para Loop",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "mesas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.mesa_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "garcom_id",
+              "fieldValue": "={{ $json.garcom_id_para_atribuir }}"
+            }
+          ]
+        }
+      },
+      "id": "47ecefdf-2280-4853-8542-6ecf607f4475",
+      "name": "2. Supabase: Atribui Nova Mesa (Loop)",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3040,
+        176
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "65003653-020e-42a3-838b-e918990d8456",
+      "name": "3. Respond: Sucesso",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        3040,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f90bdb49-c442-4043-8005-4cf90445768e",
+      "name": "Loop Over Items3",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2832,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mesas/limpar-atribuicao",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a6d76110-31c7-4b73-99cf-96f9d5207e15",
+      "name": "Webhook: Limpar Mesas",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        2432,
+        400
+      ],
+      "webhookId": "87d51253-2d8a-4ae5-8b42-76893e787eb2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "mesas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "garcom_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.garcom_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "garcom_id",
+              "fieldValue": "={{ null }}"
+            }
+          ]
+        }
+      },
+      "id": "44d2cfb7-f808-4130-bfdf-c752de4ce239",
+      "name": "Supabase: Limpa Atribuições",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2624,
+        400
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "20caed92-a76b-4998-8f54-f1b94ab57577",
+      "name": "Respond: Sucesso1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2832,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "2aadda00-a5b1-4a1a-91a5-113345cb68e8",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        192,
+        -800
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "itens_pedido",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "pedido_id",
+              "fieldValue": "={{ $json.pedido_id }}"
+            },
+            {
+              "fieldId": "produto_id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldId": "quantidade",
+              "fieldValue": "={{ $json.quantidade }}"
+            },
+            {
+              "fieldId": "preco_unitario",
+              "fieldValue": "={{ $json.preco }}"
+            }
+          ]
+        }
+      },
+      "id": "077b2821-806e-4d8c-84e9-9e7eb59fefca",
+      "name": "4. Registrar Item do Pedido",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -704
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "mesas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('2. Create Pedido (Master)1').item.json.id_mesa }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "OCUPADA"
+            }
+          ]
+        }
+      },
+      "id": "0fccc6e8-20ea-4219-9e07-68d6472aa241",
+      "name": "6. Update Mesa para Ocupada",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        688,
+        -912
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "5774f8ff-cd28-4032-882f-c761a1628f02",
+      "name": "7. Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        880,
+        -912
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "leftValue": "={{ $('2. Create Pedido (Master)1').item.json.id_mesa }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "isNotEmpty"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "20f6b443-c4ec-44ce-8993-d621ef1f203a",
+      "name": "5. If Mesa Existe",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        -896
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pedido/lancar-interno",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "55ebf6a9-015c-4051-b8ef-b358607a8cc2",
+      "name": "Webhook: Lançar Pedido Interno1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -576,
+        -800
+      ],
+      "webhookId": "1f75f359-8633-4e77-ac28-50d8b133a707"
+    },
+    {
+      "parameters": {
+        "jsCode": "const randomPart = Math.random().toString(36).substr(2, 6).toUpperCase();\n$input.item.json.body.id_pedido_publico = randomPart;\nreturn $input.item;"
+      },
+      "id": "3cbbf16a-e3be-4bf6-bfa4-6f1da1556cab",
+      "name": "1. Generate Public ID1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -384,
+        -800
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "pedidos",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "id_pedido_publico",
+              "fieldValue": "={{ $json.body.id_pedido_publico }}"
+            },
+            {
+              "fieldId": "nome_cliente",
+              "fieldValue": "={{ $json.body.origem === 'MESA' ? 'Mesa ' + $json.body.numero_mesa : 'Balcão' }}"
+            },
+            {
+              "fieldId": "total",
+              "fieldValue": "={{ $json.body.total }}"
+            },
+            {
+              "fieldId": "origem",
+              "fieldValue": "={{ $json.body.origem }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "CONFIRMADO"
+            },
+            {
+              "fieldId": "id_mesa",
+              "fieldValue": "={{ $json.body.id_mesa }}"
+            },
+            {
+              "fieldId": "whatsapp_cliente",
+              "fieldValue": "PED-INTERNO"
+            },
+            {
+              "fieldId": "garcom_id",
+              "fieldValue": "={{ $json.body.garcom_id }}"
+            }
+          ]
+        }
+      },
+      "id": "f505e018-504d-4feb-ab6f-20cf5f1a6d6f",
+      "name": "2. Create Pedido (Master)1",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        -800
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const itens = $('1. Generate Public ID1').item.json.body.itens;\nconst pedidoId = $json.id;\nreturn itens.map(item => ({ json: { ...item, pedido_id: pedidoId } }));"
+      },
+      "id": "23830917-723a-4d81-bb2d-2b55d11ef180",
+      "name": "3. Prepare for Loop1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        -800
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# FINALIZAR PEDIDOS COM SERVIÇOS",
+        "height": 320,
+        "width": 2060,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        2352
+      ],
+      "id": "9ac218b9-e5f1-46e3-9539-6ed29c559491",
+      "name": "Sticky Note36"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pedido/finalizar-com-servicos",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "8382e4b5-ec1a-44db-885a-7c4bfde9e97c",
+      "name": "1. Webhook: Finalizar com Serviços",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1088,
+        2480
+      ],
+      "webhookId": "d4011cb1-6e16-4e1e-8432-6d036a48cd44"
+    },
+    {
+      "parameters": {
+        "jsCode": "const itens = $json.body.novos_itens || [];\nconst pedidoId = $json.body.pedido_id;\n\nconst itensFormatados = itens.map(item => ({\n  pedido_id: pedidoId,\n  produto_id: item.produto_id,\n  quantidade: item.quantidade,\n  preco_unitario: item.preco_unitario\n}));\n\n// Nomeia a saída para 'data'\n$json.data = itensFormatados;\nreturn $json;"
+      },
+      "id": "78173151-c7c4-4de3-ab0c-2f22a6d9089e",
+      "name": "2. Prepara Itens de Serviço",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -880,
+        2480
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fe3ce55b-6f47-425f-864e-ce767fb751fb",
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -704,
+        2480
+      ],
+      "id": "813f5432-628d-46ec-aaf1-df96c2f74094",
+      "name": "If3"
+    }
+  ],
+  "connections": {
+    "Webhook-FTP": {
+      "main": [
+        [
+          {
+            "node": "Upload para Zipline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload para Zipline": {
+      "main": [
+        [
+          {
+            "node": "Pegar_ID_da_Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook FTP1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-FTP-Request": {
+      "main": [
+        [
+          {
+            "node": "Buscar imagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar imagens": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pegar_ID_da_Imagem": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook FTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "produto-criar": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "produto-atualizar": {
+      "main": [
+        [
+          {
+            "node": "Respond1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-produto-atualizar": {
+      "main": [
+        [
+          {
+            "node": "produto-atualizar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-produto-deletar": {
+      "main": [
+        [
+          {
+            "node": "deactivate_product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-produtos-listar": {
+      "main": [
+        [
+          {
+            "node": "produtos-listar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "produtos-listar": {
+      "main": [
+        [
+          {
+            "node": "Respond3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-pedido-buscar-status": {
+      "main": [
+        [
+          {
+            "node": "pedido-buscar-status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pedido-buscar-status": {
+      "main": [
+        [
+          {
+            "node": "Respond8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-mesas-listar": {
+      "main": [
+        [
+          {
+            "node": "mesas-listar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mesas-listar": {
+      "main": [
+        [
+          {
+            "node": "Respond9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-mesa-atualizar-status": {
+      "main": [
+        [
+          {
+            "node": "atualizar-status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "atualizar-status": {
+      "main": [
+        [
+          {
+            "node": "Respond10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-produto-criar": {
+      "main": [
+        [
+          {
+            "node": "produto-criar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cálculo do Total": {
+      "main": [
+        [
+          {
+            "node": "create_order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-pedido": {
+      "main": [
+        [
+          {
+            "node": "Cálculo do Total",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-listar-todos": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_order": {
+      "main": [
+        [
+          {
+            "node": "Evolution-criar-id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "LoopItens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "registra-itens": {
+      "main": [
+        [
+          {
+            "node": "LoopItens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "junta-itens": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LoopItens": {
+      "main": [
+        [
+          {
+            "node": "Respond-itens",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "registra-itens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "deactivate_product": {
+      "main": [
+        [
+          {
+            "node": "Respond2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "EM PREPARO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PRONTO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "A CAMINHO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-send-whatsapp-status": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EM PREPARO": {
+      "main": [
+        [
+          {
+            "node": "balaioDeItens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PRONTO": {
+      "main": [
+        [
+          {
+            "node": "balaioDeItens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A CAMINHO": {
+      "main": [
+        [
+          {
+            "node": "balaioDeItens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evolution-criar-id": {
+      "main": [
+        [
+          {
+            "node": "junta-itens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-send-details": {
+      "main": [
+        [
+          {
+            "node": "Update-pedidos-financeiro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evolution-entregador": {
+      "main": [
+        [
+          {
+            "node": "Respond entregador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Respond-pedidos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "balaioDeItens": {
+      "main": [
+        [
+          {
+            "node": "Evolution-status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "listar-interno": {
+      "main": [
+        [
+          {
+            "node": "Respond12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-pedido-atualizar-status": {
+      "main": [
+        [
+          {
+            "node": "pedido-atualizar-status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pedido-atualizar-status": {
+      "main": [
+        [
+          {
+            "node": "Respond6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get_Todos_Itens_Do_Pedido2": {
+      "main": [
+        [
+          {
+            "node": "IF_Pedido_Tem_Mesa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-cancelar-pedido-inteiro": {
+      "main": [
+        [
+          {
+            "node": "Update_Status_Pedido_Cancelado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update_Status_Pedido_Cancelado": {
+      "main": [
+        [
+          {
+            "node": "Get_Todos_Itens_Do_Pedido2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF_Pedido_Tem_Mesa": {
+      "main": [
+        [
+          {
+            "node": "Update_Status_Mesa_Livre",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Success3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update_Status_Mesa_Livre": {
+      "main": [
+        [
+          {
+            "node": "Respond Success3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Lançar Pedido Interno": {
+      "main": [
+        [
+          {
+            "node": "1. Generate Public ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Generate Public ID": {
+      "main": [
+        [
+          {
+            "node": "2. Create Pedido (Master)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Create Pedido (Master)": {
+      "main": [
+        [
+          {
+            "node": "3. Prepare for Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. Split Out Itens": {
+      "main": [
+        [
+          {
+            "node": "6. Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. Registrar Item do Pedido": {
+      "main": [
+        [
+          {
+            "node": "6. Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6. Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "5. Registrar Item do Pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "8. Update Mesa para Ocupada": {
+      "main": [
+        [
+          {
+            "node": "9. Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Prepare for Loop": {
+      "main": [
+        [
+          {
+            "node": "4. Split Out Itens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "8. Update Mesa para Ocupada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "9. Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-mesas-criar": {
+      "main": [
+        [
+          {
+            "node": "mesas-criar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mesas-criar": {
+      "main": [
+        [
+          {
+            "node": "Respond13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-finalizar-e-liberar-mesa": {
+      "main": [
+        [
+          {
+            "node": "finalizar-e-liberar-mesa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "finalizar-e-liberar-mesa": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row": {
+      "main": [
+        [
+          {
+            "node": "Respond14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-atualizar-entregador": {
+      "main": [
+        [
+          {
+            "node": "atualizar-entregador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "atualizar-entregador": {
+      "main": [
+        [
+          {
+            "node": "Respond entregador1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get-categorias-listar": {
+      "main": [
+        [
+          {
+            "node": "Respond GET2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-categorias-listar": {
+      "main": [
+        [
+          {
+            "node": "Get-categorias-listar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-categoria-atualizar": {
+      "main": [
+        [
+          {
+            "node": "categoria-atualizar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "categoria-atualizar": {
+      "main": [
+        [
+          {
+            "node": "Respond UPDATE3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "categoria-reordenar": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-categoria-reordenar": {
+      "main": [
+        [
+          {
+            "node": "Preparador_de_Fila",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparador_de_Fila": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Webhook: Pedido Chega": {
+      "main": [
+        [
+          {
+            "node": "2. Espião (Get Max Ordem)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Espião (Get Max Ordem)": {
+      "main": [
+        [
+          {
+            "node": "3. O Matemático (Prepara Dados)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. O Matemático (Prepara Dados)": {
+      "main": [
+        [
+          {
+            "node": "4. O Criador (Supabase Create)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. O Criador (Supabase Create)": {
+      "main": [
+        [
+          {
+            "node": "5. Respond (Sucesso!)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-categoria-deletar": {
+      "main": [
+        [
+          {
+            "node": "categoria-deletar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "categoria-deletar": {
+      "main": [
+        [
+          {
+            "node": "Respond UPDATE5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Respond UPDATE7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "banner-reordenar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-banners-listar": {
+      "main": [
+        [
+          {
+            "node": "banners-listar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "banners-listar": {
+      "main": [
+        [
+          {
+            "node": "Respond GET3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-banner-criar": {
+      "main": [
+        [
+          {
+            "node": "Espiao_banner-criar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-banner-atualizar": {
+      "main": [
+        [
+          {
+            "node": "banner-atualizar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "banner-atualizar": {
+      "main": [
+        [
+          {
+            "node": "Respond UPDATE6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-banners-reordenar": {
+      "main": [
+        [
+          {
+            "node": "Prepara_Fila",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-banner-deletar": {
+      "main": [
+        [
+          {
+            "node": "categoria-banner-deletar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-banner-alternar-status": {
+      "main": [
+        [
+          {
+            "node": "banner-alternar-status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "banner-alternar-status": {
+      "main": [
+        [
+          {
+            "node": "Respond UPDATE9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Espiao_banner-criar": {
+      "main": [
+        [
+          {
+            "node": "O_Matemático",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "O_Matemático": {
+      "main": [
+        [
+          {
+            "node": "Criador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criador": {
+      "main": [
+        [
+          {
+            "node": "5. Respond (Sucesso!)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "categoria-banner-deletar": {
+      "main": [
+        [
+          {
+            "node": "Delete_Zipline1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepara_Fila": {
+      "main": [
+        [
+          {
+            "node": "Split Out2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "banner-reordenar": {
+      "main": [
+        [
+          {
+            "node": "Split Out2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [
+          {
+            "node": "Respond UPDATE4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "categoria-reordenar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete_Zipline1": {
+      "main": [
+        [
+          {
+            "node": "Respond UPDATE8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-banner-deletar-limpar": {
+      "main": [
+        [
+          {
+            "node": "Delete_Zipline-banner-limpar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete_Zipline-banner-limpar": {
+      "main": [
+        [
+          {
+            "node": "Respond UPDATE10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "dashboard_stats": {
+      "main": [
+        [
+          {
+            "node": "Respond7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-dashboard-stats": {
+      "main": [
+        [
+          {
+            "node": "dashboard_stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-financeiro-relatorio": {
+      "main": [
+        [
+          {
+            "node": "financeiro-relatorio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "financeiro-relatorio": {
+      "main": [
+        [
+          {
+            "node": "Respond16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-caixa-listar-interno": {
+      "main": [
+        [
+          {
+            "node": "listar-interno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-produtos-listar-com-tipo": {
+      "main": [
+        [
+          {
+            "node": "produtos-listar-com-tipo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "produtos-listar-com-tipo": {
+      "main": [
+        [
+          {
+            "node": "Respond17",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Split Out Itens": {
+      "main": [
+        [
+          {
+            "node": "4. Supabase: Insere Serviço",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. Supabase: Insere Serviço": {
+      "main": [
+        [
+          {
+            "node": "5. NoOp (Junta o Loop)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. NoOp (Junta o Loop)": {
+      "main": [
+        [
+          {
+            "node": "6. Supabase: Atualiza Pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6. Supabase: Atualiza Pedido": {
+      "main": [
+        [
+          {
+            "node": "7. If (Tem Mesa?)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7. If (Tem Mesa?)": {
+      "main": [
+        [
+          {
+            "node": "8. Supabase: Libera Mesa",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "9. Respond: Sucesso!",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "8. Supabase: Libera Mesa": {
+      "main": [
+        [
+          {
+            "node": "9. Respond: Sucesso!",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-pedido/adicionar-item": {
+      "main": [
+        [
+          {
+            "node": "pedido/adicionar-item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pedido/adicionar-item": {
+      "main": [
+        [
+          {
+            "node": "9. Respond: Sucesso!1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-pedido/remover-item": {
+      "main": [
+        [
+          {
+            "node": "Delete a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a row": {
+      "main": [
+        [
+          {
+            "node": "9. Respond: Sucesso!2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-mesas/deletar": {
+      "main": [
+        [
+          {
+            "node": "mesas/deletar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mesas/deletar": {
+      "main": [
+        [
+          {
+            "node": "Respond18",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca_Finalizados_Por_Data": {
+      "main": [
+        [
+          {
+            "node": "Respond19",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-listar-por-data": {
+      "main": [
+        [
+          {
+            "node": "Busca_Finalizados_Por_Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-buscar-finalizado-codigo": {
+      "main": [
+        [
+          {
+            "node": "Busca_Pedido_Por_Codigo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca_Pedido_Por_Codigo": {
+      "main": [
+        [
+          {
+            "node": "Respond_Busca_Codigo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update-pedidos-financeiro": {
+      "main": [
+        [
+          {
+            "node": "Evolution-entregador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Listar Garçons": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Listar Garçons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Listar Garçons": {
+      "main": [
+        [
+          {
+            "node": "Respond: Lista",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Criar Garçom": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Criar Garçom",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Criar Garçom": {
+      "main": [
+        [
+          {
+            "node": "Respond: Criado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Atualizar Garçom": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Atualizar Garçom",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Atualizar Garçom": {
+      "main": [
+        [
+          {
+            "node": "Respond: Atualizado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Deletar Garçom": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Deletar Garçom",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Deletar Garçom": {
+      "main": [
+        [
+          {
+            "node": "Respond: Deletado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Loja Config": {
+      "main": [
+        [
+          {
+            "node": "Get Config from View",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Config from View": {
+      "main": [
+        [
+          {
+            "node": "Respond GET",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPDATE Loja Config": {
+      "main": [
+        [
+          {
+            "node": "Update Config Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Config Table": {
+      "main": [
+        [
+          {
+            "node": "Respond UPDATE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Garçom Login": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Busca Garçom",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Busca Garçom": {
+      "main": [
+        [
+          {
+            "node": "If: PIN Correto?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: PIN Correto?": {
+      "main": [
+        [
+          {
+            "node": "Respond: Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond: Falha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Garçons Resumo": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Busca Resumo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Busca Resumo": {
+      "main": [
+        [
+          {
+            "node": "Respond: Resumo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Atribuir Mesas": {
+      "main": [
+        [
+          {
+            "node": "1. Code: Prepara Itens para Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Code: Prepara Itens para Loop": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Supabase: Atribui Nova Mesa (Loop)": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items3": {
+      "main": [
+        [
+          {
+            "node": "3. Respond: Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "2. Supabase: Atribui Nova Mesa (Loop)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Limpar Mesas": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Limpa Atribuições",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Limpa Atribuições": {
+      "main": [
+        [
+          {
+            "node": "Respond: Sucesso1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "5. If Mesa Existe",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "4. Registrar Item do Pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. Registrar Item do Pedido": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6. Update Mesa para Ocupada": {
+      "main": [
+        [
+          {
+            "node": "7. Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. If Mesa Existe": {
+      "main": [
+        [
+          {
+            "node": "6. Update Mesa para Ocupada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Lançar Pedido Interno1": {
+      "main": [
+        [
+          {
+            "node": "1. Generate Public ID1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Generate Public ID1": {
+      "main": [
+        [
+          {
+            "node": "2. Create Pedido (Master)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Create Pedido (Master)1": {
+      "main": [
+        [
+          {
+            "node": "3. Prepare for Loop1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Prepare for Loop1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Webhook: Finalizar com Serviços": {
+      "main": [
+        [
+          {
+            "node": "2. Prepara Itens de Serviço",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Prepara Itens de Serviço": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "3. Split Out Itens",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "6. Supabase: Atualiza Pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "webhook-categoria-reordenar": [
+      {
+        "headers": {
+          "host": "n8n-webhook.uptecnology.com.br",
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+          "content-length": "27",
+          "accept": "*/*",
+          "accept-encoding": "gzip, br",
+          "accept-language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+          "cache-control": "no-cache",
+          "cdn-loop": "cloudflare; loops=1",
+          "cf-connecting-ip": "2804:3d90:fff0:3261:3032:e990:2d72:54d0",
+          "cf-ipcountry": "BR",
+          "cf-ray": "95f2cf8b28bea49c-GRU",
+          "cf-visitor": "{\"scheme\":\"https\"}",
+          "content-type": "application/json",
+          "origin": "http://127.0.0.1:5500",
+          "pragma": "no-cache",
+          "priority": "u=1, i",
+          "referer": "http://127.0.0.1:5500/",
+          "sec-ch-ua": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\"",
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "cross-site",
+          "x-forwarded-for": "2804:3d90:fff0:3261:3032:e990:2d72:54d0, 172.71.10.235",
+          "x-forwarded-host": "n8n-webhook.uptecnology.com.br",
+          "x-forwarded-port": "443",
+          "x-forwarded-proto": "https",
+          "x-forwarded-server": "6081829d9cdd",
+          "x-real-ip": "172.71.10.235"
+        },
+        "params": {},
+        "query": {},
+        "body": {
+          "ordem": [
+            "9",
+            "7",
+            "8",
+            "6"
+          ]
+        },
+        "webhookUrl": "https://n8n-webhook.uptecnology.com.br/webhook/categorias/reordenar",
+        "executionMode": "production"
+      }
+    ]
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f35c92533cab0256f88836bedf74c86f0e573222ebaea24517d8f39614f07eb6"
+  }
+}
