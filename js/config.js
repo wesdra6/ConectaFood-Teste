@@ -46,7 +46,6 @@ const N8N_ENDPOINTS = {
     get_finalized_order_by_code: N8N_BASE_URL + 'pedido/buscar-finalizado-por-codigo', 
     cancel_order:          N8N_BASE_URL +  'pedido/cancelar',
     finalize_order_and_table: N8N_BASE_URL + 'pedido/finalizar-e-liberar-mesa',
-    finalize_delivery:     N8N_BASE_URL + 'pedido/atualizar-entregador',
     add_item_to_order:     N8N_BASE_URL + 'pedido/adicionar-item',
     remove_item_from_order: N8N_BASE_URL + 'pedido/remover-item',
     
@@ -99,4 +98,5 @@ const EVOLUTION_API_CONFIG = {
 // ===================================================================
 window.N8N_CONFIG = N8N_ENDPOINTS;
 window.ZIPLINE_CONFIG = ZIPLINE_CONFIG;
+
 window.EVOLUTION_CONFIG = EVOLUTION_API_CONFIG;
