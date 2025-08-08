@@ -51,9 +51,14 @@ const N8N_ENDPOINTS = {
     
     // BUSCAR TODOS OS ITENS (PRODUTOS E SERVIÇOS)
     get_all_products_with_type: N8N_BASE_URL + 'produtos/listar-com-tipo',
-
+    
     // FINALIZAR PEDIDO ADICIONANDO SERVIÇOS
     finalize_order_with_services: N8N_BASE_URL + 'pedido/finalizar-com-servicos',
+
+    // ENDPOINT FISCAL 
+    emitir_nfce:           N8N_BASE_URL + 'fiscal/emitir-nfce',
+    retorno_status_fiscal: N8N_BASE_URL + 'fiscal/retorno-status',
+    download_documento_fiscal: N8N_BASE_URL + 'fiscal/download',
 
     // --- MESAS ---
     get_all_tables:        N8N_BASE_URL + 'mesas/listar',
@@ -98,5 +103,4 @@ const EVOLUTION_API_CONFIG = {
 // ===================================================================
 window.N8N_CONFIG = N8N_ENDPOINTS;
 window.ZIPLINE_CONFIG = ZIPLINE_CONFIG;
-
 window.EVOLUTION_CONFIG = EVOLUTION_API_CONFIG;

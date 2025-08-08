@@ -172,7 +172,6 @@ select
 from
   pedidos p;
 
-
 create view
   public.view_dashboard_pedidos_dia as
 select
@@ -203,7 +202,6 @@ where
     p.created_at at time zone 'America/Sao_Paulo'::text
   )::date = (now() at time zone 'America/Sao_Paulo'::text)::date
   and p.status <> 'CANCELADO'::text;
-
 
 create view
   public.view_financeiro_detalhado as
@@ -459,9 +457,24 @@ select
   p.bairro,
   p.forma_pagamento,
   g.nome as garcom_responsavel,
+  p.status_fiscal,
+  p.id_nota_fiscal,
+  p.protocolo_fiscal,
+  p.erro_fiscal,
+  p.pdf_url,
+  p.xml_url,
   coalesce(
     json_agg(
-      json_build_object('quantidade', ip.quantidade, 'item', prod.nome)
+      json_build_object(
+        'quantidade',
+        ip.quantidade,
+        'item',
+        prod.nome,
+        'preco_unitario',
+        ip.preco_unitario,
+        'produto_id',
+        ip.produto_id
+      )
     ) filter (
       where
         ip.id is not null

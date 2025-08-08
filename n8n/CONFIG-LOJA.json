@@ -1,0 +1,283 @@
+{
+  "name": "CONFIG-LOJA",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# SUPABASE \n",
+        "height": 840,
+        "width": 720,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        896,
+        -896
+      ],
+      "id": "bec065a6-19ea-4934-976e-4c41f2268c0d",
+      "name": "Sticky Note30"
+    },
+    {
+      "parameters": {
+        "content": "# --- CONFIGURAÇÕES LOJA ---",
+        "height": 100,
+        "width": 720,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        896,
+        -816
+      ],
+      "id": "9dc73812-2760-4891-b7c2-33a3841ecd91",
+      "name": "Sticky Note31"
+    },
+    {
+      "parameters": {
+        "content": "\n# GET CONFIGURAÇÕES, LOGO, DETAILS ETC >>\nget_loja_config",
+        "width": 580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        320,
+        -704
+      ],
+      "id": "6a7ea8ec-5f5f-4e80-9844-5b0aaacb7f84",
+      "name": "Sticky Note33"
+    },
+    {
+      "parameters": {
+        "content": "\n# UPDATE CONFIGURAÇÕES, LOGO, DETAILS ETC >>\nupdate_loja_config",
+        "width": 580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        320,
+        -496
+      ],
+      "id": "b965fd8f-ed75-4e15-b214-1823a3bfac58",
+      "name": "Sticky Note34"
+    },
+    {
+      "parameters": {
+        "path": "loja/config/obter",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b296cc3b-e8a4-4f03-aacb-55f52f81209c",
+      "name": "GET Loja Config",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        960,
+        -672
+      ],
+      "webhookId": "09f83f1d-f88a-4c22-9214-93836d52f6c8"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_loja_config",
+        "returnAll": true
+      },
+      "id": "6bcb72d8-a2c4-4caf-a3cc-4a27f82cdb1b",
+      "name": "Get Config from View",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        -672
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "84720592-c578-4dea-bd24-050452a871a3",
+      "name": "Respond GET",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        1408,
+        -672
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "loja/config/atualizar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "438f1f7c-5059-49d2-b905-e35dd310c032",
+      "name": "UPDATE Loja Config",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        960,
+        -464
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "loja_config",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "1"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nome_loja",
+              "fieldValue": "={{ $json.body.nome_loja }}"
+            },
+            {
+              "fieldId": "cnpj_cpf",
+              "fieldValue": "={{ $json.body.cnpj_cpf }}"
+            },
+            {
+              "fieldId": "endereco",
+              "fieldValue": "={{ $json.body.endereco }}"
+            },
+            {
+              "fieldId": "telefone",
+              "fieldValue": "={{ $json.body.telefone }}"
+            },
+            {
+              "fieldId": "logo_url",
+              "fieldValue": "={{ $json.body.logo_url }}"
+            },
+            {
+              "fieldId": "mensagem_rodape",
+              "fieldValue": "={{ $json.body.mensagem_rodape }}"
+            },
+            {
+              "fieldId": "logo_painel_url",
+              "fieldValue": "={{ $json.body.logo_painel_url }}"
+            },
+            {
+              "fieldId": "logo_vitrine_url",
+              "fieldValue": "={{ $json.body.logo_vitrine_url }}"
+            },
+            {
+              "fieldId": "taxa_entrega_fixa",
+              "fieldValue": "={{ $json.body.taxa_entrega_fixa }}"
+            },
+            {
+              "fieldId": "custo_entrega_freela",
+              "fieldValue": "={{ $json.body.custo_entrega_freela }}"
+            }
+          ]
+        }
+      },
+      "id": "18f5137e-8d17-4731-8b74-075f03403aea",
+      "name": "Update Config Table",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        -464
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "8d61db84-b83b-4141-98a1-b0a848e199e1",
+      "name": "Respond UPDATE",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1408,
+        -464
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "GET Loja Config": {
+      "main": [
+        [
+          {
+            "node": "Get Config from View",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Config from View": {
+      "main": [
+        [
+          {
+            "node": "Respond GET",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UPDATE Loja Config": {
+      "main": [
+        [
+          {
+            "node": "Update Config Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Config Table": {
+      "main": [
+        [
+          {
+            "node": "Respond UPDATE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 60
+  },
+  "versionId": "e8a3a089-8291-4c35-aee9-bddf45c67ee1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f35c92533cab0256f88836bedf74c86f0e573222ebaea24517d8f39614f07eb6"
+  },
+  "id": "bvW3gam00zJMONBh",
+  "tags": []
+}

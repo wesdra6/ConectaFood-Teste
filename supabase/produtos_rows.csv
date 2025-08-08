@@ -32,5 +32,4 @@ id,created_at,nome,preco,descricao,ingredientes,imagens_urls,ativo,curtidas,cate
 158,2025-07-31 19:28:37.246932-03,Taxa de Serviço (10%),0.00,,[],[],true,0,,SERVICO
 159,2025-07-31 19:28:37.246932-03,Couvert Artístico,15.00,,[],[],true,0,,SERVICO
 160,2025-07-31 19:28:37.246932-03,Taxa de Entrega Adicional,1.00,,,,true,0,,TAXA
-162,2025-08-04 20:07:22.096793-03,PRODUTO DE TESTE 123,666.00,AAAAAAUUUUU AAAAAAUUUUU,"[""um"",""monte"",""de"",""trem""]","[""https://storage.uptecnology.com.br/u/Captura%20de%20tela%202025-08-04%20194728.png?ziplineFileId=cmdxpztph01hkqj014qxtptyw""]",false,0,,PRODUTO
 99999,2025-08-01 11:49:49.98083-03,Taxa de Entrega,5.00,,[],[],true,0,,TAXA

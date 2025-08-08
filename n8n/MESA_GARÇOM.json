@@ -1,0 +1,1591 @@
+{
+  "name": "MESA/GARÇOM",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# SUPABASE \n",
+        "height": 1500,
+        "width": 896,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        -112
+      ],
+      "id": "a91695d9-217e-41e4-932a-d6a393e408c2",
+      "name": "Sticky Note16"
+    },
+    {
+      "parameters": {
+        "content": "# --- MESAS ---",
+        "height": 100,
+        "width": 896,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        -32
+      ],
+      "id": "942ed03f-61bf-44da-a8cc-6a07d44f05b4",
+      "name": "Sticky Note17"
+    },
+    {
+      "parameters": {
+        "content": "\n# (Caixa) Atualiza o status de uma mesa (ex: 'LIVRE', 'OCUPADA') >>\nupdate_table_status",
+        "width": 720,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        528
+      ],
+      "id": "16e41321-5511-42f2-9a63-45283cbdcc9c",
+      "name": "Sticky Note18"
+    },
+    {
+      "parameters": {
+        "content": "\n# (Caixa) Busca o status de todas as mesas >>\nget_all_tables",
+        "width": 580,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        336
+      ],
+      "id": "59697cce-bf2b-477a-bb82-8a27607a405a",
+      "name": "Sticky Note19"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        320,
+        336
+      ],
+      "id": "e143febe-f348-4f41-a47c-0e49101b3c5f",
+      "name": "Respond9",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        320,
+        528
+      ],
+      "id": "f3cc64ac-cd9c-4d4b-89e1-13e4b0da67be",
+      "name": "Respond10",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "path": "mesas/listar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        336
+      ],
+      "id": "7d7dd599-b56f-45de-95c7-d14d61765dcb",
+      "name": "Webhook-mesas-listar",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_mesas_com_garcom",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        112,
+        336
+      ],
+      "id": "75c11fa3-bf7f-4b61-a6a6-59579a1a1a5e",
+      "name": "mesas-listar",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mesa/atualizar-status",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        528
+      ],
+      "id": "20c6d5b7-cb19-48a7-a968-6eccdb05592b",
+      "name": "Webhook-mesa-atualizar-status",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "mesas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "=LIVRE"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        112,
+        528
+      ],
+      "id": "3bb98d78-ee64-4290-a13f-eba7c376a484",
+      "name": "atualizar-status",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "\n# (Caixa) PRODUTOS LISTAR INTERNO >>\nget_produtos_listar_interno",
+        "width": 720,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        736
+      ],
+      "id": "50e2fa34-93ee-408d-9944-e50710e4dbfc",
+      "name": "Sticky Note26"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        320,
+        736
+      ],
+      "id": "9cf06e90-720a-4952-9fc0-121db6af6c38",
+      "name": "Respond12",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "produtos",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ativo",
+              "condition": "eq",
+              "keyValue": "true"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        112,
+        736
+      ],
+      "id": "61291c73-e424-4bc7-a648-6ea5767b815e",
+      "name": "listar-interno",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        320,
+        128
+      ],
+      "id": "325ecd0a-296e-42ae-86c8-1233d398b4b8",
+      "name": "Respond13",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mesas/criar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        128
+      ],
+      "id": "11168c8b-ec6d-4411-9061-176838e1ba47",
+      "name": "Webhook-mesas-criar",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "tableId": "mesas",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "numero_mesa",
+              "fieldValue": "={{ $json.body.numero_mesa }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "LIVRE"
+            },
+            {
+              "fieldId": "garcom_responsavel",
+              "fieldValue": "={{ $json.body.garcom_responsavel }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        112,
+        128
+      ],
+      "id": "69b17035-d7d1-4483-b045-850157c19eb1",
+      "name": "mesas-criar",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "\n# (MESA) FINALIZAR LIBERAR MESA >>\nfinalize_order_and_table",
+        "width": 720
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        960
+      ],
+      "id": "e3a981a6-6586-46ef-b889-0c94de381753",
+      "name": "Sticky Note39"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        608,
+        976
+      ],
+      "id": "c9fc33e3-1140-4784-a7f0-c0392205d80a",
+      "name": "Respond14",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pedido/finalizar-e-liberar-mesa",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        960
+      ],
+      "id": "94fadc07-203c-41d2-a488-a94539a37921",
+      "name": "Webhook-finalizar-e-liberar-mesa",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "pedidos",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.pedido_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "ENTREGUE"
+            },
+            {
+              "fieldId": "forma_pagamento",
+              "fieldValue": "={{ $json.body.forma_pagamento }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        112,
+        960
+      ],
+      "id": "2dc42296-f0cd-4640-93e7-0a115daa75c8",
+      "name": "finalizar-e-liberar-mesa",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4b08e581-9ac2-48ec-ae67-f09c860a7a17",
+              "leftValue": "={{ $json.id_mesa }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        288,
+        960
+      ],
+      "id": "0f1ee2fb-b131-4a60-9ea6-1cdac525570e",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "mesas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id_mesa }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "LIVRE"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        464,
+        864
+      ],
+      "id": "07d7e945-8f0c-4ec7-bd6e-6443d426f962",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "produtos/listar-interno",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        736
+      ],
+      "id": "3aa9166f-47db-48df-a755-18032cd4561b",
+      "name": "Webhook-caixa-listar-interno",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"success\": true\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        304,
+        1184
+      ],
+      "id": "d572401d-2b52-4203-a8f3-05be8b474c04",
+      "name": "Respond18",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mesas/deletar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -96,
+        1184
+      ],
+      "id": "7fba67fb-42dc-43d6-8743-39ebd97b30b0",
+      "name": "Webhook-mesas/deletar",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "mesas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        112,
+        1184
+      ],
+      "id": "a52a7b53-3ea1-4b24-b9a9-d0cc52de0809",
+      "name": "mesas/deletar",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "\n# (MESA) DELETAR >>\nmesas/deletar",
+        "width": 720,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        1184
+      ],
+      "id": "b4cbb822-735e-4b56-9fe6-744137c70c1c",
+      "name": "Sticky Note58"
+    },
+    {
+      "parameters": {
+        "path": "garcons/listar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "943da849-3a36-48e2-acc4-db72ebccacf8",
+      "name": "Webhook: Listar Garçons",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        192
+      ],
+      "webhookId": "87a37905-a31a-4b2f-9a20-c21e81f32f72"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "garcons"
+      },
+      "id": "e56eb8a4-ea98-4392-9516-35f8bb2766a9",
+      "name": "Supabase: Listar Garçons",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        192
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "488af5b4-ebd0-4628-b732-4cc073ae5f3a",
+      "name": "Respond: Lista",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1408,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "garcom/criar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "fa6a8836-3bdb-4ff0-8e6e-ceaf527718d1",
+      "name": "Webhook: Criar Garçom",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        400
+      ],
+      "webhookId": "e1ec4b20-4d32-47ba-b006-cf7abcab0796"
+    },
+    {
+      "parameters": {
+        "tableId": "garcons",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nome",
+              "fieldValue": "={{ $json.body.nome }}"
+            },
+            {
+              "fieldId": "pin",
+              "fieldValue": "={{ $json.body.pin }}"
+            }
+          ]
+        }
+      },
+      "id": "6baab277-59e4-4a58-88d4-d2c57a0503f5",
+      "name": "Supabase: Criar Garçom",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        400
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "e07b1ab0-15e8-43e9-9e4a-d8c1ff7d5e2e",
+      "name": "Respond: Criado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1408,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "garcom/atualizar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "07005938-81e3-4a52-a2da-cae35a5cc586",
+      "name": "Webhook: Atualizar Garçom",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        592
+      ],
+      "webhookId": "6a1f6772-10c9-48e3-b61d-686d2a1f0be4"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "garcons",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nome",
+              "fieldValue": "={{ $json.body.nome }}"
+            },
+            {
+              "fieldId": "pin",
+              "fieldValue": "={{ $json.body.pin }}"
+            }
+          ]
+        }
+      },
+      "id": "2f003804-90c2-4f2e-be6c-291bd2edaa15",
+      "name": "Supabase: Atualizar Garçom",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        592
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "5544b392-87d7-4095-9b65-490019608c23",
+      "name": "Respond: Atualizado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1408,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "garcom/deletar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "cbc0ab87-43cd-47d9-b5f8-0977d9be3d27",
+      "name": "Webhook: Deletar Garçom",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        800
+      ],
+      "webhookId": "7b758210-b504-4318-85ac-2fc9b665b1ae"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "garcons",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        }
+      },
+      "id": "44adcc5a-9a0d-44bd-802e-81cdb2634ad7",
+      "name": "Supabase: Deletar Garçom",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        800
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "d56f4616-1a55-4542-bb64-8aef409e17c1",
+      "name": "Respond: Deletado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1408,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# SUPABASE \n",
+        "height": 2060,
+        "width": 1120,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        912,
+        -96
+      ],
+      "id": "1ae21aa6-8d28-4c2c-905e-8930ec008044",
+      "name": "Sticky Note24"
+    },
+    {
+      "parameters": {
+        "content": "# --- GARÇOM ---",
+        "height": 100,
+        "width": 1088,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        944,
+        0
+      ],
+      "id": "60cda9ef-14af-47e6-aa67-3f1e6c46b8fa",
+      "name": "Sticky Note27"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "garcom/login",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "1a313c64-78cb-4ce7-8735-a6d9886cbd97",
+      "name": "Webhook: Garçom Login",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        1552
+      ],
+      "webhookId": "a0ef225d-24ac-46e7-945c-8bb238483c97"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "garcons",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.pin }}"
+            },
+            {
+              "keyName": "pin",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.pin }}"
+            }
+          ]
+        }
+      },
+      "id": "ba53bf1b-d321-4c36-b42e-7802a687fd65",
+      "name": "Supabase: Busca Garçom",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        1552
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Webhook: Garçom Login').item.json.body.pin }}",
+              "rightValue": "={{ $json.pin }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "id": "ac949817-fb57-40fc-b167-24b3c3bef962"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2d6920c9-1b24-4c4b-95b9-dcff57054895",
+      "name": "If: PIN Correto?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1408,
+        1552
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "3955697c-92c8-4fd1-8acc-b8f5daf7f338",
+      "name": "Respond: Sucesso",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1632,
+        1472
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": false, \"message\": \"PIN incorreto\"}",
+        "options": {}
+      },
+      "id": "d15b6019-b983-4954-b620-c0321a476717",
+      "name": "Respond: Falha",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1632,
+        1648
+      ]
+    },
+    {
+      "parameters": {
+        "path": "garcons/resumo",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "3ea1438a-f82a-40e3-9336-bdc31b4ce5f7",
+      "name": "Webhook: Garçons Resumo",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        1776
+      ],
+      "webhookId": "341c9c95-deeb-41c3-9e9d-2320c58cc1aa"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_garcons_resumo"
+      },
+      "id": "be470a54-15f7-430d-b317-8a17fe76b3ad",
+      "name": "Supabase: Busca Resumo",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        1776
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "81bfe4b5-9a8f-440d-bd1d-28f616309890",
+      "name": "Respond: Resumo",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1408,
+        1776
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mesas/atualizar-atribuicao",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "4520bf5e-0bca-4db1-98a6-533d30e53226",
+      "name": "Webhook: Atribuir Mesas",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        1040
+      ],
+      "webhookId": "2e21a161-783b-4162-af6c-9b3051f7d7ee"
+    },
+    {
+      "parameters": {
+        "jsCode": "const garcomId = $json.body.garcom_id;\nconst mesasIds = $json.body.mesas_ids || [];\nreturn mesasIds.map(mesaId => ({ json: { mesa_id: parseInt(mesaId), garcom_id_para_atribuir: garcomId } }));"
+      },
+      "id": "cb71f627-d273-4e4e-84d7-452e8674da13",
+      "name": "1. Code: Prepara Itens para Loop",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "mesas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.mesa_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "garcom_id",
+              "fieldValue": "={{ $json.garcom_id_para_atribuir }}"
+            }
+          ]
+        }
+      },
+      "id": "473533b1-45c7-4a93-b794-f7742658529a",
+      "name": "2. Supabase: Atribui Nova Mesa (Loop)",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1616,
+        1104
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "8b0f6918-6fb0-49fa-bba5-cfbe15740cf5",
+      "name": "3. Respond: Sucesso",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1616,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "decc9478-a371-43de-8a75-142e7ac39dc9",
+      "name": "Loop Over Items3",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1408,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mesas/limpar-atribuicao",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b99573f6-4aa3-415b-b63c-fe52cfa4e1e8",
+      "name": "Webhook: Limpar Mesas",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        1328
+      ],
+      "webhookId": "87d51253-2d8a-4ae5-8b42-76893e787eb2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "mesas",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "garcom_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.garcom_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "garcom_id",
+              "fieldValue": "={{ null }}"
+            }
+          ]
+        }
+      },
+      "id": "cc9c22bb-fba3-4e1f-8247-abea488022d0",
+      "name": "Supabase: Limpa Atribuições",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        1328
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "11cc5fc9-3340-409b-ab34-ac415f135563",
+      "name": "Respond: Sucesso1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1408,
+        1328
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook-mesas-listar": {
+      "main": [
+        [
+          {
+            "node": "mesas-listar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mesas-listar": {
+      "main": [
+        [
+          {
+            "node": "Respond9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-mesa-atualizar-status": {
+      "main": [
+        [
+          {
+            "node": "atualizar-status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "atualizar-status": {
+      "main": [
+        [
+          {
+            "node": "Respond10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "listar-interno": {
+      "main": [
+        [
+          {
+            "node": "Respond12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-mesas-criar": {
+      "main": [
+        [
+          {
+            "node": "mesas-criar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mesas-criar": {
+      "main": [
+        [
+          {
+            "node": "Respond13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-finalizar-e-liberar-mesa": {
+      "main": [
+        [
+          {
+            "node": "finalizar-e-liberar-mesa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "finalizar-e-liberar-mesa": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row": {
+      "main": [
+        [
+          {
+            "node": "Respond14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-caixa-listar-interno": {
+      "main": [
+        [
+          {
+            "node": "listar-interno",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-mesas/deletar": {
+      "main": [
+        [
+          {
+            "node": "mesas/deletar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mesas/deletar": {
+      "main": [
+        [
+          {
+            "node": "Respond18",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Listar Garçons": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Listar Garçons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Listar Garçons": {
+      "main": [
+        [
+          {
+            "node": "Respond: Lista",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Criar Garçom": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Criar Garçom",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Criar Garçom": {
+      "main": [
+        [
+          {
+            "node": "Respond: Criado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Atualizar Garçom": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Atualizar Garçom",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Atualizar Garçom": {
+      "main": [
+        [
+          {
+            "node": "Respond: Atualizado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Deletar Garçom": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Deletar Garçom",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Deletar Garçom": {
+      "main": [
+        [
+          {
+            "node": "Respond: Deletado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Garçom Login": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Busca Garçom",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Busca Garçom": {
+      "main": [
+        [
+          {
+            "node": "If: PIN Correto?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If: PIN Correto?": {
+      "main": [
+        [
+          {
+            "node": "Respond: Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond: Falha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Garçons Resumo": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Busca Resumo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Busca Resumo": {
+      "main": [
+        [
+          {
+            "node": "Respond: Resumo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Atribuir Mesas": {
+      "main": [
+        [
+          {
+            "node": "1. Code: Prepara Itens para Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Code: Prepara Itens para Loop": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Supabase: Atribui Nova Mesa (Loop)": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items3": {
+      "main": [
+        [
+          {
+            "node": "3. Respond: Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "2. Supabase: Atribui Nova Mesa (Loop)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Limpar Mesas": {
+      "main": [
+        [
+          {
+            "node": "Supabase: Limpa Atribuições",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase: Limpa Atribuições": {
+      "main": [
+        [
+          {
+            "node": "Respond: Sucesso1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 60
+  },
+  "versionId": "4509e9b0-7da4-44f9-af6e-094f687c360e",
+  "meta": {
+    "instanceId": "f35c92533cab0256f88836bedf74c86f0e573222ebaea24517d8f39614f07eb6"
+  },
+  "id": "2kmvs9A8uZtnveyo",
+  "tags": []
+}

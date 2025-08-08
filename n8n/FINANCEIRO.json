@@ -1,0 +1,254 @@
+{
+  "name": "FINANCEIRO",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# SUPABASE \n",
+        "height": 564,
+        "width": 800,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -64
+      ],
+      "id": "857e0c50-f9a7-4d24-b222-a797ebcc2288",
+      "name": "Sticky Note56"
+    },
+    {
+      "parameters": {
+        "content": "# --- DASHBOARD FINANCEIRO ---",
+        "height": 100,
+        "width": 800,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        16
+      ],
+      "id": "2feadab8-f3b6-4013-b569-787ebbe5111d",
+      "name": "Sticky Note57"
+    },
+    {
+      "parameters": {
+        "content": "\n# Relatório resumido Tela Admin >>\ndashboard/stats",
+        "height": 100,
+        "width": 580,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        160
+      ],
+      "id": "abdd49d7-5544-45c6-874c-e02a100a8727",
+      "name": "Sticky Note59"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        144
+      ],
+      "id": "3d88f367-93b2-425c-b778-3b8fd2d29a35",
+      "name": "Respond7",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_dashboard_pedidos_dia",
+        "filterType": "none"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        208,
+        144
+      ],
+      "id": "979bed9b-0d28-4a42-9384-7cdee70b17ed",
+      "name": "dashboard_stats",
+      "alwaysOutputData": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "path": "dashboard/stats",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        144
+      ],
+      "id": "30989d65-8ef1-47a0-b37c-5481a1b73f03",
+      "name": "Webhook-dashboard-stats",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "content": "\n# FINANCEIRO >>\nfinanceiro/relatorio",
+        "height": 100,
+        "width": 580,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        336
+      ],
+      "id": "e3c9afac-df6f-41f0-aab0-34de66fbfafd",
+      "name": "Sticky Note60"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        320
+      ],
+      "id": "504927e1-3fb9-4804-adc3-e6cb843e63b9",
+      "name": "Respond16",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "path": "financeiro/relatorio",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        320
+      ],
+      "id": "b3ace5fa-971b-4a07-9389-0ba8ef7643c4",
+      "name": "Webhook-financeiro-relatorio",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_financeiro_detalhado",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "data_local",
+              "condition": "gte",
+              "keyValue": "={{ $json.query.inicio }}"
+            },
+            {
+              "keyName": "data_local",
+              "condition": "lte",
+              "keyValue": "={{ $json.query.fim }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        208,
+        320
+      ],
+      "id": "4654280f-2b6e-4d9d-9931-ae3748655e97",
+      "name": "financeiro-relatorio",
+      "alwaysOutputData": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "dashboard_stats": {
+      "main": [
+        [
+          {
+            "node": "Respond7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-dashboard-stats": {
+      "main": [
+        [
+          {
+            "node": "dashboard_stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-financeiro-relatorio": {
+      "main": [
+        [
+          {
+            "node": "financeiro-relatorio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "financeiro-relatorio": {
+      "main": [
+        [
+          {
+            "node": "Respond16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 60
+  },
+  "versionId": "0781a837-4c8b-403e-90a0-6c94542b5a27",
+  "meta": {
+    "instanceId": "f35c92533cab0256f88836bedf74c86f0e573222ebaea24517d8f39614f07eb6"
+  },
+  "id": "fmqFUssodoRtQMs6",
+  "tags": []
+}

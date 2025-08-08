@@ -1,4 +1,2 @@
-id,created_at,id_pedido_publico,nome_cliente,whatsapp_cliente,total,status,origem,rua,quadra,lote,referencia,bairro,forma_pagamento,id_mesa,observacoes,entregador_id,garcom_id
-439,2025-08-05 16:50:44.580586-03,711390,VERDIM,62985460395,37.90,ENTREGUE,WHATSAPP,RP 15,05,22,BORRACHARIA,TERRA BELA,PIX,,Quero nada dentu 😉,556299062593,
-440,2025-08-05 16:57:14.995485-03,6LUZZG,Mesa 11,PED-INTERNO,27.10,ENTREGUE,MESA,,,,,,DINHEIRO,35,,,5
-441,2025-08-05 17:12:30.372998-03,Y56Z7T,Balcão,PED-INTERNO,26.55,ENTREGUE,BALCAO,,,,,,DINHEIRO,,,,
+id,created_at,id_pedido_publico,nome_cliente,whatsapp_cliente,total,status,origem,rua,quadra,lote,referencia,bairro,forma_pagamento,id_mesa,observacoes,entregador_id,garcom_id,status_fiscal,id_nota_fiscal,erro_fiscal,protocolo_fiscal,pdf_url,xml_url
+463,2025-08-07 22:21:34.964008-03,XBU9UJ,Balcão,PED-INTERNO,10.50,ENTREGUE,BALCAO,,,,,,DINHEIRO,,,,,Emitida,68955153a0f442b0ba8449b6,,0f78f358-bca9-4e5f-985e-799542add9db,https://api.sandbox.plugnotas.com.br/nfce/68955153a0f442b0ba8449b6/pdf,https://api.sandbox.plugnotas.com.br/nfce/68955153a0f442b0ba8449b6/xml

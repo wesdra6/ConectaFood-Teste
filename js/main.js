@@ -7,6 +7,7 @@ console.log("Maestro: Iniciando com calma e sabedoria.");
 const VIGIA_RATE_MS = 5000;
 let audioContextDesbloqueado = false;
 let vigiaInterval = null;
+
 const viewModulePaths = {
     'dashboard': './functions/admin.js',
     'meus-produtos': './functions/admin.js',
@@ -16,7 +17,8 @@ const viewModulePaths = {
     'cliente': './functions/cliente.js',
     'acompanhar': './functions/acompanhar.js',
     'garcom-login': './functions/garcom.js',
-    'garcom-mesas': './functions/garcom.js'
+    'garcom-mesas': './functions/garcom.js',
+    'hub-integracao': './functions/hub-integracao.js'
 };
 
 async function navigateTo(view, params = {}) { 
@@ -218,7 +220,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const modulePath = viewModulePaths[pageName];
                 try {
                     const module = await import(modulePath);
-                    const functionName = `init${pageName.replace(/-(\w)/g, (match, letter) => letter.toUpperCase()).charAt(0).toUpperCase() + pageName.replace(/-(\w)/g, (match, letter) => letter.toUpperCase()).slice(1)}Page`;
+
+                    // Lógica corrigida para carregar a função de inicialização correta
+                    let functionName;
+                    if (pageName === 'hub-integracao') {
+                        functionName = 'initHubIntegracaoPage';
+                    } else {
+                        functionName = `init${pageName.replace(/-(\w)/g, (_, letter) => letter.toUpperCase()).charAt(0).toUpperCase() + pageName.replace(/-(\w)/g, (_, letter) => letter.toUpperCase()).slice(1)}Page`;
+                    }
+                    
                     if (typeof module[functionName] === 'function') {
                         await module[functionName]();
                         console.log(`Módulo '${pageName}' finalizou a inicialização.`);

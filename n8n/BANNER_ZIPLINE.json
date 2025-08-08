@@ -1,0 +1,1278 @@
+{
+  "name": "BANNER/ZIPLINE",
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        1776,
+        64
+      ],
+      "id": "2c0b9156-c904-4348-8fc8-1c1cc4e5489a",
+      "name": "Respond to Webhook FTP"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "enviar-imagem",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        64
+      ],
+      "id": "9d323828-3bd0-4568-835b-7905bb9f80c8",
+      "name": "Webhook-FTP",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://storage.uptecnology.com.br/api/upload",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "MTc1MTQwNjgxOTg3Nw==.YzU1OTliMTI2NTNkNGE1OTExZjMzODZiMDJjYzUxNWYuN2U0YzM1NGE0ZjlmNTRkZTllMTcyMzI5ZGVlOTYwMDUyM2VmMDgwYWI1YTMxZWYzNTQ1OTIzMGFiNTdkNjQ1OGUyNmY1ZDg1NzhmZmI2ZjNlMzY0ZmE4YTg5NmIzZTcyZTNkNGQ5Mzg1ZTllODNiZjYzMmVlYjg5NjdmNTc2ODkzMTljMzAzODA1MGNhMGI4Y2EwMTQyYmI0NTZlNTJhZQ=="
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "food",
+              "inputDataFieldName": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1296,
+        64
+      ],
+      "id": "a52f1943-e76c-4f20-b0e7-4842fe1952c0",
+      "name": "Upload para Zipline",
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## UPLOAD ZIPLINE",
+        "height": 520,
+        "width": 960,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        -16
+      ],
+      "id": "e570b422-ab4b-4101-8760-44c849313ccf",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0767a16f-bf76-40f4-96bf-ddbc08fa5173",
+              "leftValue": "={{ $json.error.message }}",
+              "rightValue": "already exists",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1504,
+        272
+      ],
+      "id": "765ac343-2bc4-4f8d-a01d-18020bdccfce",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "path": "exibir-imagem",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        592
+      ],
+      "id": "8d5fcb0d-e944-4cb0-9f4d-7717e9af9a64",
+      "name": "Webhook-FTP-Request",
+      "webhookId": "5bcc7d45-a975-4e09-8589-e58ff8d7fff9"
+    },
+    {
+      "parameters": {
+        "url": "https://ferramentas-zipline.m3trfw.easypanel.host/api/user/files",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "page",
+              "value": "={{ $json.query.page }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "MTc0ODk5ODA4NjA1Mg==.YmNjMDA2YTM2ZjNhODRjMTM0NTY0ZTk2ZTk2ZjFjM2IuNTk3YzE4MTdhYmJkMGQ3ZDQwODA2NzAzNTlkOGI2YmVjM2Q4ZGMwZmVlYTEwNzE0NmRhNWY2ZDJiNDc5ODhlYTliZGZlNzY5NzcxYTlhMGFkYTJiYWEyODMzOTZlN2U3ZjY2ZmY4OGMwNGQzNWY0NzliNjdkZDAzN2U1ZmZmZDA4ZGM4MzI0YWU1NTZlMWM1YjVlMTIzZWFkZmFiMTFmYw=="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1296,
+        592
+      ],
+      "id": "f0733e49-787d-4124-9f01-b31c258996e0",
+      "name": "Buscar imagens",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## EXIBIR IMAGENS ZIPLINE",
+        "height": 240,
+        "width": 620,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        528
+      ],
+      "id": "75b074d7-0c3f-4266-a80a-17864a2b65c2",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        1472,
+        592
+      ],
+      "id": "fc8e36e0-e5a4-43dc-8e6a-ecba99771865",
+      "name": "Respond to Webhook Request",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e046f735-c714-4fce-8cf8-8a72eac385d5",
+              "name": "imageUrlToCopy",
+              "value": "={{ $json.files[0].url }}?zipline_id={{ $json.files[0].id }}",
+              "type": "string"
+            },
+            {
+              "id": "80027380-4c5a-4568-9ad1-4de2273829b9",
+              "name": "ziplineFileId",
+              "value": "={{ $json.files[0].id }}",
+              "type": "string"
+            },
+            {
+              "id": "fbe108e0-3018-4aea-a634-78397a3d1a2e",
+              "name": "success",
+              "value": "={{ true }}",
+              "type": "boolean"
+            },
+            {
+              "id": "fbaec1c5-171b-4408-9ec0-ce81f51dca73",
+              "name": "urlParaCopiarComId",
+              "value": "={{ $json.files[0].url }}?ziplineFileId={{ $json.files[0].id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1504,
+        64
+      ],
+      "id": "f9a23db0-c66c-48a3-a5ca-4ea95d4ed015",
+      "name": "Pegar_ID_da_Imagem"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"success\": true, \"message\": \"Já existe uma imagem com esse nome no servidor, renomeie\" }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        1744,
+        272
+      ],
+      "id": "bc6d2ea5-4b9e-4a97-b313-ae611b9c3df4",
+      "name": "Respond to Webhook FTP1"
+    },
+    {
+      "parameters": {
+        "content": "# SUPABASE \n",
+        "height": 1600,
+        "width": 960,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        -48
+      ],
+      "id": "9cd1ce1b-5bfb-45db-99fd-8aa27c64bf2d",
+      "name": "Sticky Note47"
+    },
+    {
+      "parameters": {
+        "content": "# --- BANNERS\n ---",
+        "height": 100,
+        "width": 960,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        32
+      ],
+      "id": "ad104852-7255-4f14-9006-c4e738759874",
+      "name": "Sticky Note48"
+    },
+    {
+      "parameters": {
+        "content": "\n# GET LISTAR BANNERS >>\nget_all_banners:",
+        "width": 580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        160
+      ],
+      "id": "a64d00b7-4cce-4bd0-9e67-198bedbc638d",
+      "name": "Sticky Note49"
+    },
+    {
+      "parameters": {
+        "content": "\n# CREATE BANNERS >>\ncreate_banner",
+        "width": 580,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        384
+      ],
+      "id": "3fca96f2-0e69-4b3f-81da-decec621bff5",
+      "name": "Sticky Note50"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "da857cea-b9a5-43a1-9bb2-20495cfece0e",
+      "name": "Respond GET3",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "content": "\n# UPDATE ATUALIZAR BANNERS >>\nupdate_banner",
+        "width": 580,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        592
+      ],
+      "id": "b4a4a122-bd9b-436b-b80e-4f16d39ee899",
+      "name": "Sticky Note51"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "8944ff99-1ee6-44af-8adf-56ac1afaef10",
+      "name": "Respond UPDATE6",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        416,
+        592
+      ]
+    },
+    {
+      "parameters": {
+        "content": "\n# REORDENAR BANNERS >>\nreorder_banners",
+        "height": 320,
+        "width": 1540,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        800
+      ],
+      "id": "f55fdd4e-756d-4c5f-a0ca-d898515db563",
+      "name": "Sticky Note52"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "3b9ec63f-6bd8-4d0b-93fa-535b493b3af7",
+      "name": "Respond UPDATE7",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        688,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        496,
+        864
+      ],
+      "id": "6a9b90e5-0eb8-43c1-9f37-693063f4d845",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "2d412043-01b1-4d47-99fa-ed4780a5f6fc",
+      "name": "5. Respond (Sucesso!)1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        624,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "content": "\n# DELETE BANNERS >>\ndelete_banner",
+        "height": 200,
+        "width": 1540,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        1168
+      ],
+      "id": "858c0f54-e58e-4261-9766-06445982e43c",
+      "name": "Sticky Note53"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "43c0cd58-c762-476d-9e3b-d8dbfdae9951",
+      "name": "Respond UPDATE8",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        608,
+        1200
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        304,
+        864
+      ],
+      "id": "bb2f996c-99e5-4e1e-b418-888f889a064b",
+      "name": "Split Out2"
+    },
+    {
+      "parameters": {
+        "content": "\n# ALTERNAR STATUS >>\ntoggle_banner_status",
+        "width": 580,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        1408
+      ],
+      "id": "2cea5010-2d9c-4beb-b69e-22a52a817529",
+      "name": "Sticky Note54"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "71f84c58-677b-4b8e-a49a-5dc068c1914b",
+      "name": "Respond UPDATE9",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        416,
+        1408
+      ]
+    },
+    {
+      "parameters": {
+        "path": "banners/listar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "aa5320bc-0105-49b0-96fe-71135d6112ff",
+      "name": "webhook-banners-listar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        176
+      ],
+      "webhookId": "09f83f1d-f88a-4c22-9214-93836d52f6c8"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_banners_ordenados"
+      },
+      "id": "a684b667-f787-4381-a617-08698d7e75d8",
+      "name": "banners-listar",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        192,
+        176
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "banner/criar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "e7878aa0-68d6-4618-bbc8-039eae63a6ab",
+      "name": "Webhook-banner-criar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        384
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "banner/atualizar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "808b9caa-e4b6-42e6-b2cd-45e28a0c9c58",
+      "name": "webhook-banner-atualizar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        592
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "banners_promocionais",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "url_imagem",
+              "fieldValue": "={{ $json.body.url_imagem }}"
+            },
+            {
+              "fieldId": "link_ancora",
+              "fieldValue": "={{ $json.body.link_ancora }}"
+            }
+          ]
+        }
+      },
+      "id": "1e6232ec-96b3-4d51-88c1-a6bc8d93c792",
+      "name": "banner-atualizar",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        192,
+        592
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "banners/reordenar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "bbaed1ff-6470-401b-b73a-de0626446df2",
+      "name": "webhook-banners-reordenar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        864
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "banner/deletar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "29e5d5dc-8326-45f8-a7ca-cef6a533c73c",
+      "name": "webhook-banner-deletar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        1200
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "banner/alternar-status",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "6c2bccd2-676e-43de-b266-4435414e215a",
+      "name": "webhook-banner-alternar-status",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        1408
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "banners_promocionais",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "ativo",
+              "fieldValue": "=true"
+            }
+          ]
+        }
+      },
+      "id": "2f1582a2-070c-43b3-b000-d379c7b5048a",
+      "name": "banner-alternar-status",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        192,
+        1408
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "view_ordem_maxima_banner"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        144,
+        384
+      ],
+      "id": "9c1da9bd-5056-4bd5-8e5e-461c9b7e0a1b",
+      "name": "Espiao_banner-criar",
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const resultadoDaView = $input.first().json;\nconst webhookData = $('Webhook-banner-criar').item.json.body; // Mude 'Webhook' se o nome do seu nó for outro\n\n// Pega o valor máximo (-1 se for a primeira vez)\nconst maxOrdem = resultadoDaView.max_ordem;\n\n// Calcula a próxima posição ( -1 + 1 = 0 )\nconst novaOrdem = maxOrdem + 1;\n\nconst payloadFinal = {\n  ...webhookData,\n  ordem_exibicao: novaOrdem\n};\n\nreturn payloadFinal;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        304,
+        384
+      ],
+      "id": "cd9eee39-af70-4321-a613-d34e004cd971",
+      "name": "O_Matemático"
+    },
+    {
+      "parameters": {
+        "tableId": "banners_promocionais",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "url_imagem",
+              "fieldValue": "={{ $json.url_imagem }}"
+            },
+            {
+              "fieldId": "link_ancora",
+              "fieldValue": "={{ $json.link_ancora }}"
+            },
+            {
+              "fieldId": "ordem_exibicao",
+              "fieldValue": "={{ $json.ordem_exibicao }}"
+            },
+            {
+              "fieldId": "ativo",
+              "fieldValue": "true"
+            }
+          ]
+        }
+      },
+      "id": "f9ce2561-771e-4cb4-a655-41686bbe62cb",
+      "name": "Criador",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        464,
+        384
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "banners_promocionais",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        }
+      },
+      "id": "51ff3da5-6fdc-4c77-8a32-f49a14aeef0a",
+      "name": "categoria-banner-deletar",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        192,
+        1200
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst idsOrdenados = $json.body.ordem;\n\nconst itensParaAtualizar = idsOrdenados.map((id, index) => ({ \n  'id': id,\n  'nova_ordem': index \n}));\n\n// Retorna a lista de objetos diretamente.\nreturn itensParaAtualizar;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        128,
+        864
+      ],
+      "id": "158e1026-a54d-4f86-b77a-2124db2b8db9",
+      "name": "Prepara_Fila"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "banners_promocionais",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Prepara_Fila').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "ordem_exibicao",
+              "fieldValue": "={{ $('Prepara_Fila').item.json.nova_ordem }}"
+            }
+          ]
+        }
+      },
+      "id": "8122fc3d-c5f2-4107-b4e8-0a888421e082",
+      "name": "banner-reordenar",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        688,
+        944
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "g0FS6Ben3C2P37Gh",
+          "name": "Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://storage.uptecnology.com.br/api/user/files/{{$json[\"url_imagem\"].match(/ziplineFileId=([^&]+)/)[1]}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "MTc1MTQwNjgxOTg3Nw==.YzU1OTliMTI2NTNkNGE1OTExZjMzODZiMDJjYzUxNWYuN2U0YzM1NGE0ZjlmNTRkZTllMTcyMzI5ZGVlOTYwMDUyM2VmMDgwYWI1YTMxZWYzNTQ1OTIzMGFiNTdkNjQ1OGUyNmY1ZDg1NzhmZmI2ZjNlMzY0ZmE4YTg5NmIzZTcyZTNkNGQ5Mzg1ZTllODNiZjYzMmVlYjg5NjdmNTc2ODkzMTljMzAzODA1MGNhMGI4Y2EwMTQyYmI0NTZlNTJhZQ=="
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "id",
+              "value": "="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        368,
+        1200
+      ],
+      "id": "31fe596a-32f9-4660-abfa-1d15cae888a1",
+      "name": "Delete_Zipline1",
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true}",
+        "options": {}
+      },
+      "id": "c4152ffc-d5ab-4f81-a624-0e8f32b57765",
+      "name": "Respond UPDATE10",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1504,
+        848
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "banner/deletar-limpar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a31ebe8f-f730-4665-a283-bc16a2154007",
+      "name": "webhook-banner-deletar-limpar",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        848
+      ],
+      "webhookId": "2338ff91-10c0-4e76-80f0-802ba06d4e41"
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://storage.uptecnology.com.br/api/user/files/{{ $json.body.fileIdentifier }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "MTc1MTQwNjgxOTg3Nw==.YzU1OTliMTI2NTNkNGE1OTExZjMzODZiMDJjYzUxNWYuN2U0YzM1NGE0ZjlmNTRkZTllMTcyMzI5ZGVlOTYwMDUyM2VmMDgwYWI1YTMxZWYzNTQ1OTIzMGFiNTdkNjQ1OGUyNmY1ZDg1NzhmZmI2ZjNlMzY0ZmE4YTg5NmIzZTcyZTNkNGQ5Mzg1ZTllODNiZjYzMmVlYjg5NjdmNTc2ODkzMTljMzAzODA1MGNhMGI4Y2EwMTQyYmI0NTZlNTJhZQ=="
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "id",
+              "value": "="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1312,
+        848
+      ],
+      "id": "7e1c61d6-14c0-43f3-83f1-53777356936d",
+      "name": "Delete_Zipline-banner-limpar",
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## DELET BANNER BOTÃO LIMPAR",
+        "height": 240,
+        "width": 620,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        784
+      ],
+      "id": "4d0c8938-5764-4b12-a777-62e1077ab309",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook-FTP": {
+      "main": [
+        [
+          {
+            "node": "Upload para Zipline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload para Zipline": {
+      "main": [
+        [
+          {
+            "node": "Pegar_ID_da_Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook FTP1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-FTP-Request": {
+      "main": [
+        [
+          {
+            "node": "Buscar imagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar imagens": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pegar_ID_da_Imagem": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook FTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Respond UPDATE7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "banner-reordenar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-banners-listar": {
+      "main": [
+        [
+          {
+            "node": "banners-listar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "banners-listar": {
+      "main": [
+        [
+          {
+            "node": "Respond GET3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook-banner-criar": {
+      "main": [
+        [
+          {
+            "node": "Espiao_banner-criar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-banner-atualizar": {
+      "main": [
+        [
+          {
+            "node": "banner-atualizar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "banner-atualizar": {
+      "main": [
+        [
+          {
+            "node": "Respond UPDATE6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-banners-reordenar": {
+      "main": [
+        [
+          {
+            "node": "Prepara_Fila",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-banner-deletar": {
+      "main": [
+        [
+          {
+            "node": "categoria-banner-deletar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-banner-alternar-status": {
+      "main": [
+        [
+          {
+            "node": "banner-alternar-status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "banner-alternar-status": {
+      "main": [
+        [
+          {
+            "node": "Respond UPDATE9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Espiao_banner-criar": {
+      "main": [
+        [
+          {
+            "node": "O_Matemático",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "O_Matemático": {
+      "main": [
+        [
+          {
+            "node": "Criador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criador": {
+      "main": [
+        [
+          {
+            "node": "5. Respond (Sucesso!)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "categoria-banner-deletar": {
+      "main": [
+        [
+          {
+            "node": "Delete_Zipline1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepara_Fila": {
+      "main": [
+        [
+          {
+            "node": "Split Out2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "banner-reordenar": {
+      "main": [
+        [
+          {
+            "node": "Split Out2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete_Zipline1": {
+      "main": [
+        [
+          {
+            "node": "Respond UPDATE8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook-banner-deletar-limpar": {
+      "main": [
+        [
+          {
+            "node": "Delete_Zipline-banner-limpar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete_Zipline-banner-limpar": {
+      "main": [
+        [
+          {
+            "node": "Respond UPDATE10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 60
+  },
+  "versionId": "69c5edb1-199f-4977-bf53-e9f06badcb70",
+  "meta": {
+    "instanceId": "f35c92533cab0256f88836bedf74c86f0e573222ebaea24517d8f39614f07eb6"
+  },
+  "id": "KyrtJPizSpF8YMUZ",
+  "tags": []
+}

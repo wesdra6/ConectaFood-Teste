@@ -58,7 +58,7 @@ body * { visibility: hidden; }
 <aside id="admin-sidebar" class="bg-sidebar w-64 px-4 pt-3 pb-6 flex flex-col fixed top-0 left-0 h-full z-40 transform -translate-x-full md:relative md:translate-x-0">
     <div class="flex-shrink-0">
         <div class="flex justify-between items-center mb-2">
-            <div id="logo-header-desktop" class="hidden md:flex items-center h-full"><span class="text-3xl font-bold text-principal">LegaConnect</span></div>
+            <div id="logo-header-desktop" class="hidden md:flex items-center h-full"><span class="text-3xl font-bold text-principal">LegalConnect</span></div>
             <div class="md:hidden w-full flex justify-end"><button id="btn-close-menu" class="text-3xl"><i class="bi bi-x"></i></button></div>
         </div>
     </div>
@@ -108,10 +108,10 @@ body * { visibility: hidden; }
         </div>
 
         <!-- 🚀 NOVO BLOCO DE ATALHOS RÁPIDOS 👇 -->
-        <!-- PARA: (Substitua o bloco de atalhos inteiro por este código final) -->
-<div class="mt-8">
+        <div class="mt-8">
     <h3 class="text-2xl font-bold mb-4">Atalhos Rápidos ⚡</h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+    <!-- 👇 Grid ajustada para 3 colunas em telas grandes, acomodando 6 itens 👇 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Botão Financeiro -->
         <a href="financeiro.html" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
             <i class="bi bi-clipboard-data-fill text-4xl text-principal mb-3"></i>
@@ -137,12 +137,18 @@ body * { visibility: hidden; }
             </div>
         </a>
 
-        <!-- 👇 CARD DE ESTOQUE ATUALIZADO (AGORA VAI!) 👇 -->
-        <a href="#" class="relative overflow-hidden bg-card p-6 rounded-lg flex flex-col items-center text-center transition-colors transform hover:-translate-y-1 group">
-            <!-- Wrapper da Tarja -->
-            <div class="absolute top-0 left-0 w-32 h-32">
-                <div class="absolute top-8 -left-5 w-full transform -rotate-45 bg-principal text-white text-center text-sm py-1">Em Breve</div>
+        <!-- 👇 ATALHO NFC-e ATIVO E FUNCIONAL 👇 -->
+        <a href="hub-integracao.html" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
+            <i class="bi bi-receipt-cutoff text-4xl text-principal mb-3"></i>
+            <div>
+                <h4 class="text-xl font-bold">Emitir NFC-e</h4>
+                <p class="text-texto-muted text-sm mt-1">Integração para emissão de notas fiscais.</p>
             </div>
+        </a>
+
+        <!-- CARD DE ESTOQUE (COM TARJA) -->
+        <a href="#" class="relative overflow-hidden bg-card p-6 rounded-lg flex flex-col items-center text-center transition-colors transform hover:-translate-y-1 group">
+            <div class="absolute top-0 left-0 w-32 h-32"><div class="absolute top-8 -left-5 w-full transform -rotate-45 bg-principal text-white text-center text-sm py-1">Em Breve</div></div>
             <div class="opacity-40 group-hover:opacity-100 transition-opacity">
                 <i class="bi bi-box-seam-fill text-4xl text-principal mb-3"></i>
                 <div>
@@ -151,18 +157,15 @@ body * { visibility: hidden; }
                 </div>
             </div>
         </a>
-
-        <!-- 👇 CARD DE IA ATUALIZADO (AGORA VAI!) 👇 -->
+        
+        <!-- CARD DE IA (COM TARJA) -->
         <a href="#" class="relative overflow-hidden bg-card p-6 rounded-lg flex flex-col items-center text-center transition-colors transform hover:-translate-y-1 group">
-            <!-- Wrapper da Tarja -->
-            <div class="absolute top-0 left-0 w-32 h-32">
-                <div class="absolute top-8 -left-5 w-full transform -rotate-45 bg-principal text-white text-center text-sm py-1">Em Breve</div>
-            </div>
+            <div class="absolute top-0 left-0 w-32 h-32"><div class="absolute top-8 -left-5 w-full transform -rotate-45 bg-principal text-white text-center text-sm py-1">Em Breve</div></div>
              <div class="opacity-40 group-hover:opacity-100 transition-opacity">
                 <i class="bi bi-magic text-4xl text-principal mb-3"></i>
                 <div>
-                    <h4 class="text-xl font-bold">Criador Mágico de Descrições</h4>
-                    <p class="text-texto-muted text-sm mt-1">Deixe a IA criar textos que vendem.</p>
+                    <h4 class="text-xl font-bold">Criador Mágico com IA</h4>
+                    <p class="text-texto-muted text-sm mt-1">Deixe a IA cuidar do Marketing.</p>
                 </div>
             </div>
         </a>
