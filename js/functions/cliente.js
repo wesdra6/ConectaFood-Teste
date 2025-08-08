@@ -14,25 +14,58 @@ function gerarIdPedidoPublico() {
     return resultado;
 }
 
+// 👇 ESTA FUNÇÃO AGORA É A CHEFE! ELA DECIDE SE MOSTRA O CARDÁPIO OU A PLACA DE "FECHADO" 👇
 async function carregarConfiguracoesDaLoja() {
+    const container = document.getElementById('vitrine-builder-container');
+    const badge = document.getElementById('status-loja-badge');
+
     try {
         const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
         if (configs && configs.length > 0) {
-            const { nome_loja, logo_vitrine_url, taxa_entrega_fixa } = configs[0];
+            const { nome_loja, logo_vitrine_url, taxa_entrega_fixa, loja_aberta } = configs[0];
             const logoContainer = document.getElementById('logo-vitrine-container');
+
+            // Atualiza logo e título da página
             if (logoContainer) {
                 document.title = nome_loja || 'Nosso Cardápio';
-                if (logo_vitrine_url) {
-                    logoContainer.innerHTML = `<img src="${logo_vitrine_url}" alt="${nome_loja}" class="max-h-20 w-auto">`;
-                } else if (nome_loja) {
-                    logoContainer.innerHTML = `<span class="text-2xl font-bold text-principal">${nome_loja}</span>`;
-                }
+                logoContainer.innerHTML = logo_vitrine_url 
+                    ? `<img src="${logo_vitrine_url}" alt="${nome_loja}" class="max-h-20 w-auto">` 
+                    : `<span class="text-2xl font-bold text-principal">${nome_loja}</span>`;
             }
+
+            // Atualiza taxa de entrega no carrinho
             if (window.carrinhoFunctions) {
                 window.carrinhoFunctions.setTaxaEntrega(taxa_entrega_fixa);
             }
+
+            // 🧠 A GRANDE DECISÃO ACONTECE AQUI!
+            if (loja_aberta) {
+                if (badge) {
+                    badge.innerHTML = `<span>ABERTO</span> <i class="bi bi-lightning-charge-fill"></i>`;
+                    badge.className = 'px-3 py-1 rounded-full text-sm font-bold text-white bg-green-500 animate-pulse';
+                }
+                // Se a loja está aberta, carrega o cardápio.
+                await fetchDadosDaVitrine();
+            } else {
+                if (badge) {
+                    badge.innerHTML = `<span>FECHADO</span> <i class="bi bi-moon-stars-fill"></i>`;
+                    badge.className = 'px-3 py-1 rounded-full text-sm font-bold text-white bg-red-600';
+                }
+                // Se está fechada, mostra a mensagem e encerra.
+                if (container) {
+                    container.innerHTML = `
+                        <div class="text-center py-20">
+                            <i class="bi bi-shop-window text-6xl text-texto-muted"></i>
+                            <h2 class="text-3xl font-bold mt-4">Nossa cozinha está fechada.</h2>
+                            <p class="text-lg text-texto-muted mt-2">Estamos descansando para te atender melhor. <br> Volte mais tarde!</p>
+                        </div>`;
+                }
+            }
         }
-    } catch (error) { console.error("Erro ao carregar as configurações da loja:", error); }
+    } catch (error) { 
+        console.error("Erro ao carregar as configurações da loja:", error); 
+        if(container) container.innerHTML = '<p class="text-red-500 text-center py-10 text-xl">Ops! Tivemos um problema de conexão.</p>';
+    }
 }
 
 async function fetchDadosDaVitrine() {
@@ -145,8 +178,6 @@ async function finalizarPedido() {
         const resultado = await enviarParaN8N(window.N8N_CONFIG.create_order_app, pedido);
         if (resultado.success) {
             localStorage.setItem('pedidoSucessoCliente', 'true');
-            // AQUI ESTÁ A GARANTIA 👇
-            // Pedido de cliente (WhatsApp) SEMPRE vai disparar a notificação EXTERNA, com som!
             localStorage.setItem('novoPedidoAdmin', 'external'); 
             window.carrinhoFunctions.limpar();
             const modal = bootstrap.Modal.getInstance(document.getElementById('enderecoModal'));
@@ -161,11 +192,13 @@ async function finalizarPedido() {
 }
 
 export async function initClientePage() {
-    console.log("Maestro: Página do Cliente - Reconstrução Final.");
+    console.log("Maestro: Página do Cliente - Reconstrução Final com Letreiro.");
     initCarrinho(); 
+    // AGORA SÓ PRECISAMOS CHAMAR ESTA FUNÇÃO INTELIGENTE
     await carregarConfiguracoesDaLoja();
-    await fetchDadosDaVitrine();
+    
     document.getElementById('form-endereco')?.addEventListener('submit', (e) => { e.preventDefault(); finalizarPedido(); });
+    
     window.clientFunctions = {
         handleAdicionarAoCarrinho: (id) => {
             const produto = produtosDaVitrine.find(p => p.id === id);

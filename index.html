@@ -87,6 +87,21 @@ body * { visibility: hidden; }
 <main class="flex-1 p-4 sm:p-8 flex flex-col overflow-y-auto mt-24 md:mt-0">
     <div id="dashboard-page" class="view-container hidden">
         <h2 class="text-4xl font-bold mb-2">Dashboard</h2>
+        <!-- ➕ NOVO TOGGLE DE CONTROLE DA LOJA 👇 -->
+            <div id="controle-loja-container" class="bg-card p-2 rounded-lg flex items-center gap-3">
+                <span class="font-semibold text-lg">Status da Loja:</span>
+                <div class="flex items-center">
+                    <span id="status-loja-texto" class="mr-3 text-sm font-medium w-20 text-center">...</span>
+                    <label for="toggle-loja-aberta" class="flex items-center cursor-pointer">
+                        <div class="relative">
+                            <input type="checkbox" id="toggle-loja-aberta" class="sr-only peer">
+                            <div class="w-14 h-8 bg-borda rounded-full peer-checked:bg-green-500 transition-colors"></div>
+                            <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform peer-checked:translate-x-full"></div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
         <p class="text-texto-muted mb-8">Resumo do seu movimento de hoje.</p>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <div class="bg-card p-6 rounded-lg flex items-center space-x-4">
@@ -272,7 +287,6 @@ body * { visibility: hidden; }
 </div>
  </div></div></div></div><div class="modal-footer border-t border-borda"><button type="button" class="py-2 px-4 rounded-lg bg-gray-500 hover:bg-gray-600" data-bs-dismiss="modal">Cancelar</button><button type="button" id="btn-finalizar-lancamento" class="py-2 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Lançar na Cozinha</button><button type="button" id="btn-finalizar-checkout" class="py-2 px-5 rounded-lg bg-green-500 hover:bg-green-600 font-bold hidden">Finalizar e Imprimir</button></div></div></div></div>
 <div class="modal fade" id="modal-gerenciamento-pedido" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-xl modal-dialog-centered"><div class="modal-content" style="background-color: #2c2854; color: white;"><div class="modal-header border-b border-borda"><h5 class="modal-title text-2xl font-bold" id="gerenciamento-modal-titulo">Gerenciar Pedido</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div><h3 class="font-bold text-lg mb-2">Adicionar Itens</h3><input type="text" id="gerenciamento-busca-produto" placeholder="Buscar produto para adicionar..." class="w-full bg-fundo p-2 rounded-lg border border-borda mb-4"><div id="gerenciamento-lista-produtos" class="flex-grow overflow-y-auto pr-2" style="max-height: 400px;"></div></div><div class="bg-card p-4 rounded-lg flex flex-col"><h3 class="font-bold text-lg mb-4">Itens do Pedido</h3><div id="gerenciamento-comanda-itens" class="flex-grow space-y-2"></div><div class="border-t border-borda mt-4 pt-4"><div class="flex justify-between items-center text-xl"><span class="font-semibold">Novo Total:</span><span class="font-bold text-principal" id="gerenciamento-comanda-total">R$ 0,00</span></div></div></div></div></div>
-<!-- 👇 O BOTÃO FANTASMA FOI EXORCIZADO DAQUI 👇 -->
 <div class="modal-footer border-t border-borda justify-between">
     <button type="button" id="btn-cancelar-pedido" class="py-2 px-5 rounded-lg bg-red-600 hover:bg-red-700 font-bold">Cancelar Pedido</button>
     <div class="flex items-center gap-4">
@@ -281,6 +295,8 @@ body * { visibility: hidden; }
 </div>
 </div></div></div>
 <div id="print-area" class="hidden"></div>
+
+<script type="module" src="js/functions/authVigia.js"></script>
 <audio id="notification-sound" src="assets/notificacao.mp3" preload="auto"></audio>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>

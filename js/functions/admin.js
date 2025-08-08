@@ -12,7 +12,67 @@ const desktopMediaQuery = window.matchMedia('(min-width: 768px)');
 let uploadedImageUrls = [];
 let modalProduto = null;
 
-// --- FUNÇÕES INTERNAS (NÃO EXPORTADAS) ---
+// --- FUNÇÕES DE CONTROLE DA LOJA ---
+function renderizarToggleLoja(status) {
+    const toggle = document.getElementById('toggle-loja-aberta');
+    const textoStatus = document.getElementById('status-loja-texto');
+    if (!toggle || !textoStatus) return;
+
+    toggle.checked = status;
+    if (status) {
+        textoStatus.textContent = 'ABERTA';
+        textoStatus.className = 'mr-3 text-sm font-bold w-20 text-center text-green-400 animate-pulse';
+    } else {
+        textoStatus.textContent = 'FECHADA';
+        textoStatus.className = 'mr-3 text-sm font-bold w-20 text-center text-red-500';
+    }
+}
+
+async function handleToggleLoja() {
+    const toggle = document.getElementById('toggle-loja-aberta');
+    const novoStatus = toggle.checked;
+    const acao = novoStatus ? 'ABRIR' : 'FECHAR';
+    const corConfirmacao = novoStatus ? '#28a745' : '#d33';
+
+    const resultado = await Swal.fire({
+        title: `Deseja ${acao} a loja?`,
+        text: novoStatus ? 'Sua loja ficará visível e poderá receber pedidos.' : 'Sua loja ficará indisponível para novos pedidos.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: `Sim, ${acao}!`,
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: corConfirmacao,
+        background: '#2c2854',
+        color: '#ffffff'
+    });
+
+    if (resultado.isConfirmed) {
+        Swal.fire({ title: `${acao}NDO a loja...`, allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
+        try {
+            await enviarParaN8N(window.N8N_CONFIG.update_loja_status, { loja_aberta: novoStatus });
+            renderizarToggleLoja(novoStatus);
+            Swal.fire({ icon: 'success', title: 'Sucesso!', text: `Loja ${novoStatus ? 'aberta' : 'fechada'}.`, background: '#2c2854', color: '#ffffff' });
+        } catch (error) {
+            Swal.fire({ icon: 'error', title: 'Ops!', text: 'Não foi possível alterar o status da loja.', background: '#2c2854', color: '#ffffff' });
+            toggle.checked = !novoStatus; // Reverte o toggle em caso de erro
+        }
+    } else {
+        toggle.checked = !novoStatus; // Reverte se o usuário cancelar
+    }
+}
+
+async function verificarStatusLoja() {
+    try {
+        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
+        if (configs && configs.length > 0) {
+            renderizarToggleLoja(configs[0].loja_aberta);
+        }
+    } catch (error) {
+        console.error("Erro ao verificar status da loja para o toggle:", error);
+    }
+}
+
+// --- FUNÇÕES DO DASHBOARD E PRODUTOS ---
 
 function renderizarDashboard(stats) {
     const totalPedidosEl = document.getElementById('dashboard-total-pedidos');
@@ -38,6 +98,7 @@ async function initDashboard() {
     try {
         const pedidosDeHoje = await fetchDeN8N(window.N8N_CONFIG.get_dashboard_stats);
         if (!Array.isArray(pedidosDeHoje)) { throw new Error("Dados do dashboard não são um array."); }
+        
         const faturamento = pedidosDeHoje.reduce((acc, p) => acc + Number(p.total || 0), 0);
         const totalPedidos = pedidosDeHoje.length;
         const ticketMedio = totalPedidos > 0 ? faturamento / totalPedidos : 0;
@@ -116,7 +177,6 @@ function renderizarAbasCategoriasAdmin() {
     });
     containerAbas.innerHTML = abasHtml;
 
-    // ✨ O NOVO INTERRUPTOR FEITO 100% COM TAILWIND 👇
     containerAbas.innerHTML += `
         <div class="flex items-center ml-auto pl-4">
             <label for="ver-inativos-toggle" class="flex items-center cursor-pointer">
@@ -405,6 +465,7 @@ let isInitialized = false;
 
 export function initAdminPage(params) {
     const { view } = params;
+
     if (!isInitialized) {
         const modalEl = document.getElementById('modal-produto');
         if (modalEl) modalProduto = new bootstrap.Modal(modalEl);
@@ -420,13 +481,22 @@ export function initAdminPage(params) {
           ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => { uploadArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false); });
           uploadArea.addEventListener('drop', (e) => { handleFileUpload(e.dataTransfer.files); });
         }
+        
+        const toggleLoja = document.getElementById('toggle-loja-aberta');
+        if (toggleLoja) {
+            toggleLoja.addEventListener('change', handleToggleLoja);
+        }
+        
         fetchCategoriasParaAdmin();
         isInitialized = true;
     }
+
     if (view === 'dashboard') {
+        verificarStatusLoja();
         initDashboard();
     } else if (view === 'meus-produtos') {
         fetchProdutosAdmin();
     }
+    
     window.adminFunctions = { editarProduto, removerImagem, abrirModalParaCriar, toggleProdutoStatus };
 }

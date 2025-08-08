@@ -79,6 +79,7 @@ const N8N_ENDPOINTS = {
     // --- LOJA ---
     get_loja_config:       N8N_BASE_URL + 'loja/config/obter',
     update_loja_config:    N8N_BASE_URL + 'loja/config/atualizar',
+    update_loja_status:    N8N_BASE_URL + 'loja/status/atualizar',
 };
 
 // ===================================================================
