@@ -1,2 +1,0 @@
-id,created_at,id_pedido_publico,nome_cliente,whatsapp_cliente,total,status,origem,rua,quadra,lote,referencia,bairro,forma_pagamento,id_mesa,observacoes,entregador_id,garcom_id,status_fiscal,id_nota_fiscal,erro_fiscal,protocolo_fiscal,pdf_url,xml_url
-463,2025-08-07 22:21:34.964008-03,XBU9UJ,Balcão,PED-INTERNO,10.50,ENTREGUE,BALCAO,,,,,,DINHEIRO,,,,,Emitida,68955153a0f442b0ba8449b6,,0f78f358-bca9-4e5f-985e-799542add9db,https://api.sandbox.plugnotas.com.br/nfce/68955153a0f442b0ba8449b6/pdf,https://api.sandbox.plugnotas.com.br/nfce/68955153a0f442b0ba8449b6/xml

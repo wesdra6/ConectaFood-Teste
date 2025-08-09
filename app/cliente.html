@@ -1,0 +1,148 @@
+<!-- REESCREVA O ARQUIVO COMPLETO: cliente.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nosso Cardápio</title>
+    <link rel="icon" href="https://uptecnology.com.br/wp-content/uploads/2025/02/LOGO-UP.png" type="image/png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'fundo': '#1a163a', 'sidebar': '#2c2854', 'card': '#38326b', 'principal': '#ff6b35',
+              'texto-base': '#ffffff', 'texto-muted': '#a3a0c2', 'borda': '#4a4480',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #1a163a; color: #ffffff; }
+        .offcanvas, .modal-content { background-color: #2c2854 !important; color: #ffffff !important; }
+        .modal-header, .modal-footer { border-color: #4a4480 !important; }
+        .form-control-custom { width: 100%; background-color: #1a163a; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid #4a4480; }
+        .form-control-custom:focus { outline: 2px solid transparent; outline-offset: 2px; border-color: #ff6b35; box-shadow: 0 0 0 2px #ff6b35; }
+        .swiper-wrapper { align-items: stretch !important; }
+        .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+        
+        #alert-container { position: fixed; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; z-index: 9999; pointer-events: none; }
+        .custom-toast { display: flex; align-items: center; gap: 0.75rem; background-color: #2c2854; color: #ffffff; padding: 0.75rem 1.25rem; border-radius: 9999px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); opacity: 0; transform: translateY(100px); transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); pointer-events: auto; }
+        .custom-toast.show { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="bg-fundo text-texto-base">
+
+    <!-- BARREIRA PARA DESKTOP -->
+    <div id="desktop-blocker" class="hidden md:flex fixed inset-0 bg-sidebar z-50 items-center justify-center p-8">
+        <div class="text-center bg-card p-10 rounded-lg shadow-2xl max-w-lg">
+            <i class="bi bi-phone-vibrate-fill text-7xl text-principal"></i>
+            <h2 class="text-3xl font-bold mt-4">A Experiência é Mobile!</h2>
+            <p class="text-texto-muted mt-2 text-lg">Nosso cardápio foi feito com todo carinho para a tela do seu celular. É mais rápido, prático e delicioso de usar!</p>
+            <p class="text-texto-muted mt-4">Abra este site no seu smartphone para fazer seu pedido. 😉</p>
+        </div>
+    </div>
+
+    <!-- CONTEÚDO MOBILE -->
+    <div class="md:hidden">
+        <nav class="bg-card/50 backdrop-blur-lg sticky top-0 z-40">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <a id="logo-vitrine-container" href="#" class="h-12 flex items-center"></a>
+                <div class="flex items-center space-x-4">
+                     <button class="relative bg-principal text-white h-12 w-12 rounded-lg font-bold flex items-center justify-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCarrinho">
+                        <i class="bi bi-cart-fill text-xl"></i>
+                        <span id="contador-carrinho" class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" style="display: none;">0</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        
+        <main class="container mx-auto px-4 mt-8" id="cliente-page">
+            <div id="vitrine-builder-container" class="space-y-12"></div>
+        </main>
+
+        <footer class="text-center py-6 mt-10 text-texto-muted border-t border-borda/20">
+             <a href="acompanhar.html" class="block mb-4 text-principal font-semibold">Acompanhar meu Pedido</a>
+            <p class="mb-1 text-sm">Feito com ❤️ por UP Tecnology.</p>
+            <p class="text-xs">© 2025. Todos os direitos reservados.</p>
+            <p class="text-xs">CNPJ: 48.191.554/0001-40</p>
+        </footer>
+
+        <!-- Offcanvas do Carrinho -->
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCarrinho" aria-labelledby="offcanvasCarrinhoLabel"><div class="offcanvas-header"><h5 class="offcanvas-title text-2xl font-bold" id="offcanvasCarrinhoLabel">Meu Carrinho <i class="bi bi-cart-check"></i></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button></div><div class="offcanvas-body d-flex flex-column p-4"><div id="carrinho-itens" class="flex-grow-1"></div><div class="border-t border-borda pt-4"><div class="d-flex justify-content-between align-items-center mb-4"><span class="text-xl font-semibold">Total:</span><span class="text-xl font-bold text-principal" id="carrinho-total">R$ 0,00</span></div><button id="btn-finalizar-pedido" class="w-full text-white font-bold py-3 rounded-lg transition-colors" type="button" data-bs-target="#enderecoModal">FECHAR PEDIDO</button></div></div></div>
+        
+        <!-- Modal de Endereço (Checkout) -->
+        <div class="modal fade" id="enderecoModal" tabindex="-1" aria-labelledby="enderecoModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-xl font-bold" id="enderecoModalLabel">Quase lá! Onde entregamos?</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="form-endereco" class="space-y-4">
+                            <input type="tel" id="clienteWhatsapp" placeholder="WhatsApp (só números com DDD)" class="form-control-custom" required pattern="[0-9]{10,11}" title="Digite um número válido com 10 ou 11 dígitos.">
+                            <input type="text" id="clienteNome" placeholder="Seu nome" class="form-control-custom" required>
+                            <input type="text" id="clienteRua" placeholder="Rua" class="form-control-custom" required>
+                            <input type="text" id="clienteBairro" placeholder="Bairro" class="form-control-custom" required>
+                            <div class="flex gap-4">
+                                <input type="text" id="clienteQuadra" placeholder="Quadra" class="form-control-custom" required>
+                                <input type="text" id="clienteLote" placeholder="Lote" class="form-control-custom" required>
+                            </div>
+                            <input type="text" id="clienteReferencia" placeholder="Ponto de Referência (Ex: Perto do mercado)" class="form-control-custom" required>
+                            <!-- 👇 NOSSO NOVO CAMPO DE OBSERVAÇÕES 👇 -->
+                            <textarea id="clienteObservacoes" placeholder="Observações do pedido (Ex: sem cebola, ponto da carne, etc.)" class="form-control-custom" rows="3"></textarea>
+                            
+                            <select id="clienteFormaPagamento" class="form-control-custom" required>
+                                <option value="" disabled selected>Forma de Pagamento...</option>
+                                <option value="PIX">PIX 💠</option>
+                                <option value="DÉBITO">Débito 💳</option>
+                                <option value="CRÉDITO">Crédito 💳</option>
+                                <option value="DINHEIRO">Dinheiro 💵</option>
+                            </select>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="py-2 px-4 rounded-lg bg-gray-500 hover:bg-gray-600 text-white" data-bs-dismiss="modal">Voltar</button>
+                        <button type="submit" form="form-endereco" class="py-2 px-5 rounded-lg bg-principal hover:bg-orange-600 text-white font-bold">Fazer Pedido Agora!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- A "CASA" DO MODAL FOI REFORMADA -->
+        <div class="modal fade" id="detalhesProdutoModal" tabindex="-1" aria-labelledby="detalhesProdutoModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-2xl font-bold" id="detalhesProdutoModalLabel">Detalhes do Produto</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="detalhesProdutoBody"></div>
+                    <div class="modal-footer flex-nowrap">
+                        <button type="button" class="w-full py-3 rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-bold" data-bs-dismiss="modal">Fechar</button>
+                        <button type="button" id="btn-adicionar-do-modal" class="w-full py-3 rounded-lg bg-principal hover:bg-orange-600 text-white font-bold">FAZER PEDIDO</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="alert-container"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/functions/authVigia.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
