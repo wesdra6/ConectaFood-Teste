@@ -1,22 +1,11 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/supabaseClient.js
+// js/supabaseClient.js
+// Ponto central para inicialização e exportação do cliente Supabase
 
+// IMPORTANTE: Use as credenciais da sua instância self-hosted
+const SUPABASE_URL = 'https://ferramentas-supabase-demos.lblzl4.easypanel.host/'; // Ex: 'http://localhost:8000'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJyb2xlIjogImFub24iLAogICJpc3MiOiAic3VwYWJhc2UiLAogICJpYXQiOiAxNzM3NDI4NDAwLAogICJleHAiOiAxODk1MTk0ODAwCn0.xSC1u_LpBqMbarBrlsMS_adc9JVzyiHETWOnzopJMDs';
+
+// Usamos a desestruturação para pegar a função createClient do objeto global supabase
 const { createClient } = window.supabase;
-
-const IS_DEV = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
-
-// Se for DEV, as variáveis DEV_SUPABASE_... (do dev-secrets.js) vão existir.
-// Se não, usa os placeholders que o Nginx vai substituir.
-const supabaseUrl = IS_DEV ? DEV_SUPABASE_URL : 'VITE_SUPABASE_URL';
-const supabaseAnonKey = IS_DEV ? DEV_SUPABASE_ANON_KEY : 'VITE_SUPABASE_ANON_KEY';
-
-// A verificação de segurança continua aqui
-if (!IS_DEV && supabaseUrl.startsWith('VITE_')) {
-    console.error('Falha CRÍTICA: Variáveis de ambiente não foram injetadas pelo servidor!');
-    document.body.innerHTML = '<h1>Erro Crítico de Configuração.</h1>';
-    // Trava a execução aqui para não continuar
-    throw new Error("Configuração de produção ausente.");
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-console.log(`Cliente Supabase inicializado em modo: ${IS_DEV ? 'DEV' : 'PROD'} ✅`);
+// Exportamos a instância do cliente para que outros módulos possam usá-la
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
