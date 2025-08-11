@@ -1,6 +1,6 @@
 // REESCREVA O ARQUIVO COMPLETO: app/js/functions/admin.js
 
-import { enviarParaN8N, fetchDeN8N, enviarArquivoParaN8N } from './api.js';
+import { enviarParaApi, fetchDeApi, enviarArquivoParaApi } from './api.js';
 import { criaCardProduto } from './components.js';
 
 let produtosLocais = [];
@@ -49,7 +49,7 @@ async function handleToggleLoja() {
     if (resultado.isConfirmed) {
         Swal.fire({ title: `${acao}NDO a loja...`, allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
         try {
-            await enviarParaN8N(window.N8N_CONFIG.update_loja_status, { loja_aberta: novoStatus });
+            await enviarParaApi(window.API_CONFIG.update_loja_status, { loja_aberta: novoStatus });
             renderizarToggleLoja(novoStatus);
             Swal.fire({ icon: 'success', title: 'Sucesso!', text: `Loja ${novoStatus ? 'aberta' : 'fechada'}.`, background: '#2c2854', color: '#ffffff' });
         } catch (error) {
@@ -63,7 +63,7 @@ async function handleToggleLoja() {
 
 async function verificarStatusLoja() {
     try {
-        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
+        const configs = await fetchDeApi(window.API_CONFIG.get_loja_config);
         if (configs && configs.length > 0) {
             renderizarToggleLoja(configs[0].loja_aberta);
         }
@@ -94,7 +94,7 @@ function renderizarDashboard(stats) {
 
 async function initDashboard() {
     try {
-        const pedidosDeHoje = await fetchDeN8N(window.N8N_CONFIG.get_dashboard_stats);
+        const pedidosDeHoje = await fetchDeApi(window.API_CONFIG.get_dashboard_stats);
         if (!Array.isArray(pedidosDeHoje)) { throw new Error("Dados do dashboard não são um array."); }
         
         const faturamento = pedidosDeHoje.reduce((acc, p) => acc + Number(p.total || 0), 0);
@@ -121,7 +121,7 @@ async function initDashboard() {
 
 async function fetchCategoriasParaAdmin() {
     try {
-        todasAsCategorias = await fetchDeN8N(window.N8N_CONFIG.get_all_categories);
+        todasAsCategorias = await fetchDeApi(window.API_CONFIG.get_all_categories);
         renderizarSelectCategorias();
     } catch (e) { console.error("Falha ao carregar categorias para o formulário de produto.", e); }
 }
@@ -145,7 +145,7 @@ async function fetchProdutosAdmin() {
     if (!container) return;
     container.innerHTML = '<p class="text-texto-muted col-span-full text-center py-10 animate-pulse">Buscando delícias e serviços...</p>';
     try {
-        const produtosDoServidor = await fetchDeN8N(window.N8N_CONFIG.get_all_products_with_type);
+        const produtosDoServidor = await fetchDeApi(window.API_CONFIG.get_all_products_with_type);
         if (produtosDoServidor && produtosDoServidor.length > 0) {
             produtosLocais = produtosDoServidor.filter(p => p.id !== 99999);
             produtosPorCategoria = produtosLocais.reduce((acc, item) => {
@@ -336,7 +336,7 @@ async function toggleProdutoStatus(id) {
     const acaoPast = novoStatus ? 'ativado' : 'desativado';
 
     try {
-        await enviarParaN8N(window.N8N_CONFIG.toggle_product_status, payload);
+        await enviarParaApi(window.API_CONFIG.toggle_product_status, payload);
         Swal.fire({
             toast: true, position: 'top-end', icon: 'success',
             title: `Produto ${acaoPast} com sucesso!`, showConfirmButton: false, timer: 2000,
@@ -358,7 +358,7 @@ async function toggleProdutoStatus(id) {
 
 function renderizarPreviews() { const previewsContainer = document.getElementById('previews-container'); previewsContainer.innerHTML = ''; uploadedImageUrls.forEach((url, index) => { const previewWrapper = document.createElement('div'); previewWrapper.className = 'relative w-24 h-24'; previewWrapper.innerHTML = `<img src="${url}" class="w-full h-full object-cover rounded-md"><button type="button" onclick="adminFunctions.removerImagem(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">×</button>`; previewsContainer.appendChild(previewWrapper); }); }
 function removerImagem(index) { uploadedImageUrls.splice(index, 1); renderizarPreviews(); }
-async function handleFileUpload(files) { if (files.length === 0) return; Swal.fire({ title: 'Enviando imagens...', html: `Carregando <b>${files.length}</b> arquivo(s). Aguarde! 🚀`, allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => { Swal.showLoading(); } }); const uploadPromises = Array.from(files).map(file => { return enviarArquivoParaN8N(window.ZIPLINE_CONFIG.upload, file, 'produtos').catch(err => ({ error: true, message: err.message, fileName: file.name })); }); const resultados = await Promise.all(uploadPromises); const sucessoUploads = resultados.filter(r => !r.error); const erroUploads = resultados.filter(r => r.error); if (sucessoUploads.length > 0) { const newUrls = sucessoUploads.map(r => { if (r && Array.isArray(r) && r.length > 0 && r[0]) { return r[0].urlParaCopiarComId || r[0].imageUrlToCopy; } return null; }).filter(Boolean); uploadedImageUrls.push(...newUrls); renderizarPreviews(); } if (erroUploads.length > 0) { const errorMessages = erroUploads.map(e => `<li>${e.fileName}: ${e.message}</li>`).join(''); Swal.fire({ icon: 'error', title: 'Ops! Alguns uploads falharam', html: `<ul class="text-left">${errorMessages}</ul>`, background: '#2c2854', color: '#ffffff', }); } else { Swal.close(); } }
+async function handleFileUpload(files) { if (files.length === 0) return; Swal.fire({ title: 'Enviando imagens...', html: `Carregando <b>${files.length}</b> arquivo(s). Aguarde! 🚀`, allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => { Swal.showLoading(); } }); const uploadPromises = Array.from(files).map(file => { return enviarArquivoParaApi(window.ZIPLINE_CONFIG.upload, file, 'produtos').catch(err => ({ error: true, message: err.message, fileName: file.name })); }); const resultados = await Promise.all(uploadPromises); const sucessoUploads = resultados.filter(r => !r.error); const erroUploads = resultados.filter(r => r.error); if (sucessoUploads.length > 0) { const newUrls = sucessoUploads.map(r => { if (r && Array.isArray(r) && r.length > 0 && r[0]) { return r[0].urlParaCopiarComId || r[0].imageUrlToCopy; } return null; }).filter(Boolean); uploadedImageUrls.push(...newUrls); renderizarPreviews(); } if (erroUploads.length > 0) { const errorMessages = erroUploads.map(e => `<li>${e.fileName}: ${e.message}</li>`).join(''); Swal.fire({ icon: 'error', title: 'Ops! Alguns uploads falharam', html: `<ul class="text-left">${errorMessages}</ul>`, background: '#2c2854', color: '#ffffff', }); } else { Swal.close(); } }
 async function handleFormSubmit(e) {
     e.preventDefault();
     const id = document.getElementById('produtoId').value;
@@ -372,10 +372,10 @@ async function handleFormSubmit(e) {
     };
     const acao = id ? 'Atualizando' : 'Criando';
     Swal.fire({ title: `${acao} item...`, allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => { Swal.showLoading() } });
-    const endpoint = id ? window.N8N_CONFIG.update_product : window.N8N_CONFIG.create_product;
+    const endpoint = id ? window.API_CONFIG.update_product : window.API_CONFIG.create_product;
     const payload = id ? { ...produtoData, id: parseInt(id) } : produtoData;
     try {
-        await enviarParaN8N(endpoint, payload);
+        await enviarParaApi(endpoint, payload);
         Swal.fire({ icon: 'success', title: `Item ${id ? 'atualizado' : 'criado'}!`, timer: 1500, showConfirmButton: false, background: '#2c2854', color: '#ffffff' });
         if (modalProduto) modalProduto.hide();
         fetchProdutosAdmin();

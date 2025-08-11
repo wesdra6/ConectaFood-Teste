@@ -1,6 +1,6 @@
 // REESCREVA O ARQUIVO COMPLETO: app/js/functions/cliente.js
 
-import { enviarParaN8N, fetchDeN8N } from './api.js';
+import { enviarParaApi, fetchDeApi } from './api.js';
 import { initCarrinho } from './carrinho.js';
 import { criaCardProduto } from './components.js';
 
@@ -81,7 +81,7 @@ async function finalizarPedido() {
     };
 
     try {
-        const resultado = await enviarParaN8N(window.N8N_CONFIG.create_order_app, pedido);
+        const resultado = await enviarParaApi(window.API_CONFIG.create_order_app, pedido);
         if (resultado.success) {
             localStorage.setItem('pedidoSucessoCliente', 'true');
             localStorage.setItem('novoPedidoAdmin', 'external'); 
@@ -207,9 +207,9 @@ async function fetchDadosDaVitrine() {
     
     try {
         const [categorias, banners, produtos] = await Promise.all([
-            fetchDeN8N(window.N8N_CONFIG.get_all_categories),
-            fetchDeN8N(window.N8N_CONFIG.get_all_banners),
-            fetchDeN8N(window.N8N_CONFIG.get_all_products)
+            fetchDeApi(window.API_CONFIG.get_all_categories),
+            fetchDeApi(window.API_CONFIG.get_all_banners),
+            fetchDeApi(window.API_CONFIG.get_all_products)
         ]);
         produtosDaVitrine = produtos || [];
         
@@ -243,7 +243,7 @@ async function carregarConfiguracoesDaLoja() {
     const badge = document.getElementById('status-loja-badge');
 
     try {
-        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
+        const configs = await fetchDeApi(window.API_CONFIG.get_loja_config);
         if (configs && configs.length > 0) {
             const { nome_loja, logo_vitrine_url, taxa_entrega_fixa, loja_aberta } = configs[0];
             const logoContainer = document.getElementById('logo-vitrine-container');

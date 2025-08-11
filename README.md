@@ -52,6 +52,18 @@ A estrutura do repositório foi refatorada para facilitar o deploy no Easypanel 
 
 ---
 
+### **3. Gerenciamento de Segredos (A Operação Cofre-Forte)**
+
+**🛑 REGRA DE OURO DA SEGURANÇA 🛑**
+> NENHUMA chave secreta, senha ou credencial sensível deve ser escrita diretamente ("hardcoded") no código fonte do frontend (JavaScript).
+
+*   **Mecanismo:** As credenciais críticas, como a `SUPABASE_URL` e `SUPABASE_ANON_KEY`, são armazenadas como **Variáveis de Ambiente** no Easypanel.
+*   **Acesso Seguro:** O Nginx expõe essas variáveis através de um endpoint seguro e sem cache (`/api/env`). O `js/supabaseClient.js` busca essas chaves dinamicamente ao carregar a aplicação em produção.
+*   **Desenvolvimento Local:** Para facilitar o desenvolvimento, o `supabaseClient.js` detecta se está rodando em `localhost` e utiliza credenciais locais definidas apenas para esse ambiente, garantindo agilidade sem comprometer a segurança da produção.
+
+---
+
+
 ## 🔒 Lógicas de Segurança e Acesso (LEITURA OBRIGATÓRIA) 🚨
 
 ### **1. Operação "Corta-Acesso" (Kill Switch)**

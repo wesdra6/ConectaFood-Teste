@@ -1,6 +1,6 @@
 // REESCREVA O ARQUIVO COMPLETO: app/js/financeiro.js
 
-import { fetchDeN8N } from './functions/api.js';
+import { fetchDeApi } from './functions/api.js';
 
 let todosOsPedidosDoPeriodo = [];
 let pedidosFiltrados = [];
@@ -27,7 +27,7 @@ function obterPeriodo(periodo) {
 async function carregarConfigDaLoja() {
     if (lojaConfig) return;
     try {
-        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
+        const configs = await fetchDeApi(window.API_CONFIG.get_loja_config);
         if (configs && configs.length > 0) {
             lojaConfig = configs[0];
             const { nome_loja, logo_vitrine_url } = lojaConfig;
@@ -46,8 +46,8 @@ async function buscarDadosFinanceiros(dataInicio, dataFim) {
     document.getElementById('kpi-container').innerHTML = `<div class="bg-card p-6 rounded-lg text-center animate-pulse col-span-full"><p>Carregando dados...</p></div>`;
     document.getElementById('tabela-pedidos-corpo').innerHTML = `<tr><td colspan="5" class="text-center p-8 text-texto-muted animate-pulse">Buscando dados no servidor... 🚀</td></tr>`;
     try {
-        const url = `${window.N8N_CONFIG.get_financial_report}?inicio=${dataInicio}&fim=${dataFim}`;
-        const resposta = await fetchDeN8N(url);
+        const url = `${window.API_CONFIG.get_financial_report}?inicio=${dataInicio}&fim=${dataFim}`;
+        const resposta = await fetchDeApi(url);
         todosOsPedidosDoPeriodo = Array.isArray(resposta) ? resposta : [];
         aplicarFiltrosLocais();
     } catch (error) {

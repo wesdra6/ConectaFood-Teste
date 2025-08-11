@@ -1,6 +1,6 @@
 // REESCREVA O ARQUIVO COMPLETO: app/js/functions/pedidos.js
 
-import { enviarParaN8N, fetchDeN8N } from './api.js';
+import { enviarParaApi, fetchDeApi } from './api.js';
 import { gerarHtmlImpressao, imprimirComprovante } from './impressao.js';
 import { criaCardProduto } from './components.js';
 
@@ -13,7 +13,7 @@ let lojaConfig = null;
 async function fetchLojaConfigParaImpressao() {
     if (lojaConfig) return;
     try {
-        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
+        const configs = await fetchDeApi(window.API_CONFIG.get_loja_config);
         if (configs && configs.length > 0) lojaConfig = configs[0];
     } catch (error) { console.error("Não foi possível carregar as configs da loja para impressão no painel de pedidos.", error); }
 }
@@ -35,10 +35,10 @@ async function adicionarItemAoPedido(produtoId) {
         preco_unitario: produto.preco
     };
     try {
-        const resultado = await enviarParaN8N(window.N8N_CONFIG.add_item_to_order, itemPayload);
+        const resultado = await enviarParaApi(window.API_CONFIG.add_item_to_order, itemPayload);
         if (resultado.success) {
-            const url = `${window.N8N_CONFIG.get_order_status}?id=${pedidoEmGerenciamento.id}`;
-            const resposta = await fetchDeN8N(url);
+            const url = `${window.API_CONFIG.get_order_status}?id=${pedidoEmGerenciamento.id}`;
+            const resposta = await fetchDeApi(url);
             if (resposta && resposta[0]) {
                 pedidoEmGerenciamento = resposta[0];
                 renderizarComandaGerenciamento(pedidoEmGerenciamento.contexto);
@@ -51,10 +51,10 @@ async function adicionarItemAoPedido(produtoId) {
 export async function removerItemDoPedido(itemId) {
     if (!pedidoEmGerenciamento) return;
     try {
-        const resultado = await enviarParaN8N(window.N8N_CONFIG.remove_item_from_order, { item_id: itemId });
+        const resultado = await enviarParaApi(window.API_CONFIG.remove_item_from_order, { item_id: itemId });
         if (resultado.success) {
-            const url = `${window.N8N_CONFIG.get_order_status}?id=${pedidoEmGerenciamento.id}`;
-            const resposta = await fetchDeN8N(url);
+            const url = `${window.API_CONFIG.get_order_status}?id=${pedidoEmGerenciamento.id}`;
+            const resposta = await fetchDeApi(url);
             if (resposta && resposta[0]) {
                 pedidoEmGerenciamento = resposta[0];
                 renderizarComandaGerenciamento(pedidoEmGerenciamento.contexto);
@@ -68,13 +68,13 @@ export async function abrirModalGerenciamento(pedidoId, contexto = 'CAIXA') {
     if (!pedidoId) { console.error("ID de pedido inválido."); return; }
     Swal.fire({ title: 'Carregando pedido...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     try {
-        const url = `${window.N8N_CONFIG.get_order_status}?id=${pedidoId}`;
-        const resposta = await fetchDeN8N(url);
+        const url = `${window.API_CONFIG.get_order_status}?id=${pedidoId}`;
+        const resposta = await fetchDeApi(url);
         const pedidoAtualizado = (Array.isArray(resposta) && resposta.length > 0) ? resposta[0] : null;
         if (!pedidoAtualizado) throw new Error("Pedido não encontrado.");
 
         if (todosOsProdutosCaixa.length === 0) {
-            todosOsProdutosCaixa = await fetchDeN8N(window.N8N_CONFIG.get_all_products_with_type);
+            todosOsProdutosCaixa = await fetchDeApi(window.API_CONFIG.get_all_products_with_type);
         }
         
         pedidoEmGerenciamento = JSON.parse(JSON.stringify(pedidoAtualizado));
@@ -115,7 +115,7 @@ async function extrairListaDePedidos(respostaDoN8N) { if (Array.isArray(resposta
 
 async function buscarPedidosAtivos() { 
     try { 
-        const respostaDoN8N = await fetchDeN8N(window.N8N_CONFIG.get_all_orders); 
+        const respostaDoN8N = await fetchDeApi(window.API_CONFIG.get_all_orders); 
         todosOsPedidosAtivos = await extrairListaDePedidos(respostaDoN8N); 
         renderizarPedidosAtivos(); 
     } catch (e) { 
@@ -126,7 +126,7 @@ async function buscarPedidosAtivos() {
 
 async function solicitarDadosEntregador(pedido) {
     const { value: telefone } = await Swal.fire({ title: 'Despachar Pedido', html: `Despachando pedido <strong>#${pedido.id_pedido_publico}</strong>.<br>Digite o WhatsApp do entregador no formato internacional.`, input: 'tel', inputPlaceholder: 'Ex: 5562912345678', inputAttributes: { oninput: "this.value = this.value.replace(/[^0-9]/g, '')" }, showCancelButton: true, confirmButtonText: 'Enviar & Despachar →', background: '#2c2854', color: '#ffffff', inputValidator: (value) => { if (!value) { return 'Você precisa digitar um número!'; } if (!/^55[1-9]{2}9?[0-9]{8}$/.test(value)) { return 'Formato inválido! Use 55 + DDD + Número.'; } } });
-    if (telefone) { Swal.fire({ title: 'Despachando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() }); try { await enviarParaN8N(window.N8N_CONFIG.send_delivery_details, { whatsapp_entregador: telefone, pedido: pedido }); await enviarParaN8N(window.N8N_CONFIG.update_order_status, { id: pedido.id, status: 'A_CAMINHO' }); dispararNotificacaoStatus(pedido, 'A_CAMINHO'); await buscarPedidosAtivos(); Swal.fire('Despachado!', 'O entregador foi notificado e o status foi atualizado.', 'success'); } catch (error) { console.error("Erro na cadeia de despacho:", error); Swal.fire('Erro!', 'Não foi possível completar o despacho.', 'error'); } }
+    if (telefone) { Swal.fire({ title: 'Despachando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() }); try { await enviarParaApi(window.API_CONFIG.send_delivery_details, { whatsapp_entregador: telefone, pedido: pedido }); await enviarParaApi(window.API_CONFIG.update_order_status, { id: pedido.id, status: 'A_CAMINHO' }); dispararNotificacaoStatus(pedido, 'A_CAMINHO'); await buscarPedidosAtivos(); Swal.fire('Despachado!', 'O entregador foi notificado e o status foi atualizado.', 'success'); } catch (error) { console.error("Erro na cadeia de despacho:", error); Swal.fire('Erro!', 'Não foi possível completar o despacho.', 'error'); } }
 }
 
 function dispararNotificacaoStatus(pedido, status) {
@@ -134,7 +134,7 @@ function dispararNotificacaoStatus(pedido, status) {
     const statusRelevantes = ['EM_PREPARO', 'PRONTO_PARA_ENTREGA', 'A_CAMINHO'];
     if (!isWhatsAppValido || !statusRelevantes.includes(status)) { return; }
     const payload = { whatsapp_cliente: pedido.whatsapp_cliente, nome_cliente: pedido.nome_cliente, id_pedido_publico: pedido.id_pedido_publico, status: status };
-    enviarParaN8N(window.N8N_CONFIG.send_whatsapp_status, payload).catch(err => console.error("Falha ao notificar cliente via WhatsApp:", err));
+    enviarParaApi(window.API_CONFIG.send_whatsapp_status, payload).catch(err => console.error("Falha ao notificar cliente via WhatsApp:", err));
 }
 
 async function cancelarPedido() {
@@ -153,7 +153,7 @@ async function cancelarPedido() {
     if (result.isConfirmed) {
         Swal.fire({ title: 'Cancelando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         try {
-            await enviarParaN8N(window.N8N_CONFIG.cancel_order, {
+            await enviarParaApi(window.API_CONFIG.cancel_order, {
                 pedido_id: pedidoEmGerenciamento.id,
                 id_mesa: pedidoEmGerenciamento.id_mesa || null
             });
@@ -176,7 +176,7 @@ async function atualizarStatusPedido(pedidoId, novoStatus) {
     if (novoStatus === 'A_CAMINHO' && pedido.origem !== 'BALCAO' && pedido.origem !== 'MESA') { solicitarDadosEntregador(pedido); return; }
     try { 
         Swal.fire({ title: 'Atualizando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() }); 
-        await enviarParaN8N(window.N8N_CONFIG.update_order_status, { id: pedidoId, status: novoStatus }); 
+        await enviarParaApi(window.API_CONFIG.update_order_status, { id: pedidoId, status: novoStatus }); 
         dispararNotificacaoStatus(pedido, novoStatus); 
         await buscarPedidosAtivos(); 
         Swal.close(); 
@@ -413,8 +413,8 @@ async function renderizarListaFinalizados(pedidos, titulo) {
 async function buscarFinalizadosPorData(data) { 
     Swal.fire({ title: 'Buscando Histórico...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#2c2854', color: '#ffffff' }); 
     try { 
-        const url = `${window.N8N_CONFIG.get_finalized_orders_by_date}?data=${data}`; 
-        const pedidos = await fetchDeN8N(url); 
+        const url = `${window.API_CONFIG.get_finalized_orders_by_date}?data=${data}`; 
+        const pedidos = await fetchDeApi(url); 
         const hoje = new Date();
         hoje.setMinutes(hoje.getMinutes() - hoje.getTimezoneOffset());
         const dataHojeFormatada = hoje.toISOString().split('T')[0];
@@ -432,8 +432,8 @@ async function buscarPedidoPorCodigo() {
     if (!termo) return; 
     Swal.fire({ title: 'Buscando...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#2c2854', color: '#ffffff'}); 
     try { 
-        const url = `${window.N8N_CONFIG.get_finalized_order_by_code}?id=${termo}`; 
-        const resposta = await fetchDeN8N(url); 
+        const url = `${window.API_CONFIG.get_finalized_order_by_code}?id=${termo}`; 
+        const resposta = await fetchDeApi(url); 
         const pedido = (resposta && resposta.length > 0) ? resposta[0] : null; 
         Swal.close(); 
         await new Promise(resolve => setTimeout(resolve, 200)); 

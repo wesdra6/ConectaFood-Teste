@@ -1,6 +1,5 @@
-// REESCREVA O ARQUIVO COMPLETO: js/functions/api.js
 
-export async function fetchDeN8N(url) {
+export async function fetchDeApi(url) {
     try {
         console.log(`Buscando dados de: ${url}`);
         const response = await fetch(url);
@@ -12,30 +11,26 @@ export async function fetchDeN8N(url) {
         
         const responseText = await response.text();
         
-        // 👇 A BLINDAGEM MÁGICA QUE FOI ADICIONADA 👇
-        // Se a resposta for uma string vazia, a gente já retorna um array vazio.
-        if (responseText.trim() === '') {
-            console.warn("Resposta do fetchDeN8N estava vazia, retornando [].");
-            return []; // Retorna um array vazio, que é um JSON válido e seguro.
+        if (!responseText || responseText.trim() === '') {
+            return [];
         }
 
         try {
             return JSON.parse(responseText);
         } catch (e) {
-            console.warn("Resposta do fetchDeN8N não era um JSON válido, retornando como texto:", responseText);
+            console.warn("Resposta da API não era um JSON válido, retornando como texto:", responseText);
             return responseText;
         }
 
     } catch (error) {
-        console.error("Falha ao BUSCAR do N8N:", error);
+        console.error("Falha ao BUSCAR da API:", error);
         throw error;
     }
 }
 
-// 👇 A FUNÇÃO QUE FALTAVA 👇
-export async function enviarParaN8N(url, data) {
+export async function enviarParaApi(url, data) {
     try {
-        console.log("Enviando dados JSON para N8N:", { url, data });
+        console.log("Enviando dados JSON para API:", { url, data });
         
         const response = await fetch(url, {
             method: 'POST',
@@ -56,26 +51,25 @@ export async function enviarParaN8N(url, data) {
         try {
             const responseData = JSON.parse(responseText);
             if (responseData.success === false) {
-                 throw new Error(`Erro retornado pelo N8N: ${responseData.message || 'Erro não especificado'}`);
+                 throw new Error(`Erro retornado pela API: ${responseData.message || 'Erro não especificado'}`);
             }
             return responseData;
         } catch (e) {
-            console.warn(`Resposta do N8N não era JSON, mas a requisição foi bem-sucedida. Resposta: ${responseText}`);
+            console.warn(`Resposta da API não era JSON, mas a requisição foi bem-sucedida. Resposta: ${responseText}`);
             return { success: true, message: responseText };
         }
         
     } catch (error) {
-        console.error("Falha ao ENVIAR JSON para o N8N:", error);
+        console.error("Falha ao ENVIAR JSON para a API:", error);
         throw error;
     }
 }
 
-// 👇 A OUTRA FUNÇÃO QUE FICOU PARA TRÁS 👇
-export async function enviarArquivoParaN8N(url, file) {
+export async function enviarArquivoParaApi(url, file) {
     const formData = new FormData();
     formData.append('file', file);
     try {
-        console.log(`Enviando arquivo "${file.name}" para N8N...`);
+        console.log(`Enviando arquivo "${file.name}" para a API...`);
         const response = await fetch(url, {
             method: 'POST',
             body: formData,
@@ -88,14 +82,14 @@ export async function enviarArquivoParaN8N(url, file) {
         }
 
         if (responseData.success === false) {
-            throw new Error(`Erro retornado pelo N8N no upload: ${responseData.message || 'Erro não especificado'}`);
+            throw new Error(`Erro retornado pela API no upload: ${responseData.message || 'Erro não especificado'}`);
         }
         
         console.log("Arquivo enviado com sucesso, dados recebidos:", responseData);
         return responseData;
 
     } catch (error) {
-        console.error(`Falha ao ENVIAR ARQUIVO "${file.name}" para o N8N:`, error);
+        console.error(`Falha ao ENVIAR ARQUIVO "${file.name}" para a API:`, error);
         throw error;
     }
 }
