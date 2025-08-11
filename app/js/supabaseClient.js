@@ -1,8 +1,6 @@
 
 const { createClient } = window.supabase;
 
-const IS_DEV = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
-
 const supabaseUrl = IS_DEV ? DEV_SUPABASE_URL : 'VITE_SUPABASE_URL';
 const supabaseAnonKey = IS_DEV ? DEV_SUPABASE_ANON_KEY : 'VITE_SUPABASE_ANON_KEY';
 
