@@ -1,8 +1,7 @@
-// REESCREVA O ARQUIVO COMPLETO: js/functions/configuracoes.js
+// REESCREVA O ARQUIVO COMPLETO: app/js/functions/configuracoes.js
 
 import { enviarParaN8N, fetchDeN8N, enviarArquivoParaN8N } from './api.js';
 
-// Variáveis de estado globais para este módulo
 let logoUrlAtual = '';
 let logoVitrineUrlAtual = '';
 let mesasExistentes = [];
@@ -11,8 +10,7 @@ let iconeCategoriaUrlAtual = '';
 let bannersExistentes = [];
 let bannerImagemUrlAtual = '';
 
-// --- Funções de Configurações da Loja ---
-// ... (Toda a parte de 'Configurações da Loja' permanece exatamente a mesma) ...
+// --- FUNÇÕES DE CONFIGURAÇÕES DA LOJA ---
 function preencherFormulario(config) {
     if (!config) return;
     document.getElementById('config-nome-loja').value = config.nome_loja || '';
@@ -24,7 +22,6 @@ function preencherFormulario(config) {
     document.getElementById('config-custo-entrega').value = config.custo_entrega_freela || '';
     logoUrlAtual = config.logo_url || '';
     document.getElementById('logo-preview').src = logoUrlAtual || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiMzODMyNmIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9InNlcmlmIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYTNhMGMyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj5Mb2dvPC90ZXh0Pjwvc3ZnPg==';
-
     logoVitrineUrlAtual = config.logo_vitrine_url || '';
     document.getElementById('logo-vitrine-preview').src = logoVitrineUrlAtual || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiMzODMyNmIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9InNlcmlmIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYTNhMGMyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj5Mb2dvPC90ZXh0Pjwvc3ZnPg==';
 }
@@ -38,6 +35,7 @@ async function fetchConfiguracoes() {
 
 async function handleLogoNotaFiscalUpload(file) {
     if (!file) return;
+    const logoAntigaUrl = logoUrlAtual; // Guarda a URL antiga
     Swal.fire({ title: 'Enviando logo de impressão...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
         const resultado = await enviarArquivoParaN8N(window.ZIPLINE_CONFIG.upload, file, 'logo_nota');
@@ -47,12 +45,23 @@ async function handleLogoNotaFiscalUpload(file) {
             document.getElementById('logo-preview').src = logoUrlAtual;
             await enviarParaN8N(window.N8N_CONFIG.update_loja_config, { id: 1, logo_url: novaUrl });
             Swal.fire({ icon: 'success', title: 'Sucesso!', text: 'Logo de impressão atualizada e salva!', background: '#2c2854', color: '#ffffff' });
+            
+            // Tenta deletar a imagem antiga em segundo plano
+            if (logoAntigaUrl) {
+                const match = logoAntigaUrl.match(/ziplineFileId=(\w+)/);
+                if (match && match[1]) {
+                    console.log(`Limpando logo de impressão antiga: ${match[1]}`);
+                    enviarParaN8N(window.N8N_CONFIG.delete_banner_on_clear, { fileIdentifier: match[1] })
+                        .catch(err => console.error("Falha ao deletar logo antiga:", err));
+                }
+            }
         } else { throw new Error('URL da imagem não recebida do servidor.'); }
     } catch (error) { console.error("Erro no upload da logo da nota:", error); Swal.fire('Erro no Upload', `Não foi possível enviar e salvar a logo: ${error.message}`, 'error'); }
 }
 
 async function handleLogoVitrineUpload(file) {
     if (!file) return;
+    const logoAntigaUrl = logoVitrineUrlAtual; // Guarda a URL antiga
     Swal.fire({ title: 'Enviando nova logo...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
         const resultado = await enviarArquivoParaN8N(window.ZIPLINE_CONFIG.upload, file, 'logo_vitrine');
@@ -61,11 +70,25 @@ async function handleLogoVitrineUpload(file) {
             logoVitrineUrlAtual = novaUrl;
             document.getElementById('logo-vitrine-preview').src = logoVitrineUrlAtual;
             await enviarParaN8N(window.N8N_CONFIG.update_loja_config, { id: 1, logo_vitrine_url: novaUrl });
-            if (window.appUpdater) {
-                const nomeLoja = document.getElementById('config-nome-loja').value;
-                window.appUpdater.updateLogo(novaUrl, nomeLoja);
-            }
+            
+            // Atualiza a logo no header do painel dinamicamente
+            const nomeLoja = document.getElementById('config-nome-loja').value;
+            const logoDesktopContainer = document.getElementById('logo-header-desktop');
+            const logoMobileContainer = document.getElementById('logo-header-mobile');
+            if(logoDesktopContainer) logoDesktopContainer.innerHTML = `<img src="${novaUrl}" alt="${nomeLoja}" class="max-h-20 w-auto">`;
+            if(logoMobileContainer) logoMobileContainer.innerHTML = `<img src="${novaUrl}" alt="${nomeLoja}" class="max-h-20 w-auto">`;
+
             Swal.fire({ icon: 'success', title: 'Sucesso!', text: 'Logo do painel e vitrine atualizada e salva!', background: '#2c2854', color: '#ffffff' });
+
+            // ✅ Tenta deletar a imagem antiga em segundo plano, sem bloquear o usuário
+            if (logoAntigaUrl) {
+                const match = logoAntigaUrl.match(/ziplineFileId=(\w+)/);
+                if (match && match[1]) {
+                    console.log(`Limpando logo de vitrine antiga: ${match[1]}`);
+                    enviarParaN8N(window.N8N_CONFIG.delete_banner_on_clear, { fileIdentifier: match[1] })
+                        .catch(err => console.error("Falha ao deletar logo antiga:", err));
+                }
+            }
         } else { throw new Error('URL da imagem não recebida do servidor.'); }
     } catch (error) { console.error("Erro no upload da logo:", error); Swal.fire('Erro no Upload', `Não foi possível enviar e salvar a logo: ${error.message}`, 'error'); }
 }
@@ -87,17 +110,12 @@ async function salvarConfiguracoes(event) {
     };
     Swal.fire({ title: 'Salvando informações...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
-        const resultado = await enviarParaN8N(window.N8N_CONFIG.update_loja_config, configData);
-        if (resultado.success) {
-            Swal.fire('Sucesso!', 'Configurações da loja salvas!', 'success');
-            if (window.appUpdater) {
-                window.appUpdater.updateLogo(logoVitrineUrlAtual, nomeLoja);
-            }
-        } else { throw new Error(resultado.message || 'Erro desconhecido ao salvar.'); }
+        await enviarParaN8N(window.N8N_CONFIG.update_loja_config, configData);
+        Swal.fire('Sucesso!', 'Configurações da loja salvas!', 'success');
     } catch (error) { console.error("Erro ao salvar configurações:", error); Swal.fire('Ops!', `Não foi possível salvar as configurações: ${error.message}`, 'error'); }
 }
 
-// --- Funções de Gerenciamento de Mesas ---
+// --- FUNÇÕES DE GERENCIAMENTO DE MESAS ---
 function renderMesas() {
     const container = document.getElementById('lista-mesas-existentes');
     if (!container) return;
@@ -108,12 +126,11 @@ function renderMesas() {
     }
     const mesasOrdenadas = [...mesasExistentes].sort((a, b) => a.numero_mesa - b.numero_mesa);
     mesasOrdenadas.forEach(mesa => {
-        // ➖ REMOVIDA A EXIBIÇÃO DO NOME DO GARÇOM AQUI
         container.innerHTML += `<div class="flex items-center justify-between bg-fundo p-3 rounded-lg"><div><span class="font-bold text-principal">Mesa ${mesa.numero_mesa}</span></div><button onclick="configFunctions.handleDeletarMesa(${mesa.id})" class="text-red-500 hover:text-red-400 p-1 rounded-full"><i class="bi bi-trash-fill text-lg"></i></button></div>`;
     });
 }
 
-async function fetchMesasConfig() {
+async function fetchMesas() {
     try {
         mesasExistentes = await fetchDeN8N(window.N8N_CONFIG.get_all_tables) || [];
         renderMesas();
@@ -130,35 +147,32 @@ async function handleCriarMesa(event) {
     if (!numero) { Swal.fire('Ops!', 'O número da mesa é obrigatório.', 'warning'); return; }
     Swal.fire({ title: 'Criando mesa...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
-        // ➖ REMOVIDO O ENVIO DO 'garcom_responsavel'
         await enviarParaN8N(window.N8N_CONFIG.create_table, { numero_mesa: parseInt(numero) });
         Swal.fire('Sucesso!', 'Mesa criada!', 'success');
         numeroInput.value = '';
-        fetchMesasConfig(); 
+        fetchMesas(); 
     } catch (error) { console.error("Erro ao criar mesa:", error); Swal.fire('Erro!', `Não foi possível criar a mesa: ${error.message}`, 'error'); }
 }
 
 async function handleDeletarMesa(id) {
     const mesa = mesasExistentes.find(m => m.id === id);
     if (!mesa) return;
-    Swal.fire({
+    const result = await Swal.fire({
         title: 'Tem certeza?', text: `Deseja realmente apagar a Mesa ${mesa.numero_mesa}?`, icon: 'warning',
         showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Sim, pode apagar!', cancelButtonText: 'Cancelar',
         background: '#2c2854', color: '#ffffff'
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            Swal.fire({ title: 'Apagando...', didOpen: () => Swal.showLoading() });
-            try {
-                await enviarParaN8N(window.N8N_CONFIG.delete_table, { id: id });
-                Swal.fire('Apagada!', 'A mesa foi removida.', 'success');
-                fetchMesasConfig();
-            } catch (error) { Swal.fire('Erro!', `Não foi possível apagar a mesa: ${error.message}`, 'error'); }
-        }
     });
+    if (result.isConfirmed) {
+        Swal.fire({ title: 'Apagando...', didOpen: () => Swal.showLoading() });
+        try {
+            await enviarParaN8N(window.N8N_CONFIG.delete_table, { id: id });
+            Swal.fire('Apagada!', 'A mesa foi removida.', 'success');
+            fetchMesas();
+        } catch (error) { Swal.fire('Erro!', `Não foi possível apagar a mesa: ${error.message}`, 'error'); }
+    }
 }
 
-// ... (O resto do arquivo, com as funções de Categorias e Banners, permanece o mesmo) ...
-// --- Funções de Gerenciamento de Categorias ---
+// --- FUNÇÕES DE GERENCIAMENTO DE CATEGORIAS ---
 function limparFormularioCategoria() {
     document.getElementById('form-nova-categoria').reset();
     document.getElementById('categoria-id').value = '';
@@ -168,7 +182,7 @@ function limparFormularioCategoria() {
     document.getElementById('categoria-icone-placeholder').classList.remove('hidden');
 }
 
-async function fetchCategoriasConfig() {
+async function fetchCategorias() {
     try {
         categoriasExistentes = await fetchDeN8N(window.N8N_CONFIG.get_all_categories) || [];
         renderCategorias();
@@ -189,7 +203,6 @@ function renderCategorias() {
     const categoriasOrdenadas = [...categoriasExistentes].sort((a, b) => a.ordem_exibicao - b.ordem_exibicao);
     categoriasOrdenadas.forEach(cat => {
         const iconeHtml = cat.url_icone ? `<img src="${cat.url_icone}" class="w-8 h-8 object-contain rounded-md">` : `<div class="w-8 h-8 rounded" style="background-color: ${cat.cor_fundo || '#38326b'}"></div>`;
-        
         container.innerHTML += `
             <div class="flex items-center justify-between bg-fundo p-3 rounded-lg" data-id="${cat.id}">
                 <div class="flex items-center gap-3 flex-grow min-w-0">
@@ -212,11 +225,10 @@ function renderCategorias() {
                 title: 'Salvando nova ordem...', showConfirmButton: false, timer: 1500,
                 background: '#38326b', color: '#ffffff'
             });
-
             const itens = container.querySelectorAll('.flex[data-id]');
             const novaOrdemIds = Array.from(itens).map(item => item.dataset.id);
-            
             enviarParaN8N(window.N8N_CONFIG.reorder_categories, { ordem: novaOrdemIds })
+                .then(() => window.dispatchEvent(new CustomEvent('categoriasAtualizadas')))
                 .catch(err => {
                     console.error("Erro ao salvar a nova ordem:", err);
                     Swal.fire('Ops!', 'Não foi possível salvar a nova ordem.', 'error');
@@ -256,7 +268,7 @@ async function handleSalvarCategoria(event) {
         await enviarParaN8N(endpoint, payload);
         Swal.fire('Sucesso!', `Categoria ${id ? 'atualizada' : 'criada'}!`, 'success');
         limparFormularioCategoria();
-        fetchCategoriasConfig();
+        fetchCategorias();
         window.dispatchEvent(new CustomEvent('categoriasAtualizadas'));
     } catch (error) { Swal.fire('Erro!', `Não foi possível salvar a categoria: ${error.message}`, 'error'); }
 }
@@ -280,61 +292,23 @@ function handleEditarCategoria(id) {
 async function handleDeletarCategoria(id) {
     const categoria = categoriasExistentes.find(c => c.id === id);
     if (!categoria) return;
-    Swal.fire({
+    const result = await Swal.fire({
         title: 'Certeza Absoluta?', html: `Deseja apagar a categoria "<b>${categoria.nome}</b>"?`, icon: 'warning',
         showCancelButton: true, confirmButtonText: 'Sim, pode apagar!',
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            Swal.fire({ title: 'Apagando...', didOpen: () => Swal.showLoading() });
-            try {
-                await enviarParaN8N(window.N8N_CONFIG.delete_category, { id: id });
-                Swal.fire('Apagada!', 'A categoria foi removida.', 'success');
-                fetchCategoriasConfig();
-            } catch (error) { Swal.fire('Erro!', `Não foi possível apagar: ${error.message}`, 'error'); }
-        }
     });
-}
-
-// --- Funções de Gerenciamento de Banners ---
-function resetarVisualFormularioBanner() {
-    document.getElementById('form-novo-banner').reset();
-    document.getElementById('banner-id').value = '';
-    bannerImagemUrlAtual = '';
-    
-    const bannerUploadArea = document.getElementById('banner-imagem-upload-area');
-    const bannerFileInput = document.getElementById('banner-imagem-file-input');
-    const bannerPreview = document.getElementById('banner-imagem-preview');
-    const bannerPlaceholder = document.getElementById('banner-imagem-placeholder');
-
-    bannerPreview.src = '';
-    bannerPreview.classList.add('hidden');
-    bannerPlaceholder.classList.remove('hidden');
-    
-    bannerFileInput.disabled = false;
-    bannerUploadArea.style.cursor = 'pointer';
-    bannerUploadArea.classList.remove('opacity-50', 'cursor-not-allowed');
-}
-
-async function limparFormularioBanner() {
-    const bannerIdSendoEditado = document.getElementById('banner-id').value;
-
-    if (!bannerIdSendoEditado && bannerImagemUrlAtual) {
+    if (result.isConfirmed) {
+        Swal.fire({ title: 'Apagando...', didOpen: () => Swal.showLoading() });
         try {
-            const match = bannerImagemUrlAtual.match(/ziplineFileId=(\w+)/);
-            if (match && match[1]) {
-                const fileIdentifier = match[1];
-                console.log(`Faxina iniciada! Apagando imagem órfã: ${fileIdentifier}`);
-                await enviarParaN8N(window.N8N_CONFIG.delete_banner_on_clear, { fileIdentifier });
-            }
-        } catch (e) {
-            console.error("Erro ao tentar limpar imagem do banner:", e);
-        }
+            await enviarParaN8N(window.N8N_CONFIG.delete_category, { id: id });
+            Swal.fire('Apagada!', 'A categoria foi removida.', 'success');
+            fetchCategorias();
+            window.dispatchEvent(new CustomEvent('categoriasAtualizadas'));
+        } catch (error) { Swal.fire('Erro!', `Não foi possível apagar: ${error.message}`, 'error'); }
     }
-    resetarVisualFormularioBanner();
 }
 
-
-async function fetchBannersConfig() {
+// --- FUNÇÕES DE GERENCIAMENTO DE BANNERS ---
+async function fetchBanners() {
     try {
         bannersExistentes = await fetchDeN8N(window.N8N_CONFIG.get_all_banners) || [];
         renderBanners();
@@ -437,7 +411,7 @@ async function handleSalvarBanner(event) {
 
     const payload = { 
         url_imagem: bannerImagemUrlAtual, 
-        link_ancora: document.getElementById('banner-link').value 
+        link_ancora: null
     };
     
     const isUpdating = !!id;
@@ -454,7 +428,7 @@ async function handleSalvarBanner(event) {
         Swal.fire('Sucesso!', `Banner ${isUpdating ? 'atualizado' : 'criado'}!`, 'success');
         
         resetarVisualFormularioBanner(); 
-        fetchBannersConfig();
+        fetchBanners();
     } catch (error) { 
         Swal.fire('Erro!', `Não foi possível salvar o banner: ${error.message}`, 'error'); 
     }
@@ -467,7 +441,6 @@ function handleEditarBanner(id) {
     resetarVisualFormularioBanner();
     
     document.getElementById('banner-id').value = banner.id;
-    document.getElementById('banner-link').value = banner.link_ancora || '';
     bannerImagemUrlAtual = banner.url_imagem;
     
     if (banner.url_imagem) {
@@ -519,12 +492,12 @@ async function handleDeletarBanner(id) {
 
             Swal.fire({ icon: 'success', title: 'Apagado!', text: 'O banner foi removido com sucesso.', background: '#2c2854', color: '#ffffff' });
             
-            await fetchBannersConfig();
+            await fetchBanners();
 
         } catch (error) {
             console.error("Erro ao deletar banner:", error);
             Swal.fire({ icon: 'error', title: 'Erro!', text: `Não foi possível apagar o banner: ${error.message}`, background: '#2c2854', color: '#ffffff' });
-            fetchBannersConfig();
+            fetchBanners();
         }
     }
 }
@@ -532,58 +505,92 @@ async function handleDeletarBanner(id) {
 async function handleToggleBannerStatus(id, statusAtual) {
     try {
         await enviarParaN8N(window.N8N_CONFIG.toggle_banner_status, { id: id, status: !statusAtual });
-        fetchBannersConfig();
+        fetchBanners();
     } catch (error) { Swal.fire('Ops!', 'Não foi possível alterar o status do banner.', 'error'); }
 }
 
+function resetarVisualFormularioBanner() {
+    document.getElementById('form-novo-banner').reset();
+    document.getElementById('banner-id').value = '';
+    bannerImagemUrlAtual = '';
+    
+    const bannerUploadArea = document.getElementById('banner-imagem-upload-area');
+    const bannerFileInput = document.getElementById('banner-imagem-file-input');
+    const bannerPreview = document.getElementById('banner-imagem-preview');
+    const bannerPlaceholder = document.getElementById('banner-imagem-placeholder');
 
-// --- Ponto de Entrada e Inicialização ---
+    bannerPreview.src = '';
+    bannerPreview.classList.add('hidden');
+    bannerPlaceholder.classList.remove('hidden');
+    
+    bannerFileInput.disabled = false;
+    bannerUploadArea.style.cursor = 'pointer';
+    bannerUploadArea.classList.remove('opacity-50', 'cursor-not-allowed');
+}
+
+async function limparFormularioBanner() {
+    const bannerIdSendoEditado = document.getElementById('banner-id').value;
+
+    if (!bannerIdSendoEditado && bannerImagemUrlAtual) {
+        try {
+            const match = bannerImagemUrlAtual.match(/ziplineFileId=(\w+)/);
+            if (match && match[1]) {
+                const fileIdentifier = match[1];
+                console.log(`Faxina iniciada! Apagando imagem órfã: ${fileIdentifier}`);
+                await enviarParaN8N(window.N8N_CONFIG.delete_banner_on_clear, { fileIdentifier });
+            }
+        } catch (e) {
+            console.error("Erro ao tentar limpar imagem do banner:", e);
+        }
+    }
+    resetarVisualFormularioBanner();
+}
+
 let isConfigInitialized = false;
 
 export function initConfiguracoesPage() {
+    if (!isConfigInitialized) {
+        document.getElementById('form-configuracoes').addEventListener('submit', salvarConfiguracoes);
+        document.getElementById('form-nova-mesa').addEventListener('submit', handleCriarMesa);
+        document.getElementById('form-nova-categoria').addEventListener('submit', handleSalvarCategoria);
+        document.getElementById('btn-limpar-form-categoria').addEventListener('click', limparFormularioCategoria);
+        document.getElementById('form-novo-banner').addEventListener('submit', handleSalvarBanner);
+        document.getElementById('btn-limpar-form-banner').addEventListener('click', limparFormularioBanner);
+
+        const logoUploadArea = document.getElementById('logo-upload-area');
+        const logoFileInput = document.getElementById('logo-file-input');
+        logoUploadArea.addEventListener('click', () => logoFileInput.click());
+        logoFileInput.addEventListener('change', () => { if (logoFileInput.files.length > 0) handleLogoNotaFiscalUpload(logoFileInput.files[0]); });
+
+        const vitrineUploadArea = document.getElementById('logo-vitrine-upload-area');
+        const vitrineFileInput = document.getElementById('logo-vitrine-file-input');
+        vitrineUploadArea.addEventListener('click', () => vitrineFileInput.click());
+        vitrineFileInput.addEventListener('change', () => { if (vitrineFileInput.files.length > 0) handleLogoVitrineUpload(vitrineFileInput.files[0]); });
+
+        const iconeUploadArea = document.getElementById('categoria-icone-upload-area');
+        const iconeFileInput = document.getElementById('categoria-icone-file-input');
+        iconeUploadArea.addEventListener('click', () => iconeFileInput.click());
+        iconeFileInput.addEventListener('change', () => { if (iconeFileInput.files.length > 0) handleIconeCategoriaUpload(iconeFileInput.files[0]); });
+
+        const bannerUploadArea = document.getElementById('banner-imagem-upload-area');
+        const bannerFileInput = document.getElementById('banner-imagem-file-input');
+        bannerUploadArea.addEventListener('click', () => bannerFileInput.click());
+        bannerFileInput.addEventListener('change', () => { if (bannerFileInput.files.length > 0) handleBannerImagemUpload(bannerFileInput.files[0]); });
+
+        window.configFunctions = { 
+            handleDeletarMesa,
+            handleDeletarCategoria,
+            handleEditarCategoria,
+            handleEditarBanner,
+            handleDeletarBanner,
+            handleToggleBannerStatus
+        };
+
+        isConfigInitialized = true;
+    }
+    
     fetchConfiguracoes();
-    fetchMesasConfig();
-    fetchCategoriasConfig();
-    fetchBannersConfig(); 
-
-    if (isConfigInitialized) return;
-    
-    document.getElementById('form-configuracoes').addEventListener('submit', salvarConfiguracoes);
-    document.getElementById('form-nova-mesa').addEventListener('submit', handleCriarMesa);
-    document.getElementById('form-nova-categoria').addEventListener('submit', handleSalvarCategoria);
-    document.getElementById('btn-limpar-form-categoria').addEventListener('click', limparFormularioCategoria);
-    document.getElementById('form-novo-banner').addEventListener('submit', handleSalvarBanner);
-    
-    document.getElementById('btn-limpar-form-banner').addEventListener('click', limparFormularioBanner);
-
-    const logoUploadArea = document.getElementById('logo-upload-area');
-    const logoFileInput = document.getElementById('logo-file-input');
-    logoUploadArea.addEventListener('click', () => logoFileInput.click());
-    logoFileInput.addEventListener('change', () => { if (logoFileInput.files.length > 0) handleLogoNotaFiscalUpload(logoFileInput.files[0]); });
-
-    const vitrineUploadArea = document.getElementById('logo-vitrine-upload-area');
-    const vitrineFileInput = document.getElementById('logo-vitrine-file-input');
-    vitrineUploadArea.addEventListener('click', () => vitrineFileInput.click());
-    vitrineFileInput.addEventListener('change', () => { if (vitrineFileInput.files.length > 0) handleLogoVitrineUpload(vitrineFileInput.files[0]); });
-
-    const iconeUploadArea = document.getElementById('categoria-icone-upload-area');
-    const iconeFileInput = document.getElementById('categoria-icone-file-input');
-    iconeUploadArea.addEventListener('click', () => iconeFileInput.click());
-    iconeFileInput.addEventListener('change', () => { if (iconeFileInput.files.length > 0) handleIconeCategoriaUpload(iconeFileInput.files[0]); });
-
-    const bannerUploadArea = document.getElementById('banner-imagem-upload-area');
-    const bannerFileInput = document.getElementById('banner-imagem-file-input');
-    bannerUploadArea.addEventListener('click', () => bannerFileInput.click());
-    bannerFileInput.addEventListener('change', () => { if (bannerFileInput.files.length > 0) handleBannerImagemUpload(bannerFileInput.files[0]); });
-
-    window.configFunctions = { 
-        handleDeletarMesa,
-        handleDeletarCategoria,
-        handleEditarCategoria,
-        handleEditarBanner,
-        handleDeletarBanner,
-        handleToggleBannerStatus
-    };
-
-    isConfigInitialized = true;
+    fetchMesas();
+    fetchCategorias();
+    fetchBanners();
 }

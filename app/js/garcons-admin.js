@@ -1,4 +1,4 @@
-// REESCREVA O ARQUIVO COMPLETO: js/garcons-admin.js
+// REESCREVA O ARQUIVO COMPLETO: app/js/garcons-admin.js
 
 import { fetchDeN8N, enviarParaN8N } from './functions/api.js';
 
@@ -6,27 +6,6 @@ let todosOsGarcons = [];
 let todasAsMesas = [];
 let resumoAtribuicoes = []; 
 let garcomSelecionadoParaAtribuicao = null;
-
-async function carregarConfiguracoesLoja() {
-    try {
-        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
-        if (configs && configs.length > 0) {
-            const { nome_loja, logo_vitrine_url } = configs[0];
-            const logoContainer = document.getElementById('logo-container');
-            document.title = `Painel de Garçons - ${nome_loja || 'Meu Negócio'}`;
-
-            if (logoContainer) {
-                if (logo_vitrine_url) {
-                    logoContainer.innerHTML = `<img src="${logo_vitrine_url}" alt="${nome_loja}" class="max-h-16 w-auto">`;
-                } else if (nome_loja) {
-                    logoContainer.innerHTML = `<span class="text-2xl font-bold text-principal">${nome_loja}</span>`;
-                }
-            }
-        }
-    } catch (error) {
-        console.error("Erro ao carregar as configurações da loja:", error);
-    }
-}
 
 async function fetchDadosIniciais() {
     try {
@@ -125,7 +104,6 @@ function renderResumoAtribuicoes(resumo) {
     container.appendChild(table);
 }
 
-
 function renderMesasParaAtribuicao(garcomId) {
     const container = document.getElementById('lista-mesas-atribuicao');
     const btnSalvar = document.getElementById('btn-salvar-atribuicoes');
@@ -141,8 +119,8 @@ function renderMesasParaAtribuicao(garcomId) {
     }
     
     todasAsMesas.sort((a,b) => a.numero_mesa - b.numero_mesa).forEach(mesa => {
-        const isChecked = mesa.garcom_id === garcomId;
-        const isOwnedByOther = mesa.garcom_id && mesa.garcom_id !== garcomId;
+        const isChecked = mesa.garcom_id == garcomId;
+        const isOwnedByOther = mesa.garcom_id && mesa.garcom_id != garcomId;
         const garcomAtual = isOwnedByOther ? todosOsGarcons.find(g => g.id === mesa.garcom_id) : null;
 
         const mesaEl = document.createElement('div');
@@ -184,7 +162,6 @@ async function handleSalvarGarcom(event) {
 
     const endpoint = id ? window.N8N_CONFIG.update_garcom : window.N8N_CONFIG.create_garcom;
     const payload = { nome, pin };
-    // ➕ AJUSTE CIRÚRGICO 👇: Garantir que o ID seja enviado como número no update.
     if (id) payload.id = parseInt(id);
     
     Swal.fire({ title: 'Salvando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
@@ -200,20 +177,17 @@ async function handleSalvarGarcom(event) {
 }
 
 function handleEditarGarcom(id) {
-    // ➕ AJUSTE CIRÚRGICO 👇: O ID vem como string do HTML, convertemos para número.
     const idNumerico = parseInt(id);
     const garcom = todosOsGarcons.find(g => g.id === idNumerico);
     if (garcom) {
         document.getElementById('garcom-id').value = garcom.id;
         document.getElementById('garcom-nome').value = garcom.nome;
-        // ➕ AJUSTE CIRÚRGICO 👇: O campo PIN não estava sendo preenchido. Corrigido!
         document.getElementById('garcom-pin').value = garcom.pin;
         document.getElementById('form-garcom').scrollIntoView({ behavior: 'smooth' });
     }
 }
 
 async function handleDeletarGarcom(id) {
-    // ➕ AJUSTE CIRÚRGICO 👇: O ID vem como string do HTML, convertemos para número.
     const idNumerico = parseInt(id);
     const garcom = todosOsGarcons.find(g => g.id === idNumerico);
     if (!garcom) return;
@@ -247,43 +221,20 @@ async function handleSalvarAtribuicoes() {
     }
 
     const checkboxes = document.querySelectorAll('.mesa-checkbox:checked');
-    const mesas_ids = Array.from(checkboxes).map(cb => cb.value);
+    const mesas_ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
 
-    let endpoint;
-    let payload = { garcom_id: garcomSelecionadoParaAtribuicao };
-    let confirmacao = { isConfirmed: true };
-
-    if (mesas_ids.length > 0) {
-        endpoint = window.N8N_CONFIG.update_table_assignments;
-        payload.mesas_ids = mesas_ids;
-    } else {
-        endpoint = window.N8N_CONFIG.clear_table_assignments;
-        confirmacao = await Swal.fire({
-            title: 'Liberar todas as mesas?',
-            text: `Confirma que deseja remover todas as mesas deste garçom?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sim, liberar!',
-            cancelButtonText: 'Cancelar'
-        });
-    }
-
-    if (confirmacao.isConfirmed) {
-        Swal.fire({ title: 'Salvando atribuições...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-        
-        try {
-            await enviarParaN8N(endpoint, payload);
-            Swal.fire('Sucesso!', 'As atribuições foram atualizadas!', 'success');
-            await fetchDadosIniciais();
-            document.getElementById('select-garcom-atribuicao').value = '';
-            renderMesasParaAtribuicao(null);
-        } catch (error) {
-            Swal.fire('Ops!', `Não foi possível salvar as atribuições: ${error.message}`, 'error');
-        }
-    } else if (confirmacao.dismiss === Swal.DismissReason.cancel) {
-        renderMesasParaAtribuicao(garcomSelecionadoParaAtribuicao);
+    const payload = { garcom_id: parseInt(garcomSelecionadoParaAtribuicao), mesas_ids };
+    
+    Swal.fire({ title: 'Salvando atribuições...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    
+    try {
+        await enviarParaN8N(window.N8N_CONFIG.update_table_assignments, payload);
+        Swal.fire('Sucesso!', 'As atribuições foram atualizadas!', 'success');
+        await fetchDadosIniciais();
+        document.getElementById('select-garcom-atribuicao').value = '';
+        renderMesasParaAtribuicao(null);
+    } catch (error) {
+        Swal.fire('Ops!', `Não foi possível salvar as atribuições: ${error.message}`, 'error');
     }
 }
 
@@ -319,10 +270,8 @@ function limparFormulario() {
     document.getElementById('garcom-id').value = '';
 }
 
-function initGarconsAdminPage() {
+export function initGarconsAdminPage() {
     console.log("Maestro: Torre de Controle dos Garçons iniciada! 🚀");
-
-    carregarConfiguracoesLoja();
     fetchDadosIniciais();
 
     document.getElementById('form-garcom').addEventListener('submit', handleSalvarGarcom);
@@ -336,5 +285,3 @@ function initGarconsAdminPage() {
         handleLiberarMesasDoGarcom 
     };
 }
-
-document.addEventListener('DOMContentLoaded', initGarconsAdminPage);

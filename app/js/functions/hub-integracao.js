@@ -1,4 +1,4 @@
-// REESCREVA O ARQUIVO COMPLETO: js/functions/hub-integracao.js
+// REESCREVA O ARQUIVO COMPLETO: app/js/functions/hub-integracao.js
 
 import { fetchDeN8N, enviarParaN8N } from './api.js';
 
@@ -6,28 +6,7 @@ let lojaConfigFiscal = null;
 
 export function initHubIntegracaoPage() {
     console.log("Maestro: Página de Integração Fiscal iniciada. 🎵");
-    carregarConfiguracoes();
     inicializarFiltros();
-}
-
-async function carregarConfiguracoes() {
-    const logoContainer = document.getElementById('logo-container');
-    try {
-        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
-        if (configs && configs.length > 0) {
-            lojaConfigFiscal = configs[0];
-            const { nome_loja, logo_vitrine_url } = lojaConfigFiscal;
-            document.title = `NFC-e - ${nome_loja || 'Meu Negócio'}`;
-            if(logoContainer) {
-                logoContainer.innerHTML = logo_vitrine_url 
-                    ? `<img src="${logo_vitrine_url}" alt="${nome_loja}" class="max-h-16 w-auto">` 
-                    : `<span class="text-2xl font-bold text-principal">${nome_loja || 'Meu Negócio'}</span>`;
-            }
-        }
-    } catch (error) { 
-        console.error("Erro ao carregar configurações da loja:", error); 
-        if(logoContainer) logoContainer.innerHTML = `<span class="text-2xl font-bold text-principal">Meu Negócio</span>`;
-    }
 }
 
 function inicializarFiltros() {
@@ -87,6 +66,10 @@ async function buscarPedidosParaEmissao(dataInicio, dataFim) {
     corpoTabela.innerHTML = `<div class="bg-card rounded-lg p-6 text-center text-texto-muted animate-pulse">Buscando pedidos finalizados de ${dataInicio.split('-').reverse().join('/')} a ${dataFim.split('-').reverse().join('/')}...</div>`;
     
     try {
+        if (!lojaConfigFiscal) {
+            const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
+            if (configs && configs.length > 0) lojaConfigFiscal = configs[0];
+        }
         const url = `${window.N8N_CONFIG.get_financial_report}?inicio=${dataInicio}&fim=${dataFim}`;
         const pedidos = await fetchDeN8N(url);
         if (!pedidos || pedidos.length === 0) {
@@ -100,19 +83,17 @@ async function buscarPedidosParaEmissao(dataInicio, dataFim) {
     }
 }
 
-// 👇 FUNÇÃO RENDERIZAR CORRIGIDA 👇
 function renderizarTabelaFiscais(pedidos) {
     const corpoTabela = document.getElementById('tabela-pedidos-fiscais-corpo');
     if(!corpoTabela) return;
     corpoTabela.innerHTML = '';
-    const origemCores = { 'WHATSAPP': 'bg-green-500/20 text-green-300', 'MESA': 'bg-purple-500/20 text-purple-300', 'BALCAO': 'bg-yellow-500/20 text-yellow-300' };
+    const origemCores = { 'WHATSAPP': 'bg-green-500/20 text-green-300', 'MESA': 'bg-purple-500/20 text-purple-300', 'BALCAO': 'bg-yellow-500/20 text-yellow-300', 'DELIVERY': 'bg-blue-500/20 text-blue-300' };
     
     pedidos.forEach(pedido => {
         const dataHora = new Date(pedido.created_at);
         const dataFormatada = dataHora.toLocaleDateString('pt-BR');
         const horaFormatada = dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         
-        // CORREÇÃO: Lê o status do banco. Se for nulo, assume 'Pendente'.
         const statusFiscal = pedido.status_fiscal || 'Pendente';
         let corStatus, acoesHtml;
 
@@ -120,40 +101,51 @@ function renderizarTabelaFiscais(pedidos) {
             case 'Emitida':
                 corStatus = 'bg-green-500/30 text-green-300';
                 acoesHtml = `<div class="flex items-center justify-center gap-2">
-                    <button onclick="hubFunctions.baixarDocumento('${pedido.pdf_url}', 'pdf', '${pedido.id_pedido_publico}')" 
-                            class="group relative flex items-center justify-center h-10 w-10 bg-sidebar rounded-lg hover:bg-fundo transition-colors" 
-                            title="Baixar PDF da Nota">
-                        <i class="bi bi-file-earmark-arrow-down-fill text-xl text-blue-300 group-hover:text-blue-200"></i>
-                    </button>
-                    <button onclick="hubFunctions.baixarDocumento('${pedido.xml_url}', 'xml', '${pedido.id_pedido_publico}')" 
-                            class="group relative flex items-center justify-center h-10 w-10 bg-sidebar rounded-lg hover:bg-fundo transition-colors" 
-                            title="Baixar XML da Nota">
-                        <i class="bi bi-file-earmark-code-fill text-xl text-gray-300 group-hover:text-gray-200"></i>
-                    </button>
-                    <button class="group relative flex items-center justify-center h-10 w-10 bg-red-600/80 rounded-lg hover:bg-red-700 transition-colors" 
-                            title="Cancelar NFC-e">
-                        <i class="bi bi-x-lg text-xl text-white"></i>
-                    </button>
+                    <button onclick="hubFunctions.baixarDocumento('${pedido.pdf_url}', 'pdf', '${pedido.id_pedido_publico}')" class="group relative flex items-center justify-center h-10 w-10 bg-sidebar rounded-lg hover:bg-fundo transition-colors" title="Baixar PDF da Nota"><i class="bi bi-file-earmark-arrow-down-fill text-xl text-blue-300 group-hover:text-blue-200"></i></button>
+                    <button onclick="hubFunctions.baixarDocumento('${pedido.xml_url}', 'xml', '${pedido.id_pedido_publico}')" class="group relative flex items-center justify-center h-10 w-10 bg-sidebar rounded-lg hover:bg-fundo transition-colors" title="Baixar XML da Nota"><i class="bi bi-file-earmark-code-fill text-xl text-gray-300 group-hover:text-gray-200"></i></button>
+                    <button class="group relative flex items-center justify-center h-10 w-10 bg-red-600/80 rounded-lg hover:bg-red-700 transition-colors" title="Cancelar NFC-e"><i class="bi bi-x-lg text-xl text-white"></i></button>
                 </div>`;
                 break;
-
             case 'Processando':
                 corStatus = 'bg-blue-500/30 text-blue-300';
                 acoesHtml = `<div class="flex items-center justify-center gap-2 text-blue-300"><div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-300"></div><span>Processando...</span></div>`;
                 break;
-
             case 'Erro':
                 corStatus = 'bg-red-500/30 text-red-300';
                 acoesHtml = `<button onclick="hubFunctions.emitirNota('${pedido.pedido_id}')" class="bg-principal text-white font-bold py-2 px-3 rounded-lg hover:bg-orange-600 transition-colors text-sm w-full"><i class="bi bi-arrow-clockwise"></i> Tentar Novamente</button>`;
                 break;
-
-            default: // Pendente
+            default:
                 corStatus = 'bg-gray-500/30 text-gray-300';
                 acoesHtml = `<button onclick="hubFunctions.emitirNota('${pedido.pedido_id}')" class="bg-principal text-white font-bold py-2 px-3 rounded-lg hover:bg-orange-600 transition-colors text-sm w-full"><i class="bi bi-receipt-cutoff"></i> Emitir NFC-e</button>`;
         }
         
         const itemElement = document.createElement('div');
-        itemElement.innerHTML = `<div class="md:hidden bg-card rounded-lg p-4 space-y-3"><div class="flex justify-between items-start"><div><p class="font-bold text-lg">${pedido.nome_cliente}</p><p class="text-xs text-blue-400 font-mono">#${pedido.id_pedido_publico}</p></div><span class="text-sm text-texto-muted">${dataFormatada} - ${horaFormatada}</span></div><div class="flex justify-between items-center border-t border-borda/50 pt-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${origemCores[pedido.origem] || 'bg-gray-500/20 text-gray-300'}">${pedido.origem}</span><span class="font-bold text-principal text-lg">${(pedido.total || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span></div><div class="flex justify-between items-center border-t border-borda/50 pt-3"><span class="px-3 py-1 text-sm font-semibold rounded-full ${corStatus}">${statusFiscal}</span><div class="w-1/2">${acoesHtml.replace('mt-2 md:mt-0', '')}</div></div></div><div class="hidden md:grid grid-cols-12 gap-4 px-4 py-3 items-center border-b border-borda/50"><div class="col-span-2 text-sm"><p class="font-semibold">${dataFormatada}</p><p class="text-texto-muted">${horaFormatada}</p></div><div class="col-span-3"><p class="font-bold truncate">${pedido.nome_cliente}</p><p class="text-xs text-blue-400 font-mono">#${pedido.id_pedido_publico}</p></div><div class="col-span-2"><span class="px-2 py-1 text-xs font-semibold rounded-full ${origemCores[pedido.origem] || 'bg-gray-500/20 text-gray-300'}">${pedido.origem}</span></div><div class="col-span-1 text-right"><p class="font-bold text-principal">${(pedido.total || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p></div><div class="col-span-2 text-center"><span class="px-3 py-1 text-sm font-semibold rounded-full ${corStatus}">${statusFiscal}</span></div><div class="col-span-2 text-center">${acoesHtml}</div></div>`;
+        itemElement.innerHTML = `
+            <div class="md:hidden bg-card rounded-lg p-4 space-y-3">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="font-bold text-lg">${pedido.nome_cliente}</p>
+                        <p class="text-xs text-blue-400 font-mono">#${pedido.id_pedido_publico}</p>
+                    </div>
+                    <span class="text-sm text-texto-muted">${dataFormatada} - ${horaFormatada}</span>
+                </div>
+                <div class="flex justify-between items-center border-t border-borda/50 pt-3">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full ${origemCores[pedido.origem] || 'bg-gray-500/20 text-gray-300'}">${pedido.origem}</span>
+                    <span class="font-bold text-principal text-lg">${(pedido.total || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                </div>
+                <div class="flex justify-between items-center border-t border-borda/50 pt-3">
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full ${corStatus}">${statusFiscal}</span>
+                    <div class="w-1/2">${acoesHtml.replace('mt-2 md:mt-0', '')}</div>
+                </div>
+            </div>
+            <div class="hidden md:grid grid-cols-12 gap-4 px-4 py-3 items-center border-b border-borda/50">
+                <div class="col-span-2 text-sm"><p class="font-semibold">${dataFormatada}</p><p class="text-texto-muted">${horaFormatada}</p></div>
+                <div class="col-span-3"><p class="font-bold truncate">${pedido.nome_cliente}</p><p class="text-xs text-blue-400 font-mono">#${pedido.id_pedido_publico}</p></div>
+                <div class="col-span-2"><span class="px-2 py-1 text-xs font-semibold rounded-full ${origemCores[pedido.origem] || 'bg-gray-500/20 text-gray-300'}">${pedido.origem}</span></div>
+                <div class="col-span-1 text-right"><p class="font-bold text-principal">${(pedido.total || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p></div>
+                <div class="col-span-2 text-center"><span class="px-3 py-1 text-sm font-semibold rounded-full ${corStatus}">${statusFiscal}</span></div>
+                <div class="col-span-2 text-center">${acoesHtml}</div>
+            </div>`;
         corpoTabela.appendChild(itemElement);
     });
 
@@ -162,10 +154,7 @@ function renderizarTabelaFiscais(pedidos) {
             const pedidoParaEmitir = pedidos.find(p => p.pedido_id == pedidoId); 
             if (pedidoParaEmitir) { 
                 enviarParaEmissao(pedidoParaEmitir); 
-            } else { 
-                console.error("Pedido não encontrado para o ID:", pedidoId, "em", pedidos);
-                Swal.fire('Erro', 'Pedido não encontrado!', 'error');
-            } 
+            } else { Swal.fire('Erro', 'Pedido não encontrado!', 'error'); } 
         },
         baixarDocumento: (url, tipo, idPublico) => { baixarDocumentoSeguro(url, tipo, idPublico); }
     };

@@ -1,0 +1,95 @@
+<!-- REESCREVA O ARQUIVO COMPLETO: app/gerenciamento.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Gerenciamento</title>
+    <link rel="icon" href="https://uptecnology.com.br/wp-content/uploads/2025/02/LOGO-UP.png" type="image/png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      tailwind.config = { 
+        theme: { 
+          extend: { 
+            colors: { 
+              'fundo': '#1a163a', 'sidebar': '#2c2854', 'card': '#38326b', 'principal': '#ff6b35', 
+              'texto-base': '#ffffff', 'texto-muted': '#a3a0c2', 'borda': '#4a4480',
+            } 
+          } 
+        } 
+      }
+    </script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .nav-link.active { background-color: #38326b; color: #ff6b35; font-weight: 600; }
+        #admin-sidebar { transition: transform 0.3s ease-in-out; }      
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) brightness(1.5);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-fundo text-texto-base">
+<div class="flex h-screen overflow-hidden">
+
+    <!-- Header para Mobile (idêntico ao do index.html) -->
+    <header class="md:hidden bg-sidebar px-4 py-2 flex justify-between items-center w-full fixed top-0 left-0 z-30">
+        <div id="logo-header-mobile" class="flex items-center h-full"><span class="text-2xl font-bold text-principal">LegalConnect</span></div>
+        <button id="btn-mobile-menu" class="text-3xl"><i class="bi bi-list"></i></button>
+    </header>
+    <div id="menu-overlay" class="fixed inset-0 bg-black/50 z-30 hidden"></div>
+
+    <!-- Sidebar (MUITO parecida com a do index.html) -->
+    <aside id="admin-sidebar" class="bg-sidebar w-64 px-4 pt-3 pb-6 flex flex-col fixed top-0 left-0 h-full z-40 transform -translate-x-full md:relative md:translate-x-0 no-scrollbar">
+        <div class="flex-shrink-0">
+            <div class="flex justify-between items-center mb-2">
+                <div id="logo-header-desktop" class="hidden md:flex items-center h-full"><span class="text-3xl font-bold text-principal">LegalConnect</span></div>
+                <div class="md:hidden w-full flex justify-end"><button id="btn-close-menu" class="text-3xl"><i class="bi bi-x"></i></button></div>
+            </div>
+        </div>
+        <nav class="flex-grow min-h-0 overflow-y-auto no-scrollbar">
+            <div class="flex flex-col space-y-1">
+                <!-- Links atualizados para chamar a função loadPage -->
+                <a href="#" onclick="event.preventDefault(); loadPage('financeiro.html')" data-page="financeiro.html" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card">
+                    <i class="bi bi-clipboard-data-fill text-xl"></i><span>Relatório Financeiro</span>
+                </a>
+                <a href="#" onclick="event.preventDefault(); loadPage('garcons-admin.html')" data-page="garcons-admin.html" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card">
+                    <i class="bi bi-people-fill text-xl"></i><span>Gerenciar Equipe</span>
+                </a>
+                 <a href="#" onclick="event.preventDefault(); loadPage('hub-integracao.html')" data-page="hub-integracao.html" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card">
+                    <i class="bi bi-receipt-cutoff text-xl"></i><span>Emitir NFC-e</span>
+                </a>
+            </div>
+        </nav>
+        <div class="flex-shrink-0 pt-4">
+            <div class="flex flex-col space-y-1 border-t border-borda pt-2">
+                <a href="index.html" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-card">
+                    <i class="bi bi-arrow-left-circle-fill text-xl"></i><span>Voltar ao Painel</span>
+                </a>
+                 <a href="#" id="btn-logout" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-card">
+                    <i class="bi bi-box-arrow-left text-xl"></i><span>Sair</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- O Palco Principal -->
+    <main id="content-area" class="flex-1 p-4 sm:p-8 flex flex-col overflow-y-auto mt-24 md:mt-0">
+        <!-- O conteúdo das páginas será injetado aqui pelo gerenciamento.js -->
+    </main>
+
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script type="module" src="js/functions/authVigia.js"></script>
+<!-- Nosso novo maestro para este hub -->
+<script type="module" src="js/gerenciamento.js"></script> 
+</body>
+</html>

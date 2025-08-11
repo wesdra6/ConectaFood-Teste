@@ -58,7 +58,7 @@ const N8N_ENDPOINTS = {
     finalize_order_and_table: N8N_BASE_URL + 'pedido/finalizar-e-liberar-mesa',
     add_item_to_order:     N8N_BASE_URL + 'pedido/adicionar-item',
     remove_item_from_order: N8N_BASE_URL + 'pedido/remover-item',
-    
+
     // BUSCAR TODOS OS ITENS (PRODUTOS E SERVIÇOS)
     get_all_products_with_type: N8N_BASE_URL + 'produtos/listar-com-tipo',
     

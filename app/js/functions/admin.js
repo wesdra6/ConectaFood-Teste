@@ -1,6 +1,7 @@
-// REESCREVA O ARQUIVO COMPLETO: js/functions/admin.js
+// REESCREVA O ARQUIVO COMPLETO: app/js/functions/admin.js
 
 import { enviarParaN8N, fetchDeN8N, enviarArquivoParaN8N } from './api.js';
+import { criaCardProduto } from './components.js';
 
 let produtosLocais = [];
 let produtosPorCategoria = {};
@@ -12,7 +13,6 @@ const desktopMediaQuery = window.matchMedia('(min-width: 768px)');
 let uploadedImageUrls = [];
 let modalProduto = null;
 
-// --- FUNÇÕES DE CONTROLE DA LOJA ---
 function renderizarToggleLoja(status) {
     const toggle = document.getElementById('toggle-loja-aberta');
     const textoStatus = document.getElementById('status-loja-texto');
@@ -54,10 +54,10 @@ async function handleToggleLoja() {
             Swal.fire({ icon: 'success', title: 'Sucesso!', text: `Loja ${novoStatus ? 'aberta' : 'fechada'}.`, background: '#2c2854', color: '#ffffff' });
         } catch (error) {
             Swal.fire({ icon: 'error', title: 'Ops!', text: 'Não foi possível alterar o status da loja.', background: '#2c2854', color: '#ffffff' });
-            toggle.checked = !novoStatus; // Reverte o toggle em caso de erro
+            toggle.checked = !novoStatus;
         }
     } else {
-        toggle.checked = !novoStatus; // Reverte se o usuário cancelar
+        toggle.checked = !novoStatus;
     }
 }
 
@@ -71,8 +71,6 @@ async function verificarStatusLoja() {
         console.error("Erro ao verificar status da loja para o toggle:", error);
     }
 }
-
-// --- FUNÇÕES DO DASHBOARD E PRODUTOS ---
 
 function renderizarDashboard(stats) {
     const totalPedidosEl = document.getElementById('dashboard-total-pedidos');
@@ -131,6 +129,7 @@ async function fetchCategoriasParaAdmin() {
 function renderizarSelectCategorias() {
     const select = document.getElementById('produtoCategoria');
     if (!select) return;
+    const valorSelecionado = select.value;
     while (select.options.length > 1) { select.remove(1); }
     todasAsCategorias.forEach(cat => {
         const option = document.createElement('option');
@@ -138,6 +137,7 @@ function renderizarSelectCategorias() {
         option.textContent = cat.nome;
         select.appendChild(option);
     });
+    select.value = valorSelecionado;
 }
 
 async function fetchProdutosAdmin() {
@@ -205,9 +205,13 @@ function renderizarAbasCategoriasAdmin() {
 
 function renderizarProdutosAdmin() {
     const container = document.getElementById('lista-produtos-admin');
-    if (!container) return;
+    const verInativosToggle = document.getElementById('ver-inativos-toggle');
+
+    if (!container || !verInativosToggle) {
+        return;
+    }
     
-    const verInativos = document.getElementById('ver-inativos-toggle').checked;
+    const verInativos = verInativosToggle.checked;
     
     const listaInicial = categoriaAtiva === 'todos' ? produtosLocais : produtosPorCategoria[categoriaAtiva] || [];
     const listaParaRenderizar = verInativos ? listaInicial : listaInicial.filter(item => item.ativo);
@@ -226,91 +230,23 @@ function renderizarProdutosAdmin() {
         return;
     }
 
+    const fragment = document.createDocumentFragment();
+
     if (desktopMediaQuery.matches) {
         container.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start';
         produtosPaginados.forEach(item => {
-            const isServico = item.tipo_item !== 'PRODUTO';
-            const isAtivo = item.ativo;
-            
-            let botaoStatusHtml;
-            if (isAtivo) {
-                botaoStatusHtml = `<button class="p-2 rounded-md hover:bg-sidebar transition-colors" onclick="adminFunctions.toggleProdutoStatus(${item.id})" title="Desativar produto">
-                                       <i class="bi bi-eye-slash-fill text-lg text-red-500"></i>
-                                   </button>`;
-            } else {
-                botaoStatusHtml = `<button class="p-2 rounded-md hover:bg-sidebar transition-colors" onclick="adminFunctions.toggleProdutoStatus(${item.id})" title="Ativar produto">
-                                       <i class="bi bi-eye-fill text-lg text-green-400"></i>
-                                   </button>`;
-            }
-
-            let imagemHtml;
-            if (item.imagens_urls && item.imagens_urls.length > 0) {
-                imagemHtml = `<img src="${item.imagens_urls[0]}" alt="${item.nome}" class="w-full h-48 object-cover">`;
-            } else if (isServico) {
-                imagemHtml = `<div class="w-full h-48 flex items-center justify-center bg-fundo"><i class="bi bi-gear-wide-connected text-6xl text-principal"></i></div>`;
-            } else {
-                imagemHtml = `<img src="https://via.placeholder.com/400x300.png?text=Sem+Imagem" alt="${item.nome}" class="w-full h-48 object-cover">`;
-            }
-            const categoriaExibida = item.nome_categoria || (isServico ? 'Serviço do Sistema' : 'Sem Categoria');
-            const descricao = item.descricao || (isServico ? 'Item para uso interno no caixa.' : '');
-            
-            const botoesAcao = `
-                <button class="p-2 rounded-md hover:bg-sidebar transition-colors" onclick="adminFunctions.editarProduto(${item.id})"><i class="bi bi-gear-fill text-lg"></i></button>
-                ${!isServico ? botaoStatusHtml : ''}
-            `;
-            
-            const cardHtml = `<div class="bg-card rounded-lg overflow-hidden shadow-lg hover:transform hover:-translate-y-1 transition-transform duration-300 flex flex-col h-full ${!isAtivo ? 'opacity-50' : ''}">
-                                ${imagemHtml}
-                                <div class="p-4 flex flex-col flex-grow">
-                                    <h3 class="text-xl font-bold">${item.nome}</h3>
-                                    <p class="text-sm text-texto-muted mb-2">${categoriaExibida}</p>
-                                    <p class="text-texto-muted flex-grow mb-4">${descricao}</p>
-                                    <div class="flex justify-between items-center mt-auto">
-                                        <span class="text-2xl font-bold text-principal">R$ ${Number(item.preco).toFixed(2)}</span>
-                                        <div class="flex items-center space-x-2">${botoesAcao}</div>
-                                    </div>
-                                </div>
-                              </div>`; 
-            container.innerHTML += cardHtml; 
+            const card = criaCardProduto(item, 'admin-grid');
+            if (card) fragment.appendChild(card);
         });
-    } else { // MODO LISTA (MOBILE)
+    } else {
         container.className = 'space-y-4';
         produtosPaginados.forEach(item => {
-            const isServico = item.tipo_item !== 'PRODUTO';
-            const isAtivo = item.ativo;
-
-            let botaoStatusHtml;
-            if (isAtivo) {
-                botaoStatusHtml = `<button class="p-2 rounded-md hover:bg-fundo transition-colors" onclick="adminFunctions.toggleProdutoStatus(${item.id})" title="Desativar"><i class="bi bi-eye-slash-fill text-lg text-red-500"></i></button>`;
-            } else {
-                botaoStatusHtml = `<button class="p-2 rounded-md hover:bg-fundo transition-colors" onclick="adminFunctions.toggleProdutoStatus(${item.id})" title="Ativar"><i class="bi bi-eye-fill text-lg text-green-400"></i></button>`;
-            }
-            
-            let imagemHtml;
-            if (item.imagens_urls && item.imagens_urls.length > 0) {
-                imagemHtml = `<img src="${item.imagens_urls[0]}" alt="${item.nome}" class="w-20 h-20 object-cover rounded-lg flex-shrink-0">`;
-            } else if (isServico) {
-                imagemHtml = `<div class="w-20 h-20 flex-shrink-0 flex items-center justify-center bg-fundo rounded-lg"><i class="bi bi-gear-wide-connected text-4xl text-principal"></i></div>`;
-            } else {
-                imagemHtml = `<img src="https://via.placeholder.com/150" alt="${item.nome}" class="w-20 h-20 object-cover rounded-lg flex-shrink-0">`;
-            }
-
-            const botoesAcao = `
-                <button class="p-2 rounded-md hover:bg-fundo transition-colors" onclick="adminFunctions.editarProduto(${item.id})"><i class="bi bi-gear-fill text-lg"></i></button>
-                ${!isServico ? botaoStatusHtml : ''}
-            `;
-            
-            const itemHtml = `<div class="bg-card p-3 rounded-lg flex items-center gap-4 ${!isAtivo ? 'opacity-50' : ''}">
-                                ${imagemHtml}
-                                <div class="flex-grow min-w-0">
-                                    <h3 class="font-bold truncate">${item.nome}</h3>
-                                    <span class="text-xl font-bold text-principal">R$ ${Number(item.preco).toFixed(2)}</span>
-                                </div>
-                                <div class="flex flex-col items-center">${botoesAcao}</div>
-                              </div>`;
-            container.innerHTML += itemHtml;
+            const card = criaCardProduto(item, 'admin-list');
+            if (card) fragment.appendChild(card);
         });
     }
+
+    container.appendChild(fragment);
     renderizarPaginacaoAdmin(listaParaRenderizar.length);
 }
 
@@ -407,7 +343,8 @@ async function toggleProdutoStatus(id) {
             background: '#38326b', color: '#ffffff'
         });
         
-        await fetchProdutosAdmin();
+        produto.ativo = novoStatus;
+        renderizarProdutosAdmin();
 
     } catch (error) {
         const acao = novoStatus ? 'Ativar' : 'Desativar';
@@ -419,23 +356,9 @@ async function toggleProdutoStatus(id) {
     }
 }
 
-
-function renderizarPreviews() {
-    const previewsContainer = document.getElementById('previews-container');
-    previewsContainer.innerHTML = '';
-    uploadedImageUrls.forEach((url, index) => { const previewWrapper = document.createElement('div'); previewWrapper.className = 'relative w-24 h-24'; previewWrapper.innerHTML = `<img src="${url}" class="w-full h-full object-cover rounded-md"><button type="button" onclick="adminFunctions.removerImagem(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">×</button>`; previewsContainer.appendChild(previewWrapper); });
-}
+function renderizarPreviews() { const previewsContainer = document.getElementById('previews-container'); previewsContainer.innerHTML = ''; uploadedImageUrls.forEach((url, index) => { const previewWrapper = document.createElement('div'); previewWrapper.className = 'relative w-24 h-24'; previewWrapper.innerHTML = `<img src="${url}" class="w-full h-full object-cover rounded-md"><button type="button" onclick="adminFunctions.removerImagem(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">×</button>`; previewsContainer.appendChild(previewWrapper); }); }
 function removerImagem(index) { uploadedImageUrls.splice(index, 1); renderizarPreviews(); }
-async function handleFileUpload(files) {
-    if (files.length === 0) return;
-    Swal.fire({ title: 'Enviando imagens...', html: `Carregando <b>${files.length}</b> arquivo(s). Aguarde! 🚀`, allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => { Swal.showLoading(); } });
-    const uploadPromises = Array.from(files).map(file => { return enviarArquivoParaN8N(window.ZIPLINE_CONFIG.upload, file, 'produtos').catch(err => ({ error: true, message: err.message, fileName: file.name })); });
-    const resultados = await Promise.all(uploadPromises);
-    const sucessoUploads = resultados.filter(r => !r.error);
-    const erroUploads = resultados.filter(r => r.error);
-    if (sucessoUploads.length > 0) { const newUrls = sucessoUploads.map(r => { if (r && Array.isArray(r) && r.length > 0 && r[0]) { return r[0].urlParaCopiarComId || r[0].imageUrlToCopy; } return null; }).filter(Boolean); uploadedImageUrls.push(...newUrls); renderizarPreviews(); }
-    if (erroUploads.length > 0) { const errorMessages = erroUploads.map(e => `<li>${e.fileName}: ${e.message}</li>`).join(''); Swal.fire({ icon: 'error', title: 'Ops! Alguns uploads falharam', html: `<ul class="text-left">${errorMessages}</ul>`, background: '#2c2854', color: '#ffffff', }); } else { Swal.close(); }
-}
+async function handleFileUpload(files) { if (files.length === 0) return; Swal.fire({ title: 'Enviando imagens...', html: `Carregando <b>${files.length}</b> arquivo(s). Aguarde! 🚀`, allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => { Swal.showLoading(); } }); const uploadPromises = Array.from(files).map(file => { return enviarArquivoParaN8N(window.ZIPLINE_CONFIG.upload, file, 'produtos').catch(err => ({ error: true, message: err.message, fileName: file.name })); }); const resultados = await Promise.all(uploadPromises); const sucessoUploads = resultados.filter(r => !r.error); const erroUploads = resultados.filter(r => r.error); if (sucessoUploads.length > 0) { const newUrls = sucessoUploads.map(r => { if (r && Array.isArray(r) && r.length > 0 && r[0]) { return r[0].urlParaCopiarComId || r[0].imageUrlToCopy; } return null; }).filter(Boolean); uploadedImageUrls.push(...newUrls); renderizarPreviews(); } if (erroUploads.length > 0) { const errorMessages = erroUploads.map(e => `<li>${e.fileName}: ${e.message}</li>`).join(''); Swal.fire({ icon: 'error', title: 'Ops! Alguns uploads falharam', html: `<ul class="text-left">${errorMessages}</ul>`, background: '#2c2854', color: '#ffffff', }); } else { Swal.close(); } }
 async function handleFormSubmit(e) {
     e.preventDefault();
     const id = document.getElementById('produtoId').value;
@@ -452,12 +375,10 @@ async function handleFormSubmit(e) {
     const endpoint = id ? window.N8N_CONFIG.update_product : window.N8N_CONFIG.create_product;
     const payload = id ? { ...produtoData, id: parseInt(id) } : produtoData;
     try {
-        const resultado = await enviarParaN8N(endpoint, payload);
-        if (resultado.success) {
-            Swal.fire({ icon: 'success', title: `Item ${id ? 'atualizado' : 'criado'}!`, timer: 1500, showConfirmButton: false, background: '#2c2854', color: '#ffffff' });
-            if (modalProduto) modalProduto.hide();
-            fetchProdutosAdmin();
-        } else { throw new Error(resultado.message || 'Erro ao salvar o item.'); }
+        await enviarParaN8N(endpoint, payload);
+        Swal.fire({ icon: 'success', title: `Item ${id ? 'atualizado' : 'criado'}!`, timer: 1500, showConfirmButton: false, background: '#2c2854', color: '#ffffff' });
+        if (modalProduto) modalProduto.hide();
+        fetchProdutosAdmin();
     } catch (error) { Swal.fire({ icon: 'error', title: 'Ops! Algo deu errado.', text: `Não foi possível salvar: ${error.message}`, background: '#2c2854', color: '#ffffff' }); }
 }
 
@@ -486,6 +407,11 @@ export function initAdminPage(params) {
         if (toggleLoja) {
             toggleLoja.addEventListener('change', handleToggleLoja);
         }
+
+        window.addEventListener('categoriasAtualizadas', () => {
+            console.log("Admin ouviu: 'categoriasAtualizadas'. Recarregando o select.");
+            fetchCategoriasParaAdmin();
+        });
         
         fetchCategoriasParaAdmin();
         isInitialized = true;

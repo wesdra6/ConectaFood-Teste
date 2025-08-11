@@ -1,14 +1,13 @@
-// REESCREVA O ARQUIVO COMPLETO: js/financeiro.js
+// REESCREVA O ARQUIVO COMPLETO: app/js/financeiro.js
 
-import { fetchDeN8N, enviarParaN8N } from '/js/functions/api.js';
+import { fetchDeN8N } from './functions/api.js';
 
 let todosOsPedidosDoPeriodo = [];
 let pedidosFiltrados = [];
 let graficoLinha = null;
 let graficoPizza = null;
-let lojaConfig = null; // Variável para guardar a config da loja
+let lojaConfig = null;
 
-// --- FUNÇÕES DE DATA E FORMATAÇÃO ---
 const formatarMoeda = (valor) => (valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 function obterPeriodo(periodo) {
@@ -25,13 +24,18 @@ function obterPeriodo(periodo) {
     return { inicio: formata(inicio), fim: formata(fim) };
 }
 
-// --- FUNÇÕES DE BUSCA E PROCESSAMENTO DE DADOS ---
 async function carregarConfigDaLoja() {
     if (lojaConfig) return;
     try {
         const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
         if (configs && configs.length > 0) {
             lojaConfig = configs[0];
+            const { nome_loja, logo_vitrine_url } = lojaConfig;
+            document.title = `Financeiro - ${nome_loja || 'Meu Negócio'}`;
+            const logoContainer = document.getElementById('logo-financeiro-container');
+            if (logoContainer) {
+                logoContainer.innerHTML = logo_vitrine_url ? `<img src="${logo_vitrine_url}" alt="${nome_loja}" class="max-h-16 w-auto">` : `<span class="text-2xl font-bold text-principal">${nome_loja || 'Meu Financeiro'}</span>`;
+            }
         }
     } catch (e) {
         console.error("Não foi possível carregar as configurações da loja para o financeiro", e);
@@ -64,16 +68,13 @@ function aplicarFiltrosLocais() {
     renderizarFechamentoCaixa(pedidosFiltrados);
 }
 
-// --- FUNÇÕES DE RENDERIZAÇÃO ---
 function gerarHtmlImpressaoFechamento(dados, datas) {
     const dataHora = new Date().toLocaleString('pt-BR');
     const { totaisPorOrigem, totalCouvert, totaisPorGarcom, acertoEntregadores } = dados;
     const faturamentoBruto = Object.values(totaisPorOrigem).reduce((acc, val) => acc + val, 0);
-
     const origemHtml = Object.entries(totaisPorOrigem).map(([origem, total]) => `<tr><td style="padding: 2px 0;">${origem}</td><td style="text-align: right;">${formatarMoeda(total)}</td></tr>`).join('');
     const garcomHtml = Object.entries(totaisPorGarcom).map(([garcom, total]) => `<tr><td style="padding: 2px 0;">${garcom}</td><td style="text-align: right;">${formatarMoeda(total * 0.10)}</td></tr>`).join('');
     const entregadorHtml = Object.entries(acertoEntregadores).map(([id, dados]) => `<tr><td style="padding: 2px 0;">${id.substring(0, 15)}... (${dados.count}x)</td><td style="text-align: right;">${formatarMoeda(dados.totalAPagar)}</td></tr>`).join('');
-
     return `
         <div style="width: 280px; font-size: 11px; font-family: 'Courier New', monospace; color: #000;">
             <h2 style="text-align: center; margin: 0; font-size: 14px;">Fechamento de Caixa</h2>
@@ -98,25 +99,14 @@ function renderizarFechamentoCaixa(pedidos) {
     const container = document.getElementById('fechamento-caixa-container');
     if (!container || !pedidos || !lojaConfig) { container.innerHTML = ''; return; }
     if (pedidos.length === 0) { container.innerHTML = ''; return; }
-
     const totaisPorOrigem = pedidos.reduce((acc, p) => { acc[p.origem] = (acc[p.origem] || 0) + Number(p.total); return acc; }, {});
     const todosOsItens = pedidos.flatMap(p => p.itens_pedido || []);
     const totalCouvert = todosOsItens.filter(item => item.item === 'Couvert Artístico').reduce((acc, item) => acc + (Number(item.preco_unitario || 0) * item.quantidade), 0);
-    
-    // 👇 AQUI ESTÁ A LÓGICA CORRIGIDA E COMPLETA 👇
-    const totaisPorGarcom = pedidos
-        .filter(p => p.origem === 'MESA' && p.garcom_responsavel)
-        .reduce((acc, p) => {
-            // 1. Para cada pedido de mesa, calculamos o total SÓ dos produtos (excluindo taxas)
-            const totalProdutosComissionaveis = (p.itens_pedido || [])
-                .filter(item => item.item !== 'Couvert Artístico' && item.item !== 'Taxa de Serviço (10%)')
-                .reduce((subtotal, item) => subtotal + (Number(item.preco_unitario || 0) * item.quantidade), 0);
-            
-            // 2. Acumulamos esse valor comissionável para o garçom responsável
-            acc[p.garcom_responsavel] = (acc[p.garcom_responsavel] || 0) + totalProdutosComissionaveis;
-            return acc;
-        }, {});
-
+    const totaisPorGarcom = pedidos.filter(p => p.origem === 'MESA' && p.garcom_responsavel).reduce((acc, p) => {
+        const totalProdutosComissionaveis = (p.itens_pedido || []).filter(item => item.item !== 'Couvert Artístico' && item.item !== 'Taxa de Serviço (10%)').reduce((subtotal, item) => subtotal + (Number(item.preco_unitario || 0) * item.quantidade), 0);
+        acc[p.garcom_responsavel] = (acc[p.garcom_responsavel] || 0) + totalProdutosComissionaveis;
+        return acc;
+    }, {});
     const acertoEntregadores = pedidos.filter(p => p.entregador_id).reduce((acc, p) => {
         const entregador = p.entregador_id;
         if (!acc[entregador]) acc[entregador] = { count: 0, totalAPagar: 0 };
@@ -124,11 +114,9 @@ function renderizarFechamentoCaixa(pedidos) {
         acc[entregador].totalAPagar = acc[entregador].count * (lojaConfig.custo_entrega_freela || 0);
         return acc;
     }, {});
-
     const origemHtml = Object.entries(totaisPorOrigem).map(([origem, total]) => `<div class="flex justify-between py-2 border-b border-borda/50"><span class="font-medium">${origem}</span><span class="font-bold text-principal">${formatarMoeda(total)}</span></div>`).join('');
     const garcomHtml = Object.entries(totaisPorGarcom).map(([garcom, total]) => `<tr><td class="py-2">${garcom}</td><td class="py-2 text-right font-bold text-green-400">${formatarMoeda(total * 0.10)}</td></tr>`).join('');
     const entregadorHtml = Object.entries(acertoEntregadores).map(([id, dados]) => `<tr class="hover:bg-sidebar/50"><td class="p-3">${id}</td><td class="p-3 text-center">${dados.count}</td><td class="p-3 font-bold text-green-400 text-right">${formatarMoeda(dados.totalAPagar)}</td></tr>`).join('');
-
     container.innerHTML = `
         <h2 class="text-4xl font-bold mb-2 border-t-2 border-principal pt-8 flex justify-between items-center">
             <span>Fechamento de Caixa 📋</span>
@@ -144,7 +132,6 @@ function renderizarFechamentoCaixa(pedidos) {
              <div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="border-b border-borda"><th class="p-3">ID Entregador</th><th class="p-3 text-center">Nº Entregas</th><th class="p-3 text-right">Total a Pagar</th></tr></thead><tbody>${entregadorHtml}</tbody></table></div>
         </div>
     `;
-
     document.getElementById('btn-imprimir-fechamento')?.addEventListener('click', () => {
         const dadosParaImpressao = { totaisPorOrigem, totalCouvert, totaisPorGarcom, acertoEntregadores };
         const datas = { inicio: document.getElementById('data-inicio').value.split('-').reverse().join('/'), fim: document.getElementById('data-fim').value.split('-').reverse().join('/') };
@@ -187,7 +174,11 @@ function renderizarKPIs() {
     const ticketMedio = totalPedidos > 0 ? faturamentoBruto / totalPedidos : 0;
     const totaisPagamento = pedidosFiltrados.reduce((acc, p) => { acc[p.forma_pagamento] = (acc[p.forma_pagamento] || 0) + Number(p.total); return acc; }, {});
     let pagamentosHtml = Object.entries(totaisPagamento).sort(([, a], [, b]) => b - a).map(([forma, total]) => `<div class="flex justify-between text-sm"><span class="text-texto-muted">${forma || 'N/A'}:</span> <span class="font-semibold">${formatarMoeda(total)}</span></div>`).join('');
-    kpiContainer.innerHTML = `<div class="bg-card p-6 rounded-lg"><p class="text-texto-muted font-semibold">Faturamento Bruto</p><p class="text-3xl font-bold text-green-400">${formatarMoeda(faturamentoBruto)}</p></div><div class="bg-card p-6 rounded-lg"><p class="text-texto-muted font-semibold">Total de Pedidos</p><p class="text-3xl font-bold">${totalPedidos}</p></div><div class="bg-card p-6 rounded-lg"><p class="text-texto-muted font-semibold">Ticket Médio</p><p class="text-3xl font-bold">${formatarMoeda(ticketMedio)}</p></div><div class="bg-card p-6 rounded-lg"><p class="text-texto-muted font-semibold mb-2">Vendas por Pagamento</p><div class="space-y-1">${pagamentosHtml || '<p class="text-texto-muted text-sm">N/A</p>'}</div></div>`;
+    kpiContainer.innerHTML = `
+        <div class="bg-card p-6 rounded-lg"><p class="text-texto-muted font-semibold">Faturamento Bruto</p><p class="text-3xl font-bold text-green-400">${formatarMoeda(faturamentoBruto)}</p></div>
+        <div class="bg-card p-6 rounded-lg"><p class="text-texto-muted font-semibold">Total de Pedidos</p><p class="text-3xl font-bold">${totalPedidos}</p></div>
+        <div class="bg-card p-6 rounded-lg"><p class="text-texto-muted font-semibold">Ticket Médio</p><p class="text-3xl font-bold">${formatarMoeda(ticketMedio)}</p></div>
+        <div class="bg-card p-6 rounded-lg"><p class="text-texto-muted font-semibold mb-2">Vendas por Pagamento</p><div class="space-y-1">${pagamentosHtml || '<p class="text-texto-muted text-sm">N/A</p>'}</div></div>`;
 }
 
 function renderizarTabela() {
@@ -202,26 +193,11 @@ function renderizarTabela() {
     });
 }
 
-async function carregarLogo() {
-    const logoContainer = document.getElementById('logo-financeiro-container');
-    try {
-        if (lojaConfig) {
-            const { nome_loja, logo_vitrine_url } = lojaConfig;
-            document.title = `Financeiro - ${nome_loja || 'Meu Negócio'}`;
-            logoContainer.innerHTML = logo_vitrine_url ? `<img src="${logo_vitrine_url}" alt="${nome_loja}" class="max-h-16 w-auto">` : `<span class="text-2xl font-bold text-principal">${nome_loja || 'Meu Financeiro'}</span>`;
-        }
-    } catch (error) { console.error("Erro ao carregar logo:", error); }
-}
-
-function initFinanceiroPage() {
+export async function initFinanceiroPage() {
     if (!document.getElementById('painel-financeiro-principal')) return;
-
     console.log("Maestro: Módulo Financeiro iniciado. 🎵💰");
 
-    carregarConfigDaLoja().then(() => {
-        carregarLogo();
-        document.querySelector('#filtros-rapidos .filtro-btn[data-periodo="hoje"]').click();
-    });
+    await carregarConfigDaLoja();
     
     document.getElementById('btn-aplicar-filtros').addEventListener('click', () => {
         document.querySelectorAll('#filtros-rapidos .filtro-btn').forEach(b => b.classList.remove('active'));
@@ -245,6 +221,9 @@ function initFinanceiroPage() {
     document.getElementById('filtro-origem').addEventListener('change', aplicarFiltrosLocais);
     document.getElementById('filtro-pagamento').addEventListener('change', aplicarFiltrosLocais);
     document.getElementById('busca-tabela').addEventListener('keyup', aplicarFiltrosLocais);
+    
+    const btnHoje = document.querySelector('#filtros-rapidos .filtro-btn[data-periodo="hoje"]');
+    if (btnHoje) {
+        btnHoje.click();
+    }
 }
-
-document.addEventListener('DOMContentLoaded', initFinanceiroPage);

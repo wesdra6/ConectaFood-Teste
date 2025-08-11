@@ -1,10 +1,10 @@
-<!-- REESCREVA O ARQUIVO COMPLETO: index.html -->
+<!-- REESCREVA O ARQUIVO COMPLETO: app/index.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel Admin - LegalConnect</title>
+<title>Painel Admin - Conecta Food</title>
 <link rel="icon" href="https://uptecnology.com.br/wp-content/uploads/2025/02/LOGO-UP.png" type="image/png">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -64,12 +64,12 @@ body * { visibility: hidden; }
     </div>
     <nav class="flex-grow min-h-0 overflow-y-auto no-scrollbar">
         <div class="flex flex-col space-y-1">
-            <a id="nav-dashboard" href="index.html?view=dashboard" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i class="bi bi-pie-chart-fill text-xl"></i><span>Dashboard</span></a>
-            <a id="nav-meus-produtos" href="index.html?view=meus-produtos" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i class="bi bi-box-seam-fill text-xl"></i><span>Meus Produtos</span></a>
+            <a id="nav-dashboard" href="?view=dashboard" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i class="bi bi-pie-chart-fill text-xl"></i><span>Dashboard</span></a>
+            <a id="nav-meus-produtos" href="?view=meus-produtos" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i class="bi bi-box-seam-fill text-xl"></i><span>Meus Produtos</span></a>
             <button id="btn-abrir-modal-produto" class="nav-link-button text-left w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i class="bi bi-plus-circle-fill text-xl"></i><span>Inserir Produto</span></button>
-            <a id="nav-pedidos" href="index.html?view=pedidos" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i class="bi bi-receipt-cutoff text-xl"></i><span>Pedidos</span></a>
-            <a id="nav-caixa" href="index.html?view=caixa" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i class="bi bi-archive-fill text-xl"></i><span>Caixa</span></a>
-            <a id="nav-configuracoes" href="index.html?view=configuracoes" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i class="bi bi-gear-fill text-xl"></i><span>Configurações</span></a>
+            <a id="nav-pedidos" href="?view=pedidos" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i class="bi bi-receipt-cutoff text-xl"></i><span>Pedidos</span></a>
+            <a id="nav-caixa" href="?view=caixa" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i class="bi bi-archive-fill text-xl"></i><span>Caixa</span></a>
+            <a id="nav-configuracoes" href="?view=configuracoes" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i class="bi bi-gear-fill text-xl"></i><span>Configurações</span></a>
         </div>
     </nav>
     <div class="flex-shrink-0 pt-4">
@@ -85,9 +85,11 @@ body * { visibility: hidden; }
 </aside>
 
 <main class="flex-1 p-4 sm:p-8 flex flex-col overflow-y-auto mt-24 md:mt-0">
+    
+    <!-- ✅ VIEW CONTAINER DO DASHBOARD -->
     <div id="dashboard-page" class="view-container hidden">
-        <h2 class="text-4xl font-bold mb-2">Dashboard</h2>
-        <!-- ➕ NOVO TOGGLE DE CONTROLE DA LOJA 👇 -->
+        <div class="flex flex-wrap justify-between items-center gap-4 mb-2">
+            <h2 class="text-4xl font-bold">Dashboard</h2>
             <div id="controle-loja-container" class="bg-card p-2 rounded-lg flex items-center gap-3">
                 <span class="font-semibold text-lg">Status da Loja:</span>
                 <div class="flex items-center">
@@ -121,76 +123,85 @@ body * { visibility: hidden; }
             <h3 class="text-2xl font-bold mb-4 text-principal">🏆 Top 5 Produtos Mais Vendidos Hoje</h3>
             <div id="dashboard-produtos-top" class="space-y-3"><p class="text-texto-muted animate-pulse">Calculando os campeões de venda...</p></div>
         </div>
-
-        <!-- 🚀 NOVO BLOCO DE ATALHOS RÁPIDOS 👇 -->
         <div class="mt-8">
-    <h3 class="text-2xl font-bold mb-4">Atalhos Rápidos ⚡</h3>
-    <!-- 👇 Grid ajustada para 3 colunas em telas grandes, acomodando 6 itens 👇 -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Botão Financeiro -->
-        <a href="financeiro.html" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
-            <i class="bi bi-clipboard-data-fill text-4xl text-principal mb-3"></i>
-            <div>
-                <h4 class="text-xl font-bold">Relatório Financeiro</h4>
-                <p class="text-texto-muted text-sm mt-1">Analise vendas, fechamentos e repasses.</p>
+            <h3 class="text-2xl font-bold mb-4">Atalhos Rápidos ⚡</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <a href="gerenciamento.html?view=financeiro" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
+                    <i class="bi bi-clipboard-data-fill text-4xl text-principal mb-3"></i>
+                    <div><h4 class="text-xl font-bold">Relatório Financeiro</h4><p class="text-texto-muted text-sm mt-1">Analise vendas, fechamentos e repasses.</p></div>
+                </a>
+                <a href="gerenciamento.html?view=garcons-admin" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
+                    <i class="bi bi-people-fill text-4xl text-principal mb-3"></i>
+                    <div><h4 class="text-xl font-bold">Gerenciar Equipe</h4><p class="text-texto-muted text-sm mt-1">Cadastre garçons e atribua mesas.</p></div>
+                </a>
+                <a href="garcom-login.html" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
+                    <i class="bi bi-person-badge-fill text-4xl text-principal mb-3"></i>
+                    <div><h4 class="text-xl font-bold">Acesso Rápido Garçom</h4><p class="text-texto-muted text-sm mt-1">Link para a tela de login da equipe.</p></div>
+                </a>
+                <a href="gerenciamento.html?view=hub-integracao" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
+                    <i class="bi bi-receipt-cutoff text-4xl text-principal mb-3"></i>
+                    <div><h4 class="text-xl font-bold">Emitir NFC-e</h4><p class="text-texto-muted text-sm mt-1">Integração para emissão de notas fiscais.</p></div>
+                </a>
+                <a href="#" class="relative overflow-hidden bg-card p-6 rounded-lg flex flex-col items-center text-center transition-colors transform hover:-translate-y-1 group">
+                    <div class="absolute top-0 left-0 w-32 h-32"><div class="absolute top-8 -left-5 w-full transform -rotate-45 bg-principal text-white text-center text-sm py-1">Em Breve</div></div>
+                    <div class="opacity-40 group-hover:opacity-100 transition-opacity"><i class="bi bi-box-seam-fill text-4xl text-principal mb-3"></i><div><h4 class="text-xl font-bold">Controle de Estoque</h4><p class="text-texto-muted text-sm mt-1">Gerencie insumos e produtos.</p></div></div>
+                </a>
+                <a href="#" class="relative overflow-hidden bg-card p-6 rounded-lg flex flex-col items-center text-center transition-colors transform hover:-translate-y-1 group">
+                    <div class="absolute top-0 left-0 w-32 h-32"><div class="absolute top-8 -left-5 w-full transform -rotate-45 bg-principal text-white text-center text-sm py-1">Em Breve</div></div>
+                    <div class="opacity-40 group-hover:opacity-100 transition-opacity"><i class="bi bi-magic text-4xl text-principal mb-3"></i><div><h4 class="text-xl font-bold">Criador Mágico com IA</h4><p class="text-texto-muted text-sm mt-1">Deixe a IA cuidar do Marketing.</p></div></div>
+                </a>
             </div>
-        </a>
-        <!-- Botão Gerenciar Equipe -->
-        <a href="garcons-admin.html" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
-            <i class="bi bi-people-fill text-4xl text-principal mb-3"></i>
-            <div>
-                <h4 class="text-xl font-bold">Gerenciar Equipe</h4>
-                <p class="text-texto-muted text-sm mt-1">Cadastre garçons e atribua mesas.</p>
-            </div>
-        </a>
-        <!-- Botão Acesso Rápido Garçom -->
-        <a href="garcom-login.html" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
-            <i class="bi bi-person-badge-fill text-4xl text-principal mb-3"></i>
-            <div>
-                <h4 class="text-xl font-bold">Acesso Rápido Garçom</h4>
-                <p class="text-texto-muted text-sm mt-1">Link para a tela de login da equipe.</p>
-            </div>
-        </a>
-
-        <!-- 👇 ATALHO NFC-e ATIVO E FUNCIONAL 👇 -->
-        <a href="hub-integracao.html" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
-            <i class="bi bi-receipt-cutoff text-4xl text-principal mb-3"></i>
-            <div>
-                <h4 class="text-xl font-bold">Emitir NFC-e</h4>
-                <p class="text-texto-muted text-sm mt-1">Integração para emissão de notas fiscais.</p>
-            </div>
-        </a>
-
-        <!-- CARD DE ESTOQUE (COM TARJA) -->
-        <a href="#" class="relative overflow-hidden bg-card p-6 rounded-lg flex flex-col items-center text-center transition-colors transform hover:-translate-y-1 group">
-            <div class="absolute top-0 left-0 w-32 h-32"><div class="absolute top-8 -left-5 w-full transform -rotate-45 bg-principal text-white text-center text-sm py-1">Em Breve</div></div>
-            <div class="opacity-40 group-hover:opacity-100 transition-opacity">
-                <i class="bi bi-box-seam-fill text-4xl text-principal mb-3"></i>
-                <div>
-                    <h4 class="text-xl font-bold">Controle de Estoque</h4>
-                    <p class="text-texto-muted text-sm mt-1">Gerencie insumos e produtos.</p>
-                </div>
-            </div>
-        </a>
-        
-        <!-- CARD DE IA (COM TARJA) -->
-        <a href="#" class="relative overflow-hidden bg-card p-6 rounded-lg flex flex-col items-center text-center transition-colors transform hover:-translate-y-1 group">
-            <div class="absolute top-0 left-0 w-32 h-32"><div class="absolute top-8 -left-5 w-full transform -rotate-45 bg-principal text-white text-center text-sm py-1">Em Breve</div></div>
-             <div class="opacity-40 group-hover:opacity-100 transition-opacity">
-                <i class="bi bi-magic text-4xl text-principal mb-3"></i>
-                <div>
-                    <h4 class="text-xl font-bold">Criador Mágico com IA</h4>
-                    <p class="text-texto-muted text-sm mt-1">Deixe a IA cuidar do Marketing.</p>
-                </div>
-            </div>
-        </a>
+        </div>
     </div>
-</div>
-        <!-- FIM DO BLOCO DE ATALHOS 🚀 -->
+
+    <!-- ✅ VIEW CONTAINER DE MEUS PRODUTOS -->
+    <div id="meus-produtos-page" class="view-container hidden flex-col h-full">
+        <h2 class="text-4xl font-bold mb-4">Meus Produtos</h2>
+        <div class="mb-8 border-b border-borda">
+            <nav id="abas-categorias-admin" class="flex space-x-2 -mb-px overflow-x-auto" aria-label="Tabs"></nav>
+        </div>
+        <div id="lista-produtos-admin" class="flex-grow"></div>
+        <div id="paginacao-container-admin" class="flex justify-center items-center space-x-2 mt-8"></div>
     </div>
-    <div id="meus-produtos-page" class="view-container hidden flex-col h-full"><h2 class="text-4xl font-bold mb-4">Meus Produtos</h2><div class="mb-8 border-b border-borda"><nav id="abas-categorias-admin" class="flex space-x-2 -mb-px overflow-x-auto" aria-label="Tabs"></nav></div><div id="lista-produtos-admin" class="flex-grow"></div><div id="paginacao-container-admin" class="flex justify-center items-center space-x-2 mt-8"></div></div>
-    <div id="pedidos-page" class="view-container hidden flex-col h-full"><h2 class="text-4xl font-bold mb-4">Pedidos Recebidos</h2><div class="mb-4 border-b border-borda overflow-x-auto"><nav class="flex space-x-4" aria-label="Tabs"><button class="tab-btn active" data-filtro="ativos">Ativos</button><button class="tab-btn" data-filtro="WHATSAPP">WhatsApp</button><button class="tab-btn" data-filtro="DELIVERY">Delivery App</button><button class="tab-btn" data-filtro="MESA">Mesas</button><button class="tab-btn" data-filtro="finalizados">Finalizados</button></nav></div><div id="pedidos-ativos-container"><div class="mb-6 bg-card rounded-lg border border-borda flex items-center p-1"><span class="px-3 text-texto-muted"><i class="bi bi-search"></i></span><input type="text" id="filtro-busca-pedidos" placeholder="Buscar por nome, código ou telefone..." class="w-full bg-transparent p-2 focus:outline-none"></div><div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6" id="lista-pedidos-admin"></div><div class="flex-grow"></div><div id="paginacao-container" class="flex justify-center items-center space-x-2 mt-8"></div></div><div id="pedidos-finalizados-container" class="hidden text-center mt-10"><h3 class="text-2xl font-bold text-principal">Consultar Pedidos Finalizados</h3><p class="text-texto-muted mb-8">Encontre rapidamente o histórico de pedidos para resolver qualquer pendência.</p><div class="flex flex-col md:flex-row gap-4 justify-center"><button id="btn-buscar-hoje" class="bg-principal text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-orange-600 transition-colors"><i class="bi bi-calendar-check"></i> Ver Pedidos de Hoje</button><button id="btn-buscar-data" class="bg-sidebar text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-card transition-colors"><i class="bi bi-calendar-event"></i> Escolher Outra Data</button></div><p class="mt-8 text-texto-muted">Ou, se preferir, use a busca direta:</p><div class="mt-4 mx-auto max-w-md bg-card rounded-lg border border-borda flex items-center p-1 focus-within:ring-2 focus-within:ring-principal transition-all"><span class="px-3 text-texto-muted"><i class="bi bi-hash"></i></span><input type="text" id="filtro-busca-finalizados" placeholder="Digite o código do pedido..." class="w-full bg-transparent p-2 focus:outline-none"><button id="btn-buscar-finalizado-por-codigo" class="bg-principal text-white font-bold h-10 w-12 flex-shrink-0 flex items-center justify-center rounded-md hover:bg-orange-600 transition-colors"><i class="bi bi-search"></i></button></div></div></div>
+
+    <!-- ✅ VIEW CONTAINER DE PEDIDOS -->
+    <div id="pedidos-page" class="view-container hidden flex-col h-full">
+        <h2 class="text-4xl font-bold mb-4">Pedidos Recebidos</h2>
+        <div class="mb-4 border-b border-borda overflow-x-auto">
+            <nav class="flex space-x-4" aria-label="Tabs">
+                <button class="tab-btn active" data-filtro="ativos">Ativos</button>
+                <button class="tab-btn" data-filtro="WHATSAPP">WhatsApp</button>
+                <button class="tab-btn" data-filtro="DELIVERY">Delivery App</button>
+                <button class="tab-btn" data-filtro="MESA">Mesas</button>
+                <button class="tab-btn" data-filtro="finalizados">Finalizados</button>
+            </nav>
+        </div>
+        <div id="pedidos-ativos-container">
+            <div class="mb-6 bg-card rounded-lg border border-borda flex items-center p-1">
+                <span class="px-3 text-texto-muted"><i class="bi bi-search"></i></span>
+                <input type="text" id="filtro-busca-pedidos" placeholder="Buscar por nome, código ou telefone..." class="w-full bg-transparent p-2 focus:outline-none">
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6" id="lista-pedidos-admin"></div>
+            <div class="flex-grow"></div>
+            <div id="paginacao-container" class="flex justify-center items-center space-x-2 mt-8"></div>
+        </div>
+        <div id="pedidos-finalizados-container" class="hidden text-center mt-10">
+            <h3 class="text-2xl font-bold text-principal">Consultar Pedidos Finalizados</h3>
+            <p class="text-texto-muted mb-8">Encontre rapidamente o histórico de pedidos para resolver qualquer pendência.</p>
+            <div class="flex flex-col md:flex-row gap-4 justify-center">
+                <button id="btn-buscar-hoje" class="bg-principal text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-orange-600 transition-colors"><i class="bi bi-calendar-check"></i> Ver Pedidos de Hoje</button>
+                <button id="btn-buscar-data" class="bg-sidebar text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-card transition-colors"><i class="bi bi-calendar-event"></i> Escolher Outra Data</button>
+            </div>
+            <p class="mt-8 text-texto-muted">Ou, se preferir, use a busca direta:</p>
+            <div class="mt-4 mx-auto max-w-md bg-card rounded-lg border border-borda flex items-center p-1 focus-within:ring-2 focus-within:ring-principal transition-all">
+                <span class="px-3 text-texto-muted"><i class="bi bi-hash"></i></span>
+                <input type="text" id="filtro-busca-finalizados" placeholder="Digite o código do pedido..." class="w-full bg-transparent p-2 focus:outline-none">
+                <button id="btn-buscar-finalizado-por-codigo" class="bg-principal text-white font-bold h-10 w-12 flex-shrink-0 flex items-center justify-center rounded-md hover:bg-orange-600 transition-colors"><i class="bi bi-search"></i></button>
+            </div>
+        </div>
+    </div>
     
+    <!-- ✅ VIEW CONTAINER DO CAIXA -->
     <div id="caixa-page" class="view-container hidden">
         <header class="flex justify-between items-center mb-8">
             <div>
@@ -198,21 +209,30 @@ body * { visibility: hidden; }
                 <p class="text-texto-muted">Gestão de Mesas e Pedidos de Balcão</p>
             </div>
         </header>
-
         <div class="mb-12">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-2xl font-bold text-principal">Comandas de Balcão</h2>
-                <button id="btn-nova-comanda-balcao" class="bg-principal text-white font-bold py-2 px-5 rounded-lg hover:bg-orange-600 transition-colors">                    <i class="bi bi-plus-circle-fill"></i> Nova Comanda
-                </button>
+                <button id="btn-nova-comanda-balcao" class="bg-principal text-white font-bold py-2 px-5 rounded-lg hover:bg-orange-600 transition-colors"><i class="bi bi-plus-circle-fill"></i> Nova Comanda</button>
             </div>
-            <div id="lista-comandas-balcao" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 bg-card p-4 rounded-lg min-h-[120px]">
-            </div>
+            <div id="lista-comandas-balcao" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 bg-card p-4 rounded-lg min-h-[120px]"></div>
         </div>
-
-                <h2 class="text-2xl font-bold mb-4 border-t-2 border-principal pt-8 text-principal">Status das Mesas</h2>        <div id="grade-mesas" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6"></div>
+        <h2 class="text-2xl font-bold mb-4 border-t-2 border-principal pt-8 text-principal">Status das Mesas</h2>
+        <div id="grade-mesas" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6"></div>
     </div>
 
-    <div id="configuracoes-page" class="view-container hidden"><h2 class="text-4xl font-bold mb-2">Configurações Gerais</h2><p class="text-texto-muted mb-8">Personalize as informações e aparência da sua loja.</p><div class="space-y-12"><div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto"><div class="mb-8"><h3 class="text-xl font-bold text-principal mb-2">Identidade Visual</h3><div class="space-y-6"><div><label class="block mb-2 font-medium text-texto-muted">Logo do Painel e Vitrine</label><div class="flex items-center gap-6"><img id="logo-vitrine-preview" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiMzODMyNmIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9InNlcmlmIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYTNhMGMyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj5Mb2dvPC90ZXh0Pjwvc3ZnPg==" alt="Pré-visualização da logo da vitrine" class="w-24 h-24 rounded-md object-contain bg-fundo p-1"><div id="logo-vitrine-upload-area" class="flex-grow p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors"><i class="bi bi-cloud-arrow-up-fill text-3xl"></i><span class="block mt-2 font-semibold">Buscar logo da vitrine</span></div><input type="file" id="logo-vitrine-file-input" accept="image/png, image/jpeg, image/webp" class="hidden"></div></div><div><label class="block mb-2 font-medium text-texto-muted">Logo para Impressão</label><div class="flex items-center gap-6"><img id="logo-preview" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiMzODMyNmIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9InNlcmlmIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYTNhMGMyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj5Mb2dvPC90ZXh0Pjwvc3ZnPg==" alt="Pré-visualização da logo" class="w-24 h-24 rounded-md object-contain bg-fundo p-1"><div id="logo-upload-area" class="flex-grow p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors"><i class="bi bi-cloud-arrow-up-fill text-3xl"></i><span class="block mt-2 font-semibold">Buscar nova logo</span></div><input type="file" id="logo-file-input" accept="image/png, image/jpeg" class="hidden"></div></div></div></div>
+    <!-- ✅ VIEW CONTAINER DE CONFIGURAÇÕES -->
+    <div id="configuracoes-page" class="view-container hidden">
+        <h2 class="text-4xl font-bold mb-2">Configurações Gerais</h2>
+        <p class="text-texto-muted mb-8">Personalize as informações e aparência da sua loja.</p>
+        <div class="space-y-12">
+            <div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto">
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-principal mb-2">Identidade Visual</h3>
+                    <div class="space-y-6">
+                        <div><label class="block mb-2 font-medium text-texto-muted">Logo do Painel e Vitrine</label><div class="flex items-center gap-6"><img id="logo-vitrine-preview" src="data:image/svg+xml;base64,..." alt="Pré-visualização da logo da vitrine" class="w-24 h-24 rounded-md object-contain bg-fundo p-1"><div id="logo-vitrine-upload-area" class="flex-grow p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors"><i class="bi bi-cloud-arrow-up-fill text-3xl"></i><span class="block mt-2 font-semibold">Buscar logo da vitrine</span></div><input type="file" id="logo-vitrine-file-input" accept="image/png, image/jpeg, image/webp" class="hidden"></div></div>
+                        <div><label class="block mb-2 font-medium text-texto-muted">Logo para Impressão</label><div class="flex items-center gap-6"><img id="logo-preview" src="data:image/svg+xml;base64,..." alt="Pré-visualização da logo" class="w-24 h-24 rounded-md object-contain bg-fundo p-1"><div id="logo-upload-area" class="flex-grow p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors"><i class="bi bi-cloud-arrow-up-fill text-3xl"></i><span class="block mt-2 font-semibold">Buscar nova logo</span></div><input type="file" id="logo-file-input" accept="image/png, image/jpeg" class="hidden"></div></div>
+                    </div>
+                </div>
                 <form id="form-configuracoes" class="space-y-4">
                     <h3 class="text-xl font-bold text-principal mb-2 border-t border-borda pt-8">Informações da Empresa</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -221,16 +241,16 @@ body * { visibility: hidden; }
                         <div><label for="config-endereco" class="block mb-1 font-medium text-texto-muted">Endereço Completo</label><input type="text" id="config-endereco" placeholder="Rua, Número, Bairro, Cidade - Estado" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none"></div>
                         <div><label for="config-telefone" class="block mb-1 font-medium text-texto-muted">Telefone/WhatsApp</label><input type="tel" id="config-telefone" placeholder="Seu número de contato principal" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none"></div>
                         <div><label for="config-taxa-entrega" class="block mb-1 font-medium text-texto-muted">Taxa de Entrega Fixa (R$)</label><input type="number" step="0.01" id="config-taxa-entrega" placeholder="Ex: 5.00" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none"></div>
-                        <div><label for="config-custo-entrega" class="block mb-1 font-medium text-texto-muted">Custo por Entrega (Freela R$)</label>
-                        <input type="number" step="0.01" id="config-custo-entrega" placeholder="Ex: 4.00" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none">
-                    </div>
+                        <div><label for="config-custo-entrega" class="block mb-1 font-medium text-texto-muted">Custo por Entrega (Freela R$)</label><input type="number" step="0.01" id="config-custo-entrega" placeholder="Ex: 4.00" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none"></div>
                     </div>
                     <div><label for="config-msg-rodape" class="block mb-1 font-medium text-texto-muted">Mensagem no Rodapé da Nota</label><textarea id="config-msg-rodape" rows="3" placeholder="Ex: Agradecemos a preferência! Wi-fi: senha123" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none"></textarea></div>
                     <div class="flex justify-end pt-4"><button type="submit" class="w-full py-3 px-8 rounded-lg bg-principal hover:bg-orange-600 font-bold text-white transition-colors">Salvar Configurações</button></div>
                 </form>
             </div>
-        <div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto"><h2 class="text-3xl font-bold mb-2">Gerenciamento de Mesas</h2><p class="text-texto-muted mb-8">Adicione ou remova as mesas do seu estabelecimento.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div><h3 class="text-xl font-bold mb-4 text-principal">Adicionar Nova Mesa</h3><form id="form-nova-mesa" class="space-y-4"><div><label for="mesa-numero" class="block mb-1 font-medium text-texto-muted">Número da Mesa</label><input type="number" id="mesa-numero" class="w-full bg-fundo p-3 rounded-lg border border-borda" required></div><div class="pt-2"><button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold"><i class="bi bi-plus-circle-fill"></i> Criar Mesa</button></div></form></div><div><h3 class="text-xl font-bold mb-4 text-principal">Mesas Existentes</h3><div id="lista-mesas-existentes" class="space-y-2 max-h-72 overflow-y-auto pr-2"><p class="text-texto-muted animate-pulse">Buscando mesas...</p></div></div></div></div><div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto" id="gerenciamento-categorias"><h2 class="text-3xl font-bold mb-2">Gerenciamento de Categorias</h2><p class="text-texto-muted mb-8">Crie e organize as categorias que aparecerão na vitrine.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div><h3 class="text-xl font-bold mb-4 text-principal">Adicionar / Editar Categoria</h3><form id="form-nova-categoria" class="space-y-4"><input type="hidden" id="categoria-id"><div><label for="categoria-nome" class="block mb-1 font-medium text-texto-muted">Nome da Categoria</label><input type="text" id="categoria-nome" class="w-full bg-fundo p-3 rounded-lg border border-borda" required></div><div><label for="categoria-cor" class="block mb-1 font-medium text-texto-muted">Cor do Card</label><input type="color" id="categoria-cor" class="w-full h-12 bg-fundo p-1 rounded-lg border border-borda cursor-pointer" value="#38326b"></div><div><label class="block mb-1 font-medium text-texto-muted">Ícone da Categoria (PNG ou SVG)</label><div id="categoria-icone-upload-area" class="w-full p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors"><img id="categoria-icone-preview" src="" alt="Pré-visualização do Ícone" class="w-16 h-16 mx-auto mb-2 hidden object-contain"><i id="categoria-icone-placeholder" class="bi bi-cloud-arrow-up-fill text-3xl"></i><span class="block mt-2 font-semibold">Buscar ícone</span></div><input type="file" id="categoria-icone-file-input" accept="image/png, image/svg+xml" class="hidden"><input type="hidden" id="categoria-icone-url"></div><div class="pt-2 flex flex-col md:flex-row gap-4"><button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar Categoria</button><button type="button" id="btn-limpar-form-categoria" class="w-full py-3 px-5 rounded-lg bg-gray-500 hover:bg-gray-600 font-bold">Limpar</button></div></form></div><div><h3 class="text-xl font-bold mb-4 text-principal">Categorias Existentes</h3><p class="text-sm text-texto-muted mb-2">Arraste para reordenar.</p><div id="lista-categorias-existentes" class="space-y-2 max-h-96 overflow-y-auto pr-2"></div></div></div></div><div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto" id="gerenciamento-banners"><h2 class="text-3xl font-bold mb-2">Banners Promocionais</h2><p class="text-texto-muted mb-8">Adicione e organize os banners da página inicial da sua vitrine.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div><h3 class="text-xl font-bold mb-4 text-principal">Adicionar / Editar Banner</h3><form id="form-novo-banner" class="space-y-4"><input type="hidden" id="banner-id"><div><label class="block mb-1 font-medium text-texto-muted">Imagem do Banner</label><div id="banner-imagem-upload-area" class="w-full p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors"><img id="banner-imagem-preview" src="" alt="Pré-visualização do Banner" class="w-full h-auto mx-auto mb-2 hidden object-contain rounded-md"><i id="banner-imagem-placeholder" class="bi bi-cloud-arrow-up-fill text-3xl"></i><span class="block mt-2 font-semibold">Buscar a imagem</span></div><input type="file" id="banner-imagem-file-input" accept="image/png, image/jpeg, image/webp" class="hidden"><input type="hidden" id="banner-imagem-url"></div><div><label for="banner-link" class="block mb-1 font-medium text-texto-muted">Link de Âncora (Opcional)</label><input type="text" id="banner-link" placeholder="Ex: #categoria-pizzas" class="w-full bg-fundo p-3 rounded-lg border border-borda"><p class="text-xs text-texto-muted mt-1">Deixe em branco para não ter link.</p></div><div class="pt-2 flex flex-col md:flex-row gap-4"><button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar Banner</button><button type="button" id="btn-limpar-form-banner" class="w-full py-3 px-5 rounded-lg bg-gray-500 hover:bg-gray-600 font-bold">Limpar</button></div></form></div><div><h3 class="text-xl font-bold mb-4 text-principal">Banners Atuais</h3>
-<p class="text-sm text-texto-muted mb-2">Arraste para reordenar.</p><div id="lista-banners-existentes" class="space-y-2 max-h-96 overflow-y-auto pr-2"><p class="text-texto-muted animate-pulse">Buscando banners...</p></div></div></div></div></div></div>
+            <div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto"><h2 class="text-3xl font-bold mb-2">Gerenciamento de Mesas</h2><p class="text-texto-muted mb-8">Adicione ou remova as mesas do seu estabelecimento.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div><h3 class="text-xl font-bold mb-4 text-principal">Adicionar Nova Mesa</h3><form id="form-nova-mesa" class="space-y-4"><div><label for="mesa-numero" class="block mb-1 font-medium text-texto-muted">Número da Mesa</label><input type="number" id="mesa-numero" class="w-full bg-fundo p-3 rounded-lg border border-borda" required></div><div class="pt-2"><button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold"><i class="bi bi-plus-circle-fill"></i> Criar Mesa</button></div></form></div><div><h3 class="text-xl font-bold mb-4 text-principal">Mesas Existentes</h3><div id="lista-mesas-existentes" class="space-y-2 max-h-72 overflow-y-auto pr-2"><p class="text-texto-muted animate-pulse">Buscando mesas...</p></div></div></div></div><div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto" id="gerenciamento-categorias"><h2 class="text-3xl font-bold mb-2">Gerenciamento de Categorias</h2><p class="text-texto-muted mb-8">Crie e organize as categorias que aparecerão na vitrine.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div><h3 class="text-xl font-bold mb-4 text-principal">Adicionar / Editar Categoria</h3><form id="form-nova-categoria" class="space-y-4"><input type="hidden" id="categoria-id"><div><label for="categoria-nome" class="block mb-1 font-medium text-texto-muted">Nome da Categoria</label><input type="text" id="categoria-nome" class="w-full bg-fundo p-3 rounded-lg border border-borda" required></div><div><label for="categoria-cor" class="block mb-1 font-medium text-texto-muted">Cor do Card</label><input type="color" id="categoria-cor" class="w-full h-12 bg-fundo p-1 rounded-lg border border-borda cursor-pointer" value="#38326b"></div><div><label class="block mb-1 font-medium text-texto-muted">Ícone da Categoria (PNG ou SVG)</label><div id="categoria-icone-upload-area" class="w-full p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors"><img id="categoria-icone-preview" src="" alt="Pré-visualização do Ícone" class="w-16 h-16 mx-auto mb-2 hidden object-contain"><i id="categoria-icone-placeholder" class="bi bi-cloud-arrow-up-fill text-3xl"></i><span class="block mt-2 font-semibold">Buscar ícone</span></div><input type="file" id="categoria-icone-file-input" accept="image/png, image/svg+xml" class="hidden"><input type="hidden" id="categoria-icone-url"></div><div class="pt-2 flex flex-col md:flex-row gap-4"><button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar Categoria</button><button type="button" id="btn-limpar-form-categoria" class="w-full py-3 px-5 rounded-lg bg-gray-500 hover:bg-gray-600 font-bold">Limpar</button></div></form></div><div><h3 class="text-xl font-bold mb-4 text-principal">Categorias Existentes</h3><p class="text-sm text-texto-muted mb-2">Arraste para reordenar.</p><div id="lista-categorias-existentes" class="space-y-2 max-h-96 overflow-y-auto pr-2"></div></div></div></div><div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto" id="gerenciamento-banners"><h2 class="text-3xl font-bold mb-2">Banners Promocionais</h2><p class="text-texto-muted mb-8">Adicione e organize os banners da página inicial da sua vitrine.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div><h3 class="text-xl font-bold mb-4 text-principal">Adicionar / Editar Banner</h3><form id="form-novo-banner" class="space-y-4"><input type="hidden" id="banner-id"><div><label class="block mb-1 font-medium text-texto-muted">Imagem do Banner</label><div id="banner-imagem-upload-area" class="w-full p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors"><img id="banner-imagem-preview" src="" alt="Pré-visualização do Banner" class="w-full h-auto mx-auto mb-2 hidden object-contain rounded-md"><i id="banner-imagem-placeholder" class="bi bi-cloud-arrow-up-fill text-3xl"></i><span class="block mt-2 font-semibold">Buscar a imagem</span></div><input type="file" id="banner-imagem-file-input" accept="image/png, image/jpeg, image/webp" class="hidden"><input type="hidden" id="banner-imagem-url"></div><div class="pt-2 flex flex-col md:flex-row gap-4"><button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar Banner</button><button type="button" id="btn-limpar-form-banner" class="w-full py-3 px-5 rounded-lg bg-gray-500 hover:bg-gray-600 font-bold">Limpar</button></div></form></div><div><h3 class="text-xl font-bold mb-4 text-principal">Banners Atuais</h3><p class="text-sm text-texto-muted mb-2">Arraste para reordenar.</p><div id="lista-banners-existentes" class="space-y-2 max-h-96 overflow-y-auto pr-2"><p class="text-texto-muted animate-pulse">Buscando banners...</p></div></div></div></div>
+        </div>
+    </div>
+
 </main>
 </div>
 <!-- MODAIS E SCRIPTS -->
@@ -295,12 +315,13 @@ body * { visibility: hidden; }
 </div>
 </div></div></div>
 <div id="print-area" class="hidden"></div>
-
-<script type="module" src="js/functions/authVigia.js"></script>
 <audio id="notification-sound" src="assets/notificacao.mp3" preload="auto"></audio>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script src="js/config.js"></script>
-<script type="module" src="js/main.js"></script>  
+<script type="module" src="js/main.js"></script>
+<script type="module" src="js/functions/authVigia.js"></script>
+</body>
+</html>

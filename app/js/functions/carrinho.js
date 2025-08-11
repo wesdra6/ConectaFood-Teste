@@ -1,6 +1,15 @@
-// REESCREVA O ARQUIVO COMPLETO: js/functions/carrinho.js
+// REESCREVA O ARQUIVO COMPLETO: app/js/functions/carrinho.js
 
-let carrinho = [];
+// ✅ A "foto" do carrinho agora começa tentando carregar do localStorage.
+// JSON.parse transforma o texto salvo de volta em um array.
+// Se não houver nada salvo (||), ele começa como um array vazio [].
+let carrinho = JSON.parse(localStorage.getItem('carrinhoLegalConnect')) || [];
+
+// ✅ NOVA FUNÇÃO: O "Fotógrafo"
+// Tira uma foto do estado atual do carrinho e salva no localStorage.
+function salvarCarrinho() {
+    localStorage.setItem('carrinhoLegalConnect', JSON.stringify(carrinho));
+}
 
 // Função central que atualiza toda a interface do carrinho
 function atualizarCarrinhoUI() {
@@ -9,16 +18,13 @@ function atualizarCarrinhoUI() {
     const contadorEl = document.getElementById('contador-carrinho');
     const btnFinalizar = document.getElementById('btn-finalizar-pedido'); 
     
-    // Se algum elemento da UI não for encontrado, a gente para pra não quebrar.
     if(!containerItens || !totalEl || !contadorEl || !btnFinalizar) return;
 
     containerItens.innerHTML = '';
     
-    // A lógica de total agora é uma simples soma de todos os itens no carrinho
     let totalFinal = 0;
-    let totalItensVisiveis = 0; // Conta apenas os produtos, não a taxa
+    let totalItensVisiveis = 0;
 
-    // Separa produtos de taxas para renderização e lógica
     const produtosNoCarrinho = carrinho.filter(item => item.id !== 99999);
     const taxaNoCarrinho = carrinho.find(item => item.id === 99999);
 
@@ -57,7 +63,6 @@ function atualizarCarrinhoUI() {
                 <p class="text-sm">Adicione delícias do nosso cardápio!</p>
             </div>`;
     } else if (taxaNoCarrinho) {
-        // Se a taxa existe, a gente soma ela ao total final e exibe os detalhes
         totalFinal += taxaNoCarrinho.preco;
         containerItens.innerHTML += `
             <div class="border-t border-borda/50 pt-3 mt-4 text-sm">
@@ -77,7 +82,6 @@ function atualizarCarrinhoUI() {
     contadorEl.textContent = totalItensVisiveis;
     contadorEl.style.display = totalItensVisiveis > 0 ? 'flex' : 'none';
 
-    // Habilita ou desabilita o botão de finalizar
     if (produtosNoCarrinho.length > 0) {
         btnFinalizar.disabled = false;
         btnFinalizar.classList.remove('bg-sidebar', 'cursor-not-allowed');
@@ -91,7 +95,6 @@ function atualizarCarrinhoUI() {
     }
 }
 
-// Objeto global com as funções que manipulam o carrinho
 const carrinhoFunctions = {
     adicionar: (produto) => {
         const itemExistente = carrinho.find(item => item.id === produto.id);
@@ -100,71 +103,73 @@ const carrinhoFunctions = {
         } else {
             carrinho.push({ ...produto, quantidade: 1 });
         }
+        salvarCarrinho(); // ✅ Salva a foto
         atualizarCarrinhoUI();
     },
 
     aumentar: (index) => {
-        // Aumenta a quantidade do item na posição 'index'
-        if (carrinho[index]) {
-            carrinho[index].quantidade++;
+        const produto = carrinho.filter(item => item.id !== 99999)[index];
+        if (produto) {
+            produto.quantidade++;
+            salvarCarrinho(); // ✅ Salva a foto
             atualizarCarrinhoUI();
         }
     },
 
     diminuir: (index) => {
-        if (carrinho[index]) {
-            carrinho[index].quantidade--;
-            // Se a quantidade zerar, remove o item do carrinho
-            if (carrinho[index].quantidade <= 0) {
-                carrinho.splice(index, 1);
+        const produtosNoCarrinho = carrinho.filter(item => item.id !== 99999);
+        const produto = produtosNoCarrinho[index];
+        if (produto) {
+            produto.quantidade--;
+            if (produto.quantidade <= 0) {
+                carrinho = carrinho.filter(item => item.id !== produto.id);
             }
+            salvarCarrinho(); // ✅ Salva a foto
             atualizarCarrinhoUI();
         }
     },
 
     remover: (index) => {
-        if (carrinho[index]) {
-            carrinho.splice(index, 1);
+        const produtosNoCarrinho = carrinho.filter(item => item.id !== 99999);
+        const produtoParaRemover = produtosNoCarrinho[index];
+        if (produtoParaRemover) {
+            carrinho = carrinho.filter(item => item.id !== produtoParaRemover.id);
+            salvarCarrinho(); // ✅ Salva a foto
             atualizarCarrinhoUI();
         }
     },
 
     limpar: () => {
         carrinho = [];
+        salvarCarrinho(); // ✅ Salva a foto (vazia)
         atualizarCarrinhoUI();
     },
 
     getItens: () => carrinho,
     
-    // 👇 getTotal agora é uma simples soma de todos os itens no array. Sem segredos.
     getTotal: () => carrinho.reduce((acc, item) => acc + item.preco * item.quantidade, 0),
 
-    // 👇 A MÁGICA ACONTECE AQUI: setTaxaEntrega agora ADICIONA ou ATUALIZA o item da taxa
     setTaxaEntrega: (valor) => {
         const valorTaxa = Number(valor) || 0;
         const indexTaxa = carrinho.findIndex(item => item.id === 99999);
 
         if (valorTaxa > 0) {
             const itemTaxa = {
-                id: 99999,
-                nome: 'Taxa de Entrega',
-                preco: valorTaxa,
-                quantidade: 1,
-                tipo_item: 'TAXA' // Identificador claro
+                id: 99999, nome: 'Taxa de Entrega', preco: valorTaxa,
+                quantidade: 1, tipo_item: 'TAXA'
             };
             if (indexTaxa > -1) {
-                carrinho[indexTaxa] = itemTaxa; // Atualiza se já existir
+                carrinho[indexTaxa] = itemTaxa;
             } else {
-                carrinho.push(itemTaxa); // Adiciona se não existir
+                carrinho.push(itemTaxa);
             }
         } else if (indexTaxa > -1) {
-            carrinho.splice(indexTaxa, 1); // Remove se a taxa for zero ou inválida
+            carrinho.splice(indexTaxa, 1);
         }
+        salvarCarrinho(); // ✅ Salva a foto
         atualizarCarrinhoUI();
     },
     
-    // 👇 getItensParaPedido agora simplesmente retorna o carrinho inteiro.
-    // O N8N vai receber a taxa como um item, que é o que queremos!
     getItensParaPedido: () => {
         return carrinho.map(item => ({ 
             produto_id: item.id, 
@@ -174,8 +179,8 @@ const carrinhoFunctions = {
     }
 };
 
-// Função de inicialização do módulo do carrinho
 export function initCarrinho() {
     window.carrinhoFunctions = carrinhoFunctions;
-    atualizarCarrinhoUI(); // Garante que a UI esteja correta ao carregar a página
+    // Quando a página carrega, a UI é atualizada com os dados que já foram carregados do localStorage.
+    atualizarCarrinhoUI(); 
 }

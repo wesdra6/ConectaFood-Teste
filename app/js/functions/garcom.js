@@ -1,10 +1,8 @@
-// REESCREVA O ARQUIVO COMPLETO: js/functions/garcom.js
+// REESCREVA O ARQUIVO COMPLETO: app/js/functions/garcom.js
 
 import { enviarParaN8N, fetchDeN8N } from './api.js';
 import { abrirModalGerenciamento } from './pedidos.js';
-import { gerarHtmlImpressao, imprimirComprovante } from './impressao.js';
 
-// --- VARIÁVEIS DE ESTADO DO MÓDULO ---
 let todosOsProdutos = [];
 let comandaAtual = [];
 let mesaEmLancamento = null;
@@ -46,6 +44,7 @@ function renderizarMesasGarcom(mesas) {
     });
 }
 
+// ➕ ALTERAÇÃO AQUI 👇 A função foi reescrita para usar delegação de eventos
 function renderizarCardapio(containerId, produtos) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -53,32 +52,23 @@ function renderizarCardapio(containerId, produtos) {
     
     const produtosFiltrados = produtos.filter(p => p.tipo_item === 'PRODUTO');
     const produtosPorCategoria = produtosFiltrados.reduce((acc, produto) => { 
-        const cat = produto.nome_categoria || 'Outros'; 
-        if (!acc[cat]) acc[cat] = []; 
-        acc[cat].push(produto); 
+        (acc[produto.nome_categoria || 'Outros'] = acc[produto.nome_categoria || 'Outros'] || []).push(produto); 
         return acc; 
     }, {});
     const categoriasOrdenadas = Object.keys(produtosPorCategoria).sort();
     
+    let cardapioHtml = '';
     for (const categoria of categoriasOrdenadas) {
-        container.innerHTML += `<h3 class="text-lg font-bold text-principal border-b-2 border-principal/50 mb-3 mt-4 first:mt-0">${categoria}</h3>`;
+        cardapioHtml += `<h3 class="text-lg font-bold text-principal border-b-2 border-principal/50 mb-3 mt-4 first:mt-0">${categoria}</h3>`;
         produtosPorCategoria[categoria].forEach(produto => {
-            const itemProduto = `
+            cardapioHtml += `
             <div class="bg-fundo p-2 rounded-lg flex items-center gap-4 cursor-pointer hover:bg-sidebar transition-colors mb-2" data-produto-id="${produto.id}">
                 <div class="flex-grow overflow-hidden"><p class="font-bold truncate text-base">${produto.nome}</p><span class="text-principal font-semibold text-lg">R$ ${Number(produto.preco).toFixed(2)}</span></div>
                 <button aria-label="Adicionar ${produto.nome}" class="bg-principal text-white w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-2xl font-bold pointer-events-none">+</button>
             </div>`;
-            container.innerHTML += itemProduto;
         });
     }
-
-    container.addEventListener('click', (event) => {
-        const card = event.target.closest('[data-produto-id]');
-        if(card) {
-            const produtoId = parseInt(card.dataset.produtoId);
-            adicionarItemNaComanda(produtoId);
-        }
-    });
+    container.innerHTML = cardapioHtml;
 }
 
 function adicionarItemNaComanda(produtoId) {
@@ -110,10 +100,8 @@ async function handleMesaClick(mesa) {
     if (mesa.status === 'LIVRE') {
         mesaEmLancamento = mesa;
         comandaAtual = [];
-        // ➕ Limpa o campo de observações ao abrir o modal
         const obsTextarea = document.getElementById('garcom-observacoes');
         if (obsTextarea) obsTextarea.value = '';
-        
         document.getElementById('modal-lancamento-titulo').textContent = `Lançar Pedido - Mesa ${mesa.numero_mesa}`;
         renderizarCardapio('lista-produtos-garcom', todosOsProdutos);
         renderizarComanda();
@@ -126,7 +114,7 @@ async function handleMesaClick(mesa) {
             Swal.close();
 
             if (pedidoDaMesa) {
-                abrirModalGerenciamento(pedidoDaMesa, 'GARCOM');
+                abrirModalGerenciamento(pedidoDaMesa.id, 'GARCOM');
             } else {
                 Swal.fire('Ops!', 'Não foi possível encontrar o pedido ativo para esta mesa.', 'info');
             }
@@ -138,14 +126,10 @@ async function handleMesaClick(mesa) {
 
 function attachModalListeners() {
     if (isModalListenersAttached) return;
-
     document.getElementById('btn-finalizar-lancamento-garcom').addEventListener('click', async () => {
         if (comandaAtual.length === 0) { Swal.fire('Comanda Vazia', 'Adicione pelo menos um item.', 'warning'); return; }
         Swal.fire({ title: 'Lançando pedido...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-        
-        // ➕ AQUI ESTÁ A MÁGICA: Captura o valor das observações
         const observacoes = document.getElementById('garcom-observacoes').value.trim();
-
         const dadosPedido = {
             origem: 'MESA',
             nome_cliente: `Mesa ${mesaEmLancamento.numero_mesa}`,
@@ -154,7 +138,7 @@ function attachModalListeners() {
             garcom_id: sessionStorage.getItem('garcom_id'),
             itens: comandaAtual.map(item => ({ id: item.id, quantidade: item.quantidade, preco: item.preco })),
             total: comandaAtual.reduce((acc, item) => acc + (item.preco * item.quantidade), 0),
-            observacoes: observacoes // ➕ E envia no payload para o N8N
+            observacoes: observacoes
         };
         try {
             await enviarParaN8N(window.N8N_CONFIG.create_order_internal, dadosPedido);
@@ -165,6 +149,18 @@ function attachModalListeners() {
         } catch (error) { Swal.fire('Ops!', 'Não foi possível lançar o pedido.', 'error'); }
     });
 
+    // ➕ O ESCUTADOR ÚNICO FICA AQUI 👇
+    const containerCardapio = document.getElementById('lista-produtos-garcom');
+    if (containerCardapio) {
+        containerCardapio.addEventListener('click', (event) => {
+            const card = event.target.closest('[data-produto-id]');
+            if(card) {
+                const produtoId = parseInt(card.dataset.produtoId);
+                adicionarItemNaComanda(produtoId);
+            }
+        });
+    }
+
     const inputBusca = document.getElementById('busca-produto-garcom');
     if (inputBusca) {
         inputBusca.addEventListener('keyup', () => {
@@ -173,7 +169,6 @@ function attachModalListeners() {
             renderizarCardapio('lista-produtos-garcom', produtosFiltrados);
         });
     }
-
     isModalListenersAttached = true;
 }
 
@@ -208,41 +203,32 @@ export async function initGarcomLoginPage() {
 
 export async function initGarcomMesasPage() {
     console.log("Maestro: Garçom Mesas - Final. 🍽️");
-    
     const garcomId = sessionStorage.getItem('garcom_id');
     const garcomNome = sessionStorage.getItem('garcom_nome');
-
     if (!garcomId || !garcomNome) {
         sessionStorage.clear();
         window.location.replace('garcom-login.html');
         return;
     }
-
     await carregarLojaConfigGarcom();
-    
     const saudacaoEl = document.getElementById('garcom-saudacao');
     if (saudacaoEl) { saudacaoEl.textContent = `Olá, ${garcomNome}! Estas são as suas mesas.`; }
-    
     document.getElementById('btn-logout-garcom').addEventListener('click', () => {
         sessionStorage.clear();
         window.location.replace('garcom-login.html');
     });
-
     try {
         const [mesas, produtos] = await Promise.all([
             fetchDeN8N(window.N8N_CONFIG.get_all_tables),
             fetchDeN8N(window.N8N_CONFIG.get_all_products_with_type)
         ]);
-
         todosOsProdutos = produtos;
         const mesasDoGarcom = mesas.filter(mesa => mesa.garcom_id == garcomId);
         renderizarMesasGarcom(mesasDoGarcom);
-
         if (!modalLancamentoGarcom) {
             modalLancamentoGarcom = new bootstrap.Modal(document.getElementById('modal-lancamento-garcom'));
         }
         attachModalListeners();
-
     } catch (error) {
         console.error("Erro ao inicializar página de mesas:", error);
         const gradeMesas = document.getElementById('grade-mesas-garcom');
