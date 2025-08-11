@@ -1,44 +1,22 @@
+// REESCREVA O ARQUIVO COMPLETO: app/js/supabaseClient.js
 
 const { createClient } = window.supabase;
 
-export let supabase = null;
+const IS_DEV = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
 
-(async () => {
-    try {
-        const IS_DEV = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+// Se for DEV, as variáveis DEV_SUPABASE_... (do dev-secrets.js) vão existir.
+// Se não, usa os placeholders que o Nginx vai substituir.
+const supabaseUrl = IS_DEV ? DEV_SUPABASE_URL : 'VITE_SUPABASE_URL';
+const supabaseAnonKey = IS_DEV ? DEV_SUPABASE_ANON_KEY : 'VITE_SUPABASE_ANON_KEY';
 
-        let supabaseUrl;
-        let supabaseAnonKey;
+// A verificação de segurança continua aqui
+if (!IS_DEV && supabaseUrl.startsWith('VITE_')) {
+    console.error('Falha CRÍTICA: Variáveis de ambiente não foram injetadas pelo servidor!');
+    document.body.innerHTML = '<h1>Erro Crítico de Configuração.</h1>';
+    // Trava a execução aqui para não continuar
+    throw new Error("Configuração de produção ausente.");
+}
 
-        if (IS_DEV) {
-            console.log("Modo DEV: Tentando carregar credenciais locais do dev-config.js.");
-            try {
-                const devConfig = await import('./dev-config.js');
-                supabaseUrl = devConfig.DEV_SUPABASE_URL;
-                supabaseAnonKey = devConfig.DEV_SUPABASE_ANON_KEY;
-            } catch (error) {
-                console.error("Arquivo dev-config.js não encontrado. Crie um se for desenvolver localmente.");
-                throw new Error("Configuração de desenvolvimento local ausente.");
-            }
-        } else {
-            console.log("Modo PROD: Usando credenciais seguras injetadas pelo Nginx.");
-            supabaseUrl = window.APP_ENV.SUPABASE_URL;
-            supabaseAnonKey = window.APP_ENV.SUPABASE_ANON_KEY;
-        }
-        
-        if (!supabaseUrl || !supabaseAnonKey || (typeof supabaseUrl === 'string' && supabaseUrl.startsWith('VITE_'))) {
-            throw new Error('As credenciais do Supabase não foram carregadas corretamente.');
-        }
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-        supabase = createClient(supabaseUrl, supabaseAnonKey);
-        console.log('Cliente Supabase inicializado com sucesso! ✅');
-
-        document.dispatchEvent(new CustomEvent('supabaseReady'));
-
-    } catch (error) {
-        console.error('Falha CRÍTICA ao inicializar o Supabase:', error);
-        document.addEventListener('DOMContentLoaded', () => {
-             document.body.innerHTML = '<div style="color: white; font-family: sans-serif; text-align: center; padding-top: 50px;"><h1>Erro Crítico de Configuração.</h1><p>Por favor, contate o suporte.</p></div>';
-        });
-    }
-})();
+console.log(`Cliente Supabase inicializado em modo: ${IS_DEV ? 'DEV' : 'PROD'} ✅`);

@@ -1,6 +1,6 @@
+// REESCREVA O ARQUIVO COMPLETO: app/js/main.js
 
 import { supabase } from './supabaseClient.js';
-import { fetchDeApi } from './functions/api.js'; 
 
 console.log("Maestro: Iniciando com calma e sabedoria.");
 
@@ -16,30 +16,32 @@ const viewModules = {
     'configuracoes': { path: './functions/configuracoes.js', initFunc: 'initConfiguracoesPage' },
 };
 
+// ➕ NOVA FUNÇÃO: O PORTEIRO VIP 👇
 async function handleDemoAccess() {
     const params = new URLSearchParams(window.location.search);
     const demoToken = params.get('token_demo');
 
     if (demoToken) {
+        // Se achou um token demo, tenta logar com ele
         const { error } = await supabase.auth.setSession({
             access_token: demoToken,
-            refresh_token: demoToken
+            refresh_token: demoToken // Para JWTs simples e de curta duração, podemos usar o mesmo
         });
 
         if (error) {
             console.error("Erro no login com token demo:", error.message);
+            // Se o token for inválido ou expirado, manda pro login normal
             window.location.replace('login.html');
-            return false;
         } else {
             console.log("Acesso DEMO concedido! 🚀");
-            history.replaceState(null, '', window.location.pathname.split('?')[0]);
-            return true;
+            // Limpa a URL para o token não ficar exposto
+            history.replaceState(null, '', window.location.pathname);
         }
     }
-    return false;
 }
 
 async function navigateTo(view, params = {}) { 
+    // ... (resto da função navigateTo continua igual)
     document.querySelectorAll('.view-container').forEach(v => v.classList.add('hidden'));
     
     const containerId = `${view}-page`;
@@ -72,6 +74,7 @@ async function navigateTo(view, params = {}) {
 }
 
 async function handleLogout() {
+    // ... (resto da função handleLogout continua igual)
     Swal.fire({ title: 'Saindo...', text: 'Aguarde um momento.', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
         const { error } = await supabase.auth.signOut();
@@ -83,13 +86,14 @@ async function handleLogout() {
     }
 }
 
+// ... (outras funções como atualizarLogoPainel, fetchAndSetLogo, etc, continuam iguais) ...
+
 function atualizarLogoPainel(url, nomeLoja) {
     const logoDesktopContainer = document.getElementById('logo-header-desktop');
     const logoMobileContainer = document.getElementById('logo-header-mobile');
     const fallbackHtmlDesktop = `<span class="text-3xl font-bold text-principal">${nomeLoja || 'LegalConnect'}</span>`;
     const fallbackHtmlMobile = `<span class="text-2xl font-bold text-principal">${nomeLoja || 'LegalConnect'}</span>`;
-    
-    if (url && url.startsWith('http')) { 
+    if (url && url !== 'data:image/svg+xml;base64,') { 
         const imgDesktopHtml = `<img src="${url}" alt="${nomeLoja || 'Logo'}" class="max-h-20 w-auto">`;
         const imgMobileHtml = `<img src="${url}" alt="${nomeLoja || 'Logo'}" class="max-h-20 w-auto">`;
         if (logoDesktopContainer) logoDesktopContainer.innerHTML = imgDesktopHtml;
@@ -102,7 +106,8 @@ function atualizarLogoPainel(url, nomeLoja) {
 
 async function fetchAndSetLogo() {
     try {
-        const configs = await fetchDeApi(window.API_CONFIG.get_loja_config);
+        const {fetchDeN8N} = await import('./functions/api.js');
+        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
         if (configs && configs.length > 0) {
             const { logo_vitrine_url, nome_loja } = configs[0];
             atualizarLogoPainel(logo_vitrine_url, nome_loja);
@@ -163,20 +168,20 @@ function iniciarVigiaDePedidos() {
     }, VIGIA_RATE_MS);
 }
 
-document.addEventListener('supabaseReady', async () => {
-    console.log("Main.js ouviu: Supabase está pronto. Verificando sessão... 🚀");
-    
-    const isDemo = await handleDemoAccess();
 
-    if (!isDemo) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-            window.location.replace('login.html');
-            return; 
-        }
+document.addEventListener('DOMContentLoaded', async () => {
+    // ➕ AQUI A GENTE CHAMA O PORTEIRO PRIMEIRO! 👇
+    await handleDemoAccess();
+
+    // Agora o resto do código roda normalmente
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+        window.location.replace('login.html');
+        return;
     }
 
     const isAdminPanel = !!document.getElementById('admin-sidebar');
+
     if (isAdminPanel) {
         console.log("Detectado: Painel Admin. Iniciando modo SPA.");
         
@@ -228,12 +233,10 @@ document.addEventListener('supabaseReady', async () => {
 
         const initialView = new URLSearchParams(window.location.search).get('view') || 'dashboard';
         navigateTo(initialView);
-    }
-});
 
-document.addEventListener('DOMContentLoaded', () => {
-    const isAdminPanel = !!document.getElementById('admin-sidebar');
-    if (!isAdminPanel) {
+    } else {
+        // ... (resto do código para páginas públicas continua igual)
+        console.log("Detectado: Página Pública ou Módulo Externo. Iniciando modo simples.");
         const pageName = window.location.pathname.split('/').pop().replace('.html', '');
         const externalPages = {
             'cliente': { path: './functions/cliente.js', func: 'initClientePage' },

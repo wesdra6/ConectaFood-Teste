@@ -1,6 +1,6 @@
 // --- START OF FILE js/functions/acompanhar.js ---
 
-import { fetchDeApi } from './api.js';
+import { fetchDeN8N } from './api.js';
 
 const STATUS_INFO = {
     'CONFIRMADO':          { texto: 'Pedido Confirmado', icone: 'bi-patch-check-fill' },
@@ -14,7 +14,7 @@ const flowOrder = ['CONFIRMADO', 'EM_PREPARO', 'PRONTO_PARA_ENTREGA', 'A_CAMINHO
 
 async function carregarConfiguracoesDaLoja() {
     try {
-        const configs = await fetchDeApi(window.API_CONFIG.get_loja_config);
+        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
         if (configs && configs.length > 0) {
             const { nome_loja, logo_vitrine_url } = configs[0];
             const logoContainer = document.getElementById('logo-acompanhar-container');
@@ -87,9 +87,9 @@ async function buscarPedido(codigo) {
     
     try {
         const codigoFormatado = codigo.toUpperCase();
-        const url = `${window.API_CONFIG.get_order_status}?id=${codigoFormatado}`;
+        const url = `${window.N8N_CONFIG.get_order_status}?id=${codigoFormatado}`;
         
-        const resposta = await fetchDeApi(url);
+        const resposta = await fetchDeN8N(url);
         const pedido = (Array.isArray(resposta) && resposta.length > 0) ? resposta[0] : null;
         renderizarStatus(pedido);
 

@@ -1,6 +1,6 @@
 // REESCREVA O ARQUIVO COMPLETO: app/js/functions/hub-integracao.js
 
-import { fetchDeApi, enviarParaApi } from './api.js';
+import { fetchDeN8N, enviarParaN8N } from './api.js';
 
 let lojaConfigFiscal = null; 
 
@@ -67,11 +67,11 @@ async function buscarPedidosParaEmissao(dataInicio, dataFim) {
     
     try {
         if (!lojaConfigFiscal) {
-            const configs = await fetchDeApi(window.API_CONFIG.get_loja_config);
+            const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
             if (configs && configs.length > 0) lojaConfigFiscal = configs[0];
         }
-        const url = `${window.API_CONFIG.get_financial_report}?inicio=${dataInicio}&fim=${dataFim}`;
-        const pedidos = await fetchDeApi(url);
+        const url = `${window.N8N_CONFIG.get_financial_report}?inicio=${dataInicio}&fim=${dataFim}`;
+        const pedidos = await fetchDeN8N(url);
         if (!pedidos || pedidos.length === 0) {
             corpoTabela.innerHTML = `<div class="bg-card rounded-lg p-6 text-center text-texto-muted"><i class="bi bi-check-circle text-4xl mb-3"></i><p>Nenhum pedido encontrado</p><p class="text-sm">Não há pedidos finalizados no período selecionado.</p></div>`;
             return;
@@ -168,7 +168,7 @@ async function enviarParaEmissao(pedido) {
     const totalCalculado = itensMapeados.reduce((acc, item) => acc + item.valor, 0);
     const payloadPlugNotas = { idIntegracao: `PEDIDO-${pedido.id_pedido_publico}`, natureza: "VENDA", emitente: { cpfCnpj: cpfCnpjEmitente }, itens: itensMapeados, pagamentos: [{ aVista: true, meio: "99", valor: parseFloat(totalCalculado.toFixed(2)), valorTroco: 0 }], responsavelTecnico: { cpfCnpj: "48191554000140", nome: "UP Tecnology", email: "contato@uptecnology.com.br", telefone: { ddd: "62", numero: "32985050" } } };
     try {
-        const resultado = await enviarParaApi(window.API_CONFIG.emitir_nfce, [payloadPlugNotas]);
+        const resultado = await enviarParaN8N(window.N8N_CONFIG.emitir_nfce, [payloadPlugNotas]);
         if (resultado.success) { Swal.fire('Sucesso!', 'NFC-e enviada para autorização! A tela será atualizada.', 'success'); setTimeout(() => buscarPedidosParaEmissao(document.getElementById('data-inicio-fiscal').value, document.getElementById('data-fim-fiscal').value), 1500); } else { throw new Error(resultado.message || 'Erro retornado pelo servidor de notas.'); }
     } catch (error) { Swal.fire({ icon: 'error', title: 'Falha na Emissão', html: `Não foi possível enviar a nota.<br><br><b class="text-principal">Erro:</b> ${error.message}` }); }
 }
@@ -178,7 +178,7 @@ async function baixarDocumentoSeguro(url, tipo, idPublico) {
     Swal.fire({ title: `Baixando ${tipo.toUpperCase()}...`, text: 'Aguarde, estamos buscando o arquivo.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     
     try {
-        const resultado = await enviarParaApi(window.API_CONFIG.download_documento_fiscal, { url });
+        const resultado = await enviarParaN8N(window.N8N_CONFIG.download_documento_fiscal, { url });
         
         if (resultado && resultado.fileData) {
             

@@ -1,6 +1,6 @@
 // REESCREVA O ARQUIVO COMPLETO: app/js/functions/caixa.js
 
-import { enviarParaApi, fetchDeApi } from './api.js';
+import { enviarParaN8N, fetchDeN8N } from './api.js';
 import { abrirModalGerenciamento } from './pedidos.js';
 import { gerarHtmlImpressao, imprimirComprovante } from './impressao.js';
 import { criaCardProduto } from './components.js';
@@ -39,8 +39,8 @@ async function fetchDadosDoCaixa() {
 
     try {
         const [mesas, pedidos] = await Promise.all([
-            fetchDeApi(window.API_CONFIG.get_all_tables),
-            fetchDeApi(window.API_CONFIG.get_all_orders)
+            fetchDeN8N(window.N8N_CONFIG.get_all_tables),
+            fetchDeN8N(window.N8N_CONFIG.get_all_orders)
         ]);
 
         todasAsMesas = Array.isArray(mesas) ? mesas.sort((a, b) => a.numero_mesa - b.numero_mesa) : [];
@@ -59,7 +59,7 @@ async function fetchProdutosCaixa() {
     const listaProdutosContainer = document.getElementById('lista-produtos-caixa'); 
     try { 
         if (todosOsProdutos.length === 0) { 
-            const produtosDoBanco = await fetchDeApi(window.API_CONFIG.get_all_products_with_type);
+            const produtosDoBanco = await fetchDeN8N(window.N8N_CONFIG.get_all_products_with_type);
             todosOsProdutos = produtosDoBanco.filter(p => p.tipo_item === 'PRODUTO' && p.ativo);
             produtosServicos = produtosDoBanco.filter(p => p.tipo_item !== 'PRODUTO');
         } 
@@ -70,7 +70,7 @@ async function fetchProdutosCaixa() {
 async function fetchLojaConfig() { 
     if (lojaConfig) return; 
     try { 
-        const configs = await fetchDeApi(window.API_CONFIG.get_loja_config); 
+        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config); 
         if (configs && configs.length > 0) { lojaConfig = configs[0]; } 
     } catch (error) { 
         console.error("Não foi possível carregar as configs da loja para impressão.", error); 
@@ -146,7 +146,7 @@ async function handleMesaClick(mesa) {
         
         if (!pedidoDaMesaLocal) {
             Swal.fire({ icon: 'info', title: 'Mesa sem Pedido', text: 'Não encontramos um pedido ativo para esta mesa. Liberando...', background: '#2c2854', color: '#ffffff' });
-            await enviarParaApi(window.API_CONFIG.update_table_status, { id: mesa.id, status: 'LIVRE' });
+            await enviarParaN8N(window.N8N_CONFIG.update_table_status, { id: mesa.id, status: 'LIVRE' });
             fetchDadosDoCaixa();
             return;
         }
@@ -154,8 +154,8 @@ async function handleMesaClick(mesa) {
         Swal.fire({ title: 'Buscando comanda...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
 
         try {
-            const url = `${window.API_CONFIG.get_order_status}?id=${pedidoDaMesaLocal.id}`;
-            const resposta = await fetchDeApi(url);
+            const url = `${window.N8N_CONFIG.get_order_status}?id=${pedidoDaMesaLocal.id}`;
+            const resposta = await fetchDeN8N(url);
             const pedidoDaMesaAtualizado = (Array.isArray(resposta) && resposta.length > 0) ? resposta[0] : null;
 
             if (!pedidoDaMesaAtualizado) {
@@ -325,8 +325,8 @@ async function prepararModalPara(modo, dados = {}) {
         if (dados.pedido_id) {
             Swal.fire({ title: 'Carregando comanda...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             try {
-                const url = `${window.API_CONFIG.get_order_status}?id=${dados.pedido_id}`;
-                const resposta = await fetchDeApi(url);
+                const url = `${window.N8N_CONFIG.get_order_status}?id=${dados.pedido_id}`;
+                const resposta = await fetchDeN8N(url);
                 const pedidoAtualizado = (Array.isArray(resposta) && resposta.length > 0) ? resposta[0] : null;
                 if (!pedidoAtualizado) throw new Error('Pedido não encontrado.');
                 pedidoAtualParaCheckout = pedidoAtualizado;
@@ -362,7 +362,7 @@ async function finalizarLancamento() {
         total: comandaAtual.reduce((acc, item) => acc + ( (item.preco_unitario || item.preco) * item.quantidade), 0) 
     }; 
     try { 
-        const resultado = await enviarParaApi(window.API_CONFIG.create_order_internal, dadosPedido); 
+        const resultado = await enviarParaN8N(window.N8N_CONFIG.create_order_internal, dadosPedido); 
         if (resultado.success) { 
             Swal.fire('Sucesso!', 'Pedido lançado!', 'success'); 
             if (modalLancamento) modalLancamento.hide(); 
@@ -391,7 +391,7 @@ async function finalizarCheckout() {
             novos_itens: comandaAtual.filter(item => !pedidoAtualParaCheckout.itens_pedido.some(original => original.id === item.id)).map(item => ({ produto_id: item.produto_id || item.id, quantidade: item.quantidade, preco_unitario: item.preco_unitario || item.preco })), 
             novo_total: totalFinal 
         }; 
-        await enviarParaApi(window.API_CONFIG.finalize_order_and_table, payload); 
+        await enviarParaN8N(window.N8N_CONFIG.finalize_order_and_table, payload); 
         if (modalLancamento) modalLancamento.hide(); 
         Swal.fire({ icon: 'success', title: 'Sucesso!', text: 'Pedido finalizado!' }).then(() => { 
             fetchDadosDoCaixa(); 

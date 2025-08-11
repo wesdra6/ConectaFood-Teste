@@ -1,13 +1,6 @@
-
-// ===================================================================
-// CONFIGURAÇÕES DA API
-// ===================================================================
-
 const IS_DEV = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
 
-const API_BASE_URL = IS_DEV 
-    ? 'https://n8n-webhook.uptecnology.com.br/webhook/' 
-    : '/api/';
+const API_BASE_URL = IS_DEV ? DEV_API_BASE_URL : '/api/';
 
 const API_ENDPOINTS = {
     // --- FINANCEIRO ---
@@ -89,11 +82,13 @@ const API_ENDPOINTS = {
 // ===================================================================
 // CONFIGURAÇÕES DE SERVIÇOS EXTERNOS
 // ===================================================================
+// --- ARMAZENAMENTO DE IMAGENS ---
 const ZIPLINE_CONFIG = {
     upload: 'https://n8n-webhook.uptecnology.com.br/webhook/enviar-imagem',
     delete: 'https://n8n-webhook.uptecnology.com.br/webhook/deletar-imagem',
 };
 
+// --- API DE WHATSAPP ---
 const EVOLUTION_API_CONFIG = {
     baseUrl:      'https://evolution-up.uptecnology.com.br',
     instanceName: 'NOME_DA_SUA_INSTANCIA',

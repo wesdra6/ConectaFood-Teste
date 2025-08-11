@@ -3,7 +3,7 @@
 // Função auto-executável para não poluir o escopo global
 (async () => {
     // Pega a URL base do N8N direto do config.js que já deve estar carregado
-    const N8N_BASE_URL = window.API_CONFIG?.get_loja_config.split('loja/config/obter')[0];
+    const N8N_BASE_URL = window.N8N_CONFIG?.get_loja_config.split('loja/config/obter')[0];
 
     if (!N8N_BASE_URL) {
         console.error("VIGIA: Configuração do N8N não encontrada. Abortando verificação.");
