@@ -1,4 +1,4 @@
-# Dockerfile definitivo para Easypanel com Nginx
+# REESCREVA O ARQUIVO COMPLETO: Dockerfile
 
 # Usamos a imagem oficial 'latest' que GARANTIDAMENTE tem a ferramenta 'envsubst'
 FROM nginx:latest
@@ -15,9 +15,6 @@ COPY app/ /usr/share/nginx/html
 # Define a porta que o container vai expor
 EXPOSE 80
 
-# Este é o comando que roda QUANDO O CONTAINER INICIA:
-# 1. Ele lê o nosso arquivo .template
-# 2. Substitui as variáveis de ambiente ($VARS) pelos seus valores reais
-# 3. Salva o resultado como o arquivo de configuração final que o Nginx vai usar
-# 4. Inicia o servidor Nginx em primeiro plano (essencial pro Docker)
-CMD ["/bin/sh", "-c", "envsubst < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+# === COMANDO CORRIGIDO E FINAL ===
+# Agora, especificamos EXATAMENTE qual variável o envsubst deve procurar e substituir.
+CMD ["/bin/sh", "-c", "envsubst '${NGINX_PROXY_PASS_URL}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
