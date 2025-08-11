@@ -10,10 +10,7 @@ const IS_DEV = window.location.hostname === '127.0.0.1' || window.location.hostn
 // Define a URL base dinamicamente: se for DEV, usa a URL completa. Se for produção, usa o proxy.
 const N8N_BASE_URL = IS_DEV 
     ? 'https://n8n-webhook.uptecnology.com.br/webhook/' 
-    : '/api/';
-
-// ➖ A LINHA DUPLICADA ABAIXO FOI REMOVIDA ➖
-// const N8N_BASE_URL = 'https://n8n-webhook.uptecnology.com.br/webhook/'; 
+    : '/api/'; 
 
 const N8N_ENDPOINTS = {
     // --- FINANCEIRO ---
