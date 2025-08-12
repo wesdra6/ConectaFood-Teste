@@ -44,6 +44,65 @@ body * { visibility: hidden; }
 .swal2-container { z-index: 99999 !important; }
 .modal { z-index: 9999 !important; }
 .modal-backdrop { z-index: 9998 !important; }
+/* ================================================= */
+.modo-demo button,
+.modo-demo input[type="submit"],
+.modo-demo input[type="file"],
+.modo-demo textarea,
+.modo-demo select,
+.modo-demo [id*="upload-area"] /* Pega qualquer elemento cujo ID contenha "upload-area" */
+{
+    /* ...aplica um estilo "desabilitado" básico. */
+    cursor: not-allowed !important;
+    opacity: 0.6;
+}
+
+/* Agora, vamos ser mais específicos para travar a funcionalidade */
+.modo-demo button,
+.modo-demo input[type="submit"],
+.modo-demo [onclick], /* Pega elementos com eventos de clique inline */
+.modo-demo a[href^="javascript:"] /* Pega links que executam JS */
+{
+    pointer-events: none !important; /* A bala de prata: impede QUALQUER clique. */
+}
+
+/* Deixando os campos de formulário apenas para leitura */
+.modo-demo input,
+.modo-demo textarea,
+.modo-demo select {
+    pointer-events: none !important; /* Impede a edição */
+    background-color: #2c2854 !important; /* Cor de fundo um pouco diferente para indicar bloqueio */
+}
+
+/* EXCEÇÕES: Quais botões NÃO devem ser bloqueados? */
+/* Precisamos garantir que a navegação e os filtros continuem funcionando. */
+.modo-demo .nav-link,
+.modo-demo .nav-link-button,
+.modo-demo .tab-btn,
+.modo-demo #btn-mobile-menu,
+.modo-demo #btn-close-menu,
+.modo-demo input[type="text"], /* Permite digitar nos campos de busca */
+.modo-demo input[type="search"],
+.modo-demo [id*="filtro-busca"],
+.modo-demo .btn-close, /* Botões de fechar modais do Bootstrap */
+.modo-demo [data-bs-dismiss="modal"]
+{
+    /* Anula as regras de bloqueio para estes elementos específicos */
+    cursor: pointer !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    background-color: initial !important; /* Volta a cor de fundo original */
+}
+
+/* Caso especial: o toggle de abrir/fechar loja */
+.modo-demo #toggle-loja-aberta {
+    pointer-events: none !important;
+}
+.modo-demo label[for="toggle-loja-aberta"] {
+    cursor: not-allowed !important;
+    opacity: 0.6;
+}    
+    
 </style>
 </head>
 <body class="bg-fundo text-texto-base">
