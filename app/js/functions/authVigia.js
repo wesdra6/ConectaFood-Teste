@@ -1,16 +1,21 @@
-// js/authVigia.js
+// js/functions/authVigia.js
 
-// Função auto-executável para não poluir o escopo global
-(async () => {
-    console.log("AuthVigia 3.0 Ativado. 🕵️‍♂️");
+// ➖ REMOVEMOS A FUNÇÃO AUTO-EXECUTÁVEL QUE ENVOLVIA TODO O CÓDIGO ➖
 
+// ➕ EXPORTAMOS a função principal para que ela possa ser chamada pelo main.js ➕
+export async function iniciarVigia() {
+    console.log("AuthVigia 3.1 Ativado. 🕵️‍♂️");
+
+    // Pega a instância do Supabase que já deve estar globalmente disponível
     const supabase = window.supabase; 
 
     if (!supabase) {
-        console.error("VIGIA: Instância do Supabase não encontrada. Abortando verificação.");
+        console.error("VIGIA: Instância do Supabase não foi encontrada no momento da execução.");
         return;
     }
 
+    // Pega o usuário da sessão ATUAL. Se não houver, ele é null.
+    // Agora temos certeza que supabase.auth existe.
     const { data: { user } } = await supabase.auth.getUser();
 
     // =====================================================================
@@ -22,16 +27,16 @@
         if (isDemoUser) {
             console.log("VIGIA: Usuário de demonstração detectado.");
             
-            // ➕ AÇÃO IMEDIATA: Aplica a classe de bloqueio na UI
+            // Aplica a classe de bloqueio na UI
             document.body.classList.add('modo-demo');
 
             const { data: controle, error } = await supabase
                 .from('acessos_demo_controle')
                 .select('acesso_utilizado')
-                .eq('id', user.id) // 🎯 CORREÇÃO: A coluna é 'id', não 'user_id_supabase'
+                .eq('id', user.id) // Busca pelo ID do usuário logado
                 .single();
 
-            if (error && error.code !== 'PGRST116') {
+            if (error && error.code !== 'PGRST116') { // Ignora erro "nenhuma linha encontrada"
                 console.error("VIGIA: Erro ao consultar a tabela de controle de demo.", error);
                 return;
             }
@@ -43,12 +48,11 @@
                     if (!window.location.pathname.endsWith('vendas.html')) {
                         window.location.replace('vendas.html');
                     }
-                    return;
+                    return; // PARA a execução do script aqui.
                 } else {
                     console.log("VIGIA: Primeiro acesso. Marcando como utilizado e exibindo aviso.");
                     
-                    // ➕ AVISO ÚTIL: Mostra um toast na primeira vez que ele loga
-                    // Usando a biblioteca Swal (SweetAlert2) que já usamos na Torre
+                    // Mostra um toast na primeira vez que ele loga
                     if (window.Swal) {
                         const Toast = Swal.mixin({
                             toast: true,
@@ -64,7 +68,7 @@
                         Toast.fire({
                             icon: 'info',
                             title: 'Você está em modo de demonstração!',
-                            background: '#2c2854', // Cor da sidebar
+                            background: '#2c2854',
                             color: '#ffffff'
                         });
                     }
@@ -72,7 +76,7 @@
                     await supabase
                         .from('acessos_demo_controle')
                         .update({ acesso_utilizado: true })
-                        .eq('id', user.id); // 🎯 CORREÇÃO
+                        .eq('id', user.id);
                 }
             }
         }
@@ -84,15 +88,28 @@
     const N8N_BASE_URL = window.N8N_CONFIG?.get_loja_config.split('loja/config/obter')[0];
 
     if (!N8N_BASE_URL) {
-        // ... Lógica de erro do N8N ...
+        console.error("VIGIA: Configuração do N8N não encontrada. Abortando verificação.");
         return;
     }
 
     const endpoint = N8N_BASE_URL + 'loja/config/obter';
 
     try {
-        // ... Lógica de verificação de cliente_ativo ...
+        const response = await fetch(endpoint);
+        if (!response.ok) throw new Error('Falha na comunicação com o servidor.');
+
+        const configs = await response.json();
+        
+        if (configs && configs.length > 0) {
+            const { cliente_ativo } = configs[0];
+
+            if (cliente_ativo === false) {
+                if (!window.location.pathname.endsWith('bloqueado.html')) {
+                    window.location.replace('bloqueado.html');
+                }
+            }
+        }
     } catch (error) {
         console.error("VIGIA: Erro ao verificar status da loja.", error);
     }
-})();
+}
