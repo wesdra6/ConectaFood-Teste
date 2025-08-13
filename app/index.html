@@ -1,3 +1,4 @@
+<!-- REESCREVA O ARQUIVO COMPLETO: app/index.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -44,65 +45,6 @@ body * { visibility: hidden; }
 .swal2-container { z-index: 99999 !important; }
 .modal { z-index: 9999 !important; }
 .modal-backdrop { z-index: 9998 !important; }
-/* ================================================= */
-.modo-demo button,
-.modo-demo input[type="submit"],
-.modo-demo input[type="file"],
-.modo-demo textarea,
-.modo-demo select,
-.modo-demo [id*="upload-area"] /* Pega qualquer elemento cujo ID contenha "upload-area" */
-{
-    /* ...aplica um estilo "desabilitado" básico. */
-    cursor: not-allowed !important;
-    opacity: 0.6;
-}
-
-/* Agora, vamos ser mais específicos para travar a funcionalidade */
-.modo-demo button,
-.modo-demo input[type="submit"],
-.modo-demo [onclick], /* Pega elementos com eventos de clique inline */
-.modo-demo a[href^="javascript:"] /* Pega links que executam JS */
-{
-    pointer-events: none !important; /* A bala de prata: impede QUALQUER clique. */
-}
-
-/* Deixando os campos de formulário apenas para leitura */
-.modo-demo input,
-.modo-demo textarea,
-.modo-demo select {
-    pointer-events: none !important; /* Impede a edição */
-    background-color: #2c2854 !important; /* Cor de fundo um pouco diferente para indicar bloqueio */
-}
-
-/* EXCEÇÕES: Quais botões NÃO devem ser bloqueados? */
-/* Precisamos garantir que a navegação e os filtros continuem funcionando. */
-.modo-demo .nav-link,
-.modo-demo .nav-link-button,
-.modo-demo .tab-btn,
-.modo-demo #btn-mobile-menu,
-.modo-demo #btn-close-menu,
-.modo-demo input[type="text"], /* Permite digitar nos campos de busca */
-.modo-demo input[type="search"],
-.modo-demo [id*="filtro-busca"],
-.modo-demo .btn-close, /* Botões de fechar modais do Bootstrap */
-.modo-demo [data-bs-dismiss="modal"]
-{
-    /* Anula as regras de bloqueio para estes elementos específicos */
-    cursor: pointer !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    background-color: initial !important; /* Volta a cor de fundo original */
-}
-
-/* Caso especial: o toggle de abrir/fechar loja */
-.modo-demo #toggle-loja-aberta {
-    pointer-events: none !important;
-}
-.modo-demo label[for="toggle-loja-aberta"] {
-    cursor: not-allowed !important;
-    opacity: 0.6;
-}    
-    
 </style>
 </head>
 <body class="bg-fundo text-texto-base">
@@ -222,6 +164,7 @@ body * { visibility: hidden; }
         <div id="paginacao-container-admin" class="flex justify-center items-center space-x-2 mt-8"></div>
     </div>
 
+    <!-- ✅ VIEW CONTAINER DE PEDIDOS -->
     <div id="pedidos-page" class="view-container hidden flex-col h-full">
         <h2 class="text-4xl font-bold mb-4">Pedidos Recebidos</h2>
         <div class="mb-4 border-b border-borda overflow-x-auto">
@@ -258,6 +201,7 @@ body * { visibility: hidden; }
         </div>
     </div>
     
+    <!-- ✅ VIEW CONTAINER DO CAIXA -->
     <div id="caixa-page" class="view-container hidden">
         <header class="flex justify-between items-center mb-8">
             <div>
@@ -276,6 +220,7 @@ body * { visibility: hidden; }
         <div id="grade-mesas" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6"></div>
     </div>
 
+    <!-- ✅ VIEW CONTAINER DE CONFIGURAÇÕES -->
     <div id="configuracoes-page" class="view-container hidden">
         <h2 class="text-4xl font-bold mb-2">Configurações Gerais</h2>
         <p class="text-texto-muted mb-8">Personalize as informações e aparência da sua loja.</p>
