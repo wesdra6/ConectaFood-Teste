@@ -1,6 +1,8 @@
 // REESCREVA O ARQUIVO COMPLETO: app/js/main.js
 
 import { supabase } from './supabaseClient.js';
+// ➕ 1. IMPORTAMOS O NOSSO VIGIA DE SEGURANÇA
+import { iniciarVigia } from './functions/authVigia.js';
 
 console.log("Maestro: Iniciando com calma e sabedoria.");
 
@@ -16,32 +18,37 @@ const viewModules = {
     'configuracoes': { path: './functions/configuracoes.js', initFunc: 'initConfiguracoesPage' },
 };
 
-// ➕ NOVA FUNÇÃO: O PORTEIRO VIP 👇
+// NOVA FUNÇÃO: O PORTEIRO VIP PARA ACESSOS DE DEMONSTRAÇÃO
 async function handleDemoAccess() {
     const params = new URLSearchParams(window.location.search);
     const demoToken = params.get('token_demo');
 
     if (demoToken) {
-        // Se achou um token demo, tenta logar com ele
+        console.log("VIGIA: Token de demonstração encontrado. Tentando autenticar...");
+        // Tenta estabelecer a sessão usando o token
         const { error } = await supabase.auth.setSession({
             access_token: demoToken,
-            refresh_token: demoToken // Para JWTs simples e de curta duração, podemos usar o mesmo
+            refresh_token: demoToken // Para JWTs simples, podemos usar o mesmo
         });
 
         if (error) {
             console.error("Erro no login com token demo:", error.message);
-            // Se o token for inválido ou expirado, manda pro login normal
+            // Se o token for inválido ou expirado, força o redirecionamento para o login
             window.location.replace('login.html');
         } else {
-            console.log("Acesso DEMO concedido! 🚀");
-            // Limpa a URL para o token não ficar exposto
-            history.replaceState(null, '', window.location.pathname);
+            console.log("Acesso DEMO concedido! 🚀 Redirecionando para limpar a URL...");
+            // Limpa a URL e redireciona para a mesma página sem o token,
+            // garantindo que o resto dos scripts execute em um estado limpo.
+            window.location.replace(window.location.pathname);
         }
+        // Retorna true para indicar que um redirecionamento está em andamento
+        return true; 
     }
+    // Retorna false se não houver token para processar
+    return false;
 }
 
 async function navigateTo(view, params = {}) { 
-    // ... (resto da função navigateTo continua igual)
     document.querySelectorAll('.view-container').forEach(v => v.classList.add('hidden'));
     
     const containerId = `${view}-page`;
@@ -74,7 +81,6 @@ async function navigateTo(view, params = {}) {
 }
 
 async function handleLogout() {
-    // ... (resto da função handleLogout continua igual)
     Swal.fire({ title: 'Saindo...', text: 'Aguarde um momento.', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
         const { error } = await supabase.auth.signOut();
@@ -85,8 +91,6 @@ async function handleLogout() {
         Swal.fire({ icon: 'error', title: 'Ops!', text: 'Não foi possível sair.', background: '#2c2854', color: '#ffffff' });
     }
 }
-
-// ... (outras funções como atualizarLogoPainel, fetchAndSetLogo, etc, continuam iguais) ...
 
 function atualizarLogoPainel(url, nomeLoja) {
     const logoDesktopContainer = document.getElementById('logo-header-desktop');
@@ -168,12 +172,24 @@ function iniciarVigiaDePedidos() {
     }, VIGIA_RATE_MS);
 }
 
-
+// =====================================================================
+// PONTO DE ENTRADA PRINCIPAL DA APLICAÇÃO
+// =====================================================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // ➕ AQUI A GENTE CHAMA O PORTEIRO PRIMEIRO! 👇
-    await handleDemoAccess();
+    
+    // ➕ 2. O PORTEIRO VIP ENTRA EM AÇÃO ANTES DE TUDO
+    const isHandlingDemo = await handleDemoAccess();
+    if (isHandlingDemo) {
+        // Se a função de demo iniciou um redirecionamento, paramos a execução aqui
+        // para aguardar a página recarregar.
+        return;
+    }
 
-    // Agora o resto do código roda normalmente
+    // ➕ 3. O VIGIA DE SEGURANÇA É ACIONADO
+    // Ele roda aqui para ter certeza de que já temos uma sessão (seja ela normal ou demo).
+    await iniciarVigia();
+
+    // O fluxo normal continua...
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
         window.location.replace('login.html');
@@ -235,7 +251,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         navigateTo(initialView);
 
     } else {
-        // ... (resto do código para páginas públicas continua igual)
         console.log("Detectado: Página Pública ou Módulo Externo. Iniciando modo simples.");
         const pageName = window.location.pathname.split('/').pop().replace('.html', '');
         const externalPages = {
