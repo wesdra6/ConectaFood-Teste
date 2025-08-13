@@ -47,6 +47,7 @@ const N8N_ENDPOINTS = {
     update_order_status:   N8N_BASE_URL + 'pedido/atualizar-status',
     get_all_orders:        N8N_BASE_URL + 'pedidos/listar-todos',
     get_order_status:      N8N_BASE_URL + 'pedido/buscar-status',
+    get_order_acompanhar:  N8N_BASE_URL + 'pedido/buscar-acompanhar',
     send_whatsapp_status:  N8N_BASE_URL + 'pedido/enviar-status-whatsapp',
     send_delivery_details: N8N_BASE_URL + 'delivery/send-details',
     get_finalized_orders_by_date: N8N_BASE_URL + 'pedidos/listar-por-data',
