@@ -42,13 +42,16 @@
 </head>
 <body class="bg-fundo text-texto-base">
 
-    <!-- BARREIRA PARA DESKTOP -->
+    <!-- BARREIRA PARA DESKTOP ATUALIZADA -->
     <div id="desktop-blocker" class="hidden md:flex fixed inset-0 bg-sidebar z-50 items-center justify-center p-8">
-        <div class="text-center bg-card p-10 rounded-lg shadow-2xl max-w-lg">
-            <i class="bi bi-phone-vibrate-fill text-7xl text-principal"></i>
+        <div class="text-center bg-card p-10 rounded-lg shadow-2xl max-w-lg flex flex-col items-center">
+            <i class="bi bi-phone-vibrate-fill text-6xl text-principal"></i>
             <h2 class="text-3xl font-bold mt-4">A Experiência é Mobile!</h2>
-            <p class="text-texto-muted mt-2 text-lg">Nosso cardápio foi feito com todo carinho para a tela do seu celular. É mais rápido, prático e delicioso de usar!</p>
-            <p class="text-texto-muted mt-4">Abra este site no seu smartphone para fazer seu pedido. 😉</p>
+            <p class="text-texto-muted mt-2">Este cardápio foi feito para a agilidade do seu smartphone.</p>
+            <div class="mt-6 p-4 bg-fundo rounded-lg flex flex-col items-center">
+                <p class="font-semibold text-lg">Aponte a câmera e peça no celular!</p>
+                <div id="qrcode-desktop" class="mt-4 flex justify-center items-center h-40 w-40"></div>
+            </div>
         </div>
     </div>
 
@@ -110,6 +113,11 @@
                                 <option value="CRÉDITO">Crédito 💳</option>
                                 <option value="DINHEIRO">Dinheiro 💵</option>
                             </select>
+                            <!-- ➕ NOVA LINHA 👇 O checkbox da mágica! -->
+                            <div class="flex items-center gap-2 pt-2">
+                                <input type="checkbox" id="lembrar-dados" class="w-5 h-5 accent-principal">
+                                <label for="lembrar-dados" class="text-texto-muted">Lembrar meus dados para a próxima compra</label>
+                            </div>
                         </form>
                     </div>
                     <div class="modal-footer">
@@ -141,15 +149,13 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/dev-secrets.js"></script>
-    <script src="js/config.js"></script>
-    <script type="module" src="js/supabaseClient.js"></script>
-    <script type="module" src="js/main.js"></script> 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script type="module" src="js/functions/qrCodeHandler.js"></script>
+    
     <script src="js/config.js"></script>
-    <script type="module" src="js/functions/authVigia.js"></script>
     <script type="module" src="js/main.js"></script>
 </body>
 </html>

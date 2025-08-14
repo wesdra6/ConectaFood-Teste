@@ -16,32 +16,27 @@ const viewModules = {
     'configuracoes': { path: './functions/configuracoes.js', initFunc: 'initConfiguracoesPage' },
 };
 
-// ➕ NOVA FUNÇÃO: O PORTEIRO VIP 👇
 async function handleDemoAccess() {
     const params = new URLSearchParams(window.location.search);
     const demoToken = params.get('token_demo');
 
     if (demoToken) {
-        // Se achou um token demo, tenta logar com ele
         const { error } = await supabase.auth.setSession({
             access_token: demoToken,
-            refresh_token: demoToken // Para JWTs simples e de curta duração, podemos usar o mesmo
+            refresh_token: demoToken 
         });
 
         if (error) {
             console.error("Erro no login com token demo:", error.message);
-            // Se o token for inválido ou expirado, manda pro login normal
             window.location.replace('login.html');
         } else {
             console.log("Acesso DEMO concedido! 🚀");
-            // Limpa a URL para o token não ficar exposto
             history.replaceState(null, '', window.location.pathname);
         }
     }
 }
 
 async function navigateTo(view, params = {}) { 
-    // ... (resto da função navigateTo continua igual)
     document.querySelectorAll('.view-container').forEach(v => v.classList.add('hidden'));
     
     const containerId = `${view}-page`;
@@ -74,7 +69,6 @@ async function navigateTo(view, params = {}) {
 }
 
 async function handleLogout() {
-    // ... (resto da função handleLogout continua igual)
     Swal.fire({ title: 'Saindo...', text: 'Aguarde um momento.', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
         const { error } = await supabase.auth.signOut();
@@ -85,8 +79,6 @@ async function handleLogout() {
         Swal.fire({ icon: 'error', title: 'Ops!', text: 'Não foi possível sair.', background: '#2c2854', color: '#ffffff' });
     }
 }
-
-// ... (outras funções como atualizarLogoPainel, fetchAndSetLogo, etc, continuam iguais) ...
 
 function atualizarLogoPainel(url, nomeLoja) {
     const logoDesktopContainer = document.getElementById('logo-header-desktop');
@@ -170,20 +162,20 @@ function iniciarVigiaDePedidos() {
 
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // ➕ AQUI A GENTE CHAMA O PORTEIRO PRIMEIRO! 👇
     await handleDemoAccess();
-
-    // Agora o resto do código roda normalmente
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-        window.location.replace('login.html');
-        return;
-    }
-
+    
     const isAdminPanel = !!document.getElementById('admin-sidebar');
 
     if (isAdminPanel) {
-        console.log("Detectado: Painel Admin. Iniciando modo SPA.");
+        console.log("Detectado: Painel Admin. Verificando sessão...");
+        
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            window.location.replace('login.html');
+            return;
+        }
+
+        console.log("Sessão válida. Iniciando modo SPA.");
         
         fetchAndSetLogo();
         iniciarVigiaDePedidos();
@@ -203,14 +195,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('btn-logout').addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
 
+        // ➕ AQUI ESTÁ A LÓGICA CORRETA E ÚNICA PARA NAVEGAÇÃO 👇
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
-                e.preventDefault();
+                e.preventDefault(); // Impede o link de recarregar a página
+                
                 const url = new URL(link.href);
                 const view = url.searchParams.get('view') || 'dashboard';
-                history.pushState({ view }, '', `?view=${view}`);
-                navigateTo(view);
-                if (window.innerWidth < 768) closeMenu();
+                
+                history.pushState({ view }, '', `?view=${view}`); // Atualiza a URL
+                navigateTo(view); // Carrega a nova view
+                
+                // Fecha o menu se estiver no mobile
+                if (window.innerWidth < 768) {
+                    closeMenu();
+                }
             });
         });
 
@@ -235,8 +234,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         navigateTo(initialView);
 
     } else {
-        // ... (resto do código para páginas públicas continua igual)
-        console.log("Detectado: Página Pública ou Módulo Externo. Iniciando modo simples.");
+        console.log("Detectado: Página Pública ou Módulo Externo. Acesso liberado, iniciando modo simples.");
+        
         const pageName = window.location.pathname.split('/').pop().replace('.html', '');
         const externalPages = {
             'cliente': { path: './functions/cliente.js', func: 'initClientePage' },

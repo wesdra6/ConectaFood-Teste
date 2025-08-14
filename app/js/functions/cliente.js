@@ -3,9 +3,34 @@
 import { enviarParaN8N, fetchDeN8N } from './api.js';
 import { initCarrinho } from './carrinho.js';
 import { criaCardProduto } from './components.js';
+import { generateAndDisplayQRCode } from './qrCodeHandler.js';
 
 // --- VARIÁVEIS DE ESTADO DO MÓDULO ---
 let produtosDaVitrine = [];
+
+// ➕ NOVAS FUNÇÕES MÁGICAS 👇
+const DADOS_CLIENTE_KEY = 'dadosClienteLegalConnect';
+
+function salvarDadosCliente(dados) {
+    localStorage.setItem(DADOS_CLIENTE_KEY, JSON.stringify(dados));
+}
+
+function carregarDadosCliente() {
+    const dadosSalvos = localStorage.getItem(DADOS_CLIENTE_KEY);
+    if (dadosSalvos) {
+        const dados = JSON.parse(dadosSalvos);
+        document.getElementById('clienteWhatsapp').value = dados.whatsapp_cliente || '';
+        document.getElementById('clienteNome').value = dados.nome_cliente || '';
+        document.getElementById('clienteRua').value = dados.rua || '';
+        document.getElementById('clienteBairro').value = dados.bairro || '';
+        document.getElementById('clienteQuadra').value = dados.quadra || '';
+        document.getElementById('clienteLote').value = dados.lote || '';
+        document.getElementById('clienteReferencia').value = dados.referencia || '';
+        // Marcar o checkbox para o cliente saber que os dados foram carregados
+        document.getElementById('lembrar-dados').checked = true;
+    }
+}
+// --- FIM DAS NOVAS FUNÇÕES ---
 
 // --- FUNÇÕES DE LÓGICA E AÇÃO (As ferramentas que serão globais) ---
 
@@ -70,6 +95,15 @@ async function finalizarPedido() {
         Swal.fire({icon: 'warning', title: 'Faltam Dados', text: 'Preencha todos os campos de entrega.', background: '#2c2854', color: '#ffffff'}); 
         return; 
     }
+    
+    // ➕ AQUI A GENTE DECIDE SE SALVA OU APAGA OS DADOS 👇
+    const lembrar = document.getElementById('lembrar-dados').checked;
+    if (lembrar) {
+        salvarDadosCliente(dadosFormulario);
+    } else {
+        localStorage.removeItem(DADOS_CLIENTE_KEY);
+    }
+
     Swal.fire({ title: 'Confirmando seu pedido...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     
     const pedido = { 
@@ -112,10 +146,8 @@ function renderizarBanners(banners) {
     const bannersAtivos = banners.filter(b => b.ativo); 
     if (bannersAtivos.length === 0) return null; 
 
-    // ✅ AQUI ESTÁ A MUDANÇA FINAL.
     const slidesHtml = bannersAtivos.map(banner => `
         <div class="swiper-slide">
-            <!-- O link agora envolve a imagem e garante que o espaço seja preenchido -->
             <a href="${banner.link_ancora || '#'}" class="block w-full h-full" aria-label="Banner promocional">
                 <img src="${banner.url_imagem}" 
                      loading="lazy" 
@@ -127,8 +159,6 @@ function renderizarBanners(banners) {
     const container = document.createElement('section');
     container.className = 'mb-12';
 
-    // ✅ Aplicamos a proporção 16:9 (que é 1200x675) diretamente no container do Swiper.
-    // 'aspect-video' força a proporção, e 'h-auto' remove a altura fixa anterior.
     container.innerHTML = `<div class="swiper swiper-banners relative aspect-video h-auto rounded-2xl overflow-hidden"><div class="swiper-wrapper">${slidesHtml}</div></div>`;
     return container;
 }
@@ -302,5 +332,13 @@ export async function initClientePage() {
         finalizarPedido(); 
     });
 
+    // ➕ A GENTE CHAMA A FUNÇÃO DE CARREGAR OS DADOS QUANDO O MODAL ABRE 👇
+    const modalEndereco = document.getElementById('enderecoModal');
+    if(modalEndereco) {
+        modalEndereco.addEventListener('show.bs.modal', carregarDadosCliente);
+    }
+
     await carregarConfiguracoesDaLoja();
+
+    generateAndDisplayQRCode('qrcode-desktop');
 }

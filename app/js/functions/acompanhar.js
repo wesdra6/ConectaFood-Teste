@@ -87,7 +87,7 @@ async function buscarPedido(codigo) {
     
     try {
         const codigoFormatado = codigo.toUpperCase();
-        const url = `${window.N8N_CONFIG.get_order_status}?id=${codigoFormatado}`;
+        const url = `${window.N8N_CONFIG.get_order_acompanhar}?id=${codigoFormatado}`;
         
         const resposta = await fetchDeN8N(url);
         const pedido = (Array.isArray(resposta) && resposta.length > 0) ? resposta[0] : null;
