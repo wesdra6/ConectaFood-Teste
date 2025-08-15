@@ -1,4 +1,3 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/pedidos.js
 
 import { enviarParaN8N, fetchDeN8N } from './api.js';
 import { gerarHtmlImpressao, imprimirComprovante } from './impressao.js';
@@ -78,7 +77,7 @@ export async function abrirModalGerenciamento(pedidoId, contexto = 'CAIXA') {
         }
         
         pedidoEmGerenciamento = JSON.parse(JSON.stringify(pedidoAtualizado));
-        pedidoEmGerenciamento.contexto = contexto; // Adiciona o contexto ao objeto do pedido
+        pedidoEmGerenciamento.contexto = contexto; 
         if (!pedidoEmGerenciamento.itens_pedido) pedidoEmGerenciamento.itens_pedido = [];
 
         document.getElementById('gerenciamento-modal-titulo').innerHTML = `Gerenciar Pedido <span class="text-principal">#${pedidoEmGerenciamento.id_pedido_publico}</span>`;
@@ -490,9 +489,7 @@ export function initPedidosPage() {
     };
 
     document.getElementById('btn-buscar-hoje')?.addEventListener('click', () => {
-        // ➕ ALTERAÇÃO AQUI 👇
         const hoje = new Date();
-        // Ajusta para o fuso horário local antes de pegar a data
         hoje.setMinutes(hoje.getMinutes() - hoje.getTimezoneOffset());
         const dataHojeFormatada = hoje.toISOString().split('T')[0];
         buscarFinalizadosPorData(dataHojeFormatada);

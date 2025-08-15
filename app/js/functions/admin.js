@@ -1,4 +1,3 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/admin.js
 
 import { enviarParaN8N, fetchDeN8N, enviarArquivoParaN8N } from './api.js';
 import { criaCardProduto } from './components.js';

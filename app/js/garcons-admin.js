@@ -1,4 +1,3 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/garcons-admin.js
 
 import { fetchDeN8N, enviarParaN8N } from './functions/api.js';
 
@@ -46,8 +45,8 @@ function renderGarcons(garcons) {
         garcomEl.innerHTML = `
             <span class="font-bold">${garcom.nome}</span>
             <div class="flex items-center gap-2">
-                <button onclick="garconsAdminFunctions.handleEditarGarcom('${garcom.id}')" class="text-blue-400 hover:text-blue-300 p-1"><i class="bi bi-pencil-fill"></i></button>
-                <button onclick="garconsAdminFunctions.handleDeletarGarcom('${garcom.id}')" class="text-red-500 hover:text-red-400 p-1"><i class="bi bi-trash-fill"></i></button>
+                <button onclick="garconsAdminFunctions.handleEditarGarcom('${garcom.id}')" class="text-blue-400 hover:text-blue-300 p-1 btn-demo-disable"><i class="bi bi-pencil-fill"></i></button>
+                <button onclick="garconsAdminFunctions.handleDeletarGarcom('${garcom.id}')" class="text-red-500 hover:text-red-400 p-1 btn-demo-disable"><i class="bi bi-trash-fill"></i></button>
             </div>
         `;
         listaContainer.appendChild(garcomEl);
@@ -87,7 +86,7 @@ function renderResumoAtribuicoes(resumo) {
         
         const nomeGarcomHtml = item.mesas_atribuidas 
             ? `<button onclick="garconsAdminFunctions.handleLiberarMesasDoGarcom('${item.id}', '${item.nome}')" 
-                       class="font-semibold text-left text-texto-base hover:text-red-400 transition-colors" 
+                       class="font-semibold text-left text-texto-base hover:text-red-400 transition-colors btn-demo-disable" 
                        title="Clique para liberar todas as mesas de ${item.nome}">
                    ${item.nome} <i class="bi bi-unlock-fill text-xs text-texto-muted"></i>
                </button>`

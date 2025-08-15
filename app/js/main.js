@@ -1,4 +1,3 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/main.js
 
 import { supabase } from './supabaseClient.js';
 
@@ -160,6 +159,38 @@ function iniciarVigiaDePedidos() {
     }, VIGIA_RATE_MS);
 }
 
+function initDemoMode() {
+    if (!window.APP_CONFIG.isDemoMode) return;
+    console.log("Maestro: MODO DEMONSTRAÇÃO ATIVO! 🛡️");
+    const style = document.createElement('style');
+    style.innerHTML = `.btn-demo-disable { opacity: 0.7; cursor: not-allowed !important; }`;
+    document.head.appendChild(style);
+
+    document.body.addEventListener('click', (event) => {
+        const target = event.target.closest('.btn-demo-disable');
+        if (target) {
+            event.preventDefault();
+            event.stopPropagation();
+            Swal.fire({
+                icon: 'info',
+                title: 'Ação Bloqueada no Modo Demo!',
+                html: `
+                    <p class="text-texto-muted text-lg leading-relaxed">
+                        Para manter a organização, as ações de salvar, editar ou apagar estão desativadas.
+                        <br><br>
+                        Mas a melhor parte está funcionando! Que tal testar o fluxo completo?
+                    </p>
+                    <a href="cliente.html" target="_blank" class="swal2-confirm swal2-styled mt-4" style="background-color: #ff6b35; display: inline-block;">
+                        <i class="bi bi-eye-fill"></i> Ir para a Vitrine e Fazer um Pedido
+                    </a>
+                `,
+                background: '#2c2854',
+                color: '#ffffff',
+                showConfirmButton: false
+            });
+        }
+    }, true);
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
     await handleDemoAccess();
@@ -177,6 +208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         console.log("Sessão válida. Iniciando modo SPA.");
         
+        initDemoMode();
         fetchAndSetLogo();
         iniciarVigiaDePedidos();
         document.body.addEventListener('click', unlockAudio, { once: true });
@@ -195,18 +227,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('btn-logout').addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
 
-        // ➕ AQUI ESTÁ A LÓGICA CORRETA E ÚNICA PARA NAVEGAÇÃO 👇
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
-                e.preventDefault(); // Impede o link de recarregar a página
-                
+                e.preventDefault();
                 const url = new URL(link.href);
                 const view = url.searchParams.get('view') || 'dashboard';
-                
-                history.pushState({ view }, '', `?view=${view}`); // Atualiza a URL
-                navigateTo(view); // Carrega a nova view
-                
-                // Fecha o menu se estiver no mobile
+                history.pushState({ view }, '', `?view=${view}`);
+                navigateTo(view);
                 if (window.innerWidth < 768) {
                     closeMenu();
                 }

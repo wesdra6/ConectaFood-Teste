@@ -1,12 +1,10 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/cardapioMesa.js
 
 import { fetchDeN8N } from './api.js';
 
 let lojaConfig = null;
-let todosOsProdutos = []; // ➕ Armazenaremos os produtos aqui
-let modalDetalhes = null; // ➕ Variável para a instância do modal
+let todosOsProdutos = [];  
+let modalDetalhes = null; 
 
-// Função para buscar as configs da loja (reutilizável)
 async function getLojaConfig() {
     if (!lojaConfig) {
         try {
@@ -21,7 +19,6 @@ async function getLojaConfig() {
     return lojaConfig;
 }
 
-// Função para renderizar a logo
 function renderLogo(containerId) {
     const logoContainer = document.getElementById(containerId);
     if (!logoContainer || !lojaConfig) return;
@@ -49,7 +46,6 @@ export async function initPaginaBoasVindas() {
     }
 }
 
-// ➕ NOVA FUNÇÃO PARA ABRIR O MODAL 👇
 function abrirModalDetalhesMesa(produtoId) {
     const produto = todosOsProdutos.find(p => p.id === produtoId);
     if (!produto) return;
@@ -92,7 +88,6 @@ function abrirModalDetalhesMesa(produtoId) {
 
     modalDetalhes.show();
 
-    // Inicializa o Swiper (carrossel de imagens) depois que o modal está visível
     const modalEl = document.getElementById('detalhesProdutoModalMesa');
     modalEl.addEventListener('shown.bs.modal', () => {
         new Swiper(modalBody.querySelector('.swiper-modal-produto-mesa'), { loop: imagensDisponiveis.length > 1 });
@@ -103,7 +98,6 @@ function abrirModalDetalhesMesa(produtoId) {
 // LÓGICA PARA O CARDÁPIO DIGITAL (cardapio-digital.html)
 // ===================================================================
 export async function initCardapioDigital() {
-    // ➕ Disponibiliza a função globalmente para ser chamada pelo HTML
     window.cardapioMesaFunctions = { abrirModalDetalhesMesa };
 
     await getLojaConfig();
@@ -130,7 +124,6 @@ export async function initCardapioDigital() {
              return;
         }
 
-        // Renderiza as abas de navegação das categorias
         categorias.forEach(cat => {
             const navLink = document.createElement('a');
             navLink.href = `#cat-${cat.id}`;
@@ -143,7 +136,6 @@ export async function initCardapioDigital() {
             categoriasNav.appendChild(navLink);
         });
 
-        // Agrupa produtos por categoria
         const produtosPorCategoria = todosOsProdutos.reduce((acc, produto) => {
             if (produto.ativo && produto.tipo_item === 'PRODUTO') {
                 (acc[produto.categoria_id] = acc[produto.categoria_id] || []).push(produto);
@@ -151,7 +143,6 @@ export async function initCardapioDigital() {
             return acc;
         }, {});
 
-        // Renderiza as seções de produtos
         categorias.forEach(cat => {
             const produtosDaCategoria = produtosPorCategoria[cat.id];
             if (produtosDaCategoria && produtosDaCategoria.length > 0) {
@@ -162,7 +153,6 @@ export async function initCardapioDigital() {
                 let produtosHtml = '';
                 produtosDaCategoria.forEach(p => {
                     const imagem = (p.imagens_urls && p.imagens_urls.length > 0) ? p.imagens_urls[0] : 'https://via.placeholder.com/150';
-                    // ➕ ALTERAÇÃO AQUI: Adicionamos o onclick para chamar o modal 👇
                     produtosHtml += `
                         <div class="flex items-start gap-4 mb-6 cursor-pointer hover:bg-card/50 p-2 rounded-lg transition-colors" onclick="cardapioMesaFunctions.abrirModalDetalhesMesa(${p.id})">
                             <img src="${imagem}" alt="${p.nome}" class="w-24 h-24 rounded-lg object-cover flex-shrink-0">
@@ -183,7 +173,6 @@ export async function initCardapioDigital() {
             }
         });
         
-        // Ativa o highlight da categoria na navegação ao rolar a página
         window.addEventListener('scroll', handleScrollSpy);
 
     } catch (error) {
@@ -192,7 +181,6 @@ export async function initCardapioDigital() {
     }
 }
 
-// Função para o "scroll spy" (destacar categoria ativa)
 function handleScrollSpy() {
     const fromTop = window.scrollY + 200; // Offset para ativar antes
     const navLinks = document.querySelectorAll('.nav-categoria');

@@ -1,4 +1,3 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/components.js
 
 export function criaCardProduto(produto, contexto = 'cliente', onClickAction = null) {
     const card = document.createElement('div');
@@ -55,8 +54,8 @@ export function criaCardProduto(produto, contexto = 'cliente', onClickAction = n
                     <div class="flex justify-between items-center mt-auto">
                         <span class="text-2xl font-bold text-principal">R$ ${Number(produto.preco).toFixed(2)}</span>
                         <div class="flex items-center space-x-2">
-                            <button class="btn-editar p-2 rounded-md hover:bg-sidebar transition-colors" aria-label="Editar ${produto.nome}"><i class="bi bi-gear-fill text-lg"></i></button>
-                            ${!isServico ? `<button class="btn-status p-2 rounded-md hover:bg-sidebar transition-colors" aria-label="${produto.ativo ? 'Desativar' : 'Ativar'} ${produto.nome}">${produto.ativo ? '<i class="bi bi-eye-slash-fill text-lg text-red-500"></i>' : '<i class="bi bi-eye-fill text-lg text-green-400"></i>'}</button>` : ''}
+                            <button class="btn-editar p-2 rounded-md hover:bg-sidebar transition-colors btn-demo-disable" aria-label="Editar ${produto.nome}"><i class="bi bi-gear-fill text-lg"></i></button>
+                            ${!isServico ? `<button class="btn-status p-2 rounded-md hover:bg-sidebar transition-colors btn-demo-disable" aria-label="${produto.ativo ? 'Desativar' : 'Ativar'} ${produto.nome}">${produto.ativo ? '<i class="bi bi-eye-slash-fill text-lg text-red-500"></i>' : '<i class="bi bi-eye-fill text-lg text-green-400"></i>'}</button>` : ''}
                         </div>
                     </div>
                 </div>`;
@@ -78,8 +77,8 @@ export function criaCardProduto(produto, contexto = 'cliente', onClickAction = n
                     <span class="text-xl font-bold text-principal">R$ ${Number(produto.preco).toFixed(2)}</span>
                 </div>
                 <div class="flex flex-col items-center">
-                    <button class="btn-editar p-2 rounded-md hover:bg-fundo transition-colors" aria-label="Editar ${produto.nome}"><i class="bi bi-gear-fill text-lg"></i></button>
-                    ${!isServico ? `<button class="btn-status p-2 rounded-md hover:bg-fundo transition-colors" aria-label="${produto.ativo ? 'Desativar' : 'Ativar'} ${produto.nome}">${produto.ativo ? '<i class="bi bi-eye-slash-fill text-lg text-red-500"></i>' : '<i class="bi bi-eye-fill text-lg text-green-400"></i>'}</button>` : ''}
+                    <button class="btn-editar p-2 rounded-md hover:bg-fundo transition-colors btn-demo-disable" aria-label="Editar ${produto.nome}"><i class="bi bi-gear-fill text-lg"></i></button>
+                    ${!isServico ? `<button class="btn-status p-2 rounded-md hover:bg-fundo transition-colors btn-demo-disable" aria-label="${produto.ativo ? 'Desativar' : 'Ativar'} ${produto.nome}">${produto.ativo ? '<i class="bi bi-eye-slash-fill text-lg text-red-500"></i>' : '<i class="bi bi-eye-fill text-lg text-green-400"></i>'}</button>` : ''}
                 </div>`;
             card.querySelector('.btn-editar').addEventListener('click', () => window.adminFunctions.editarProduto(produto.id));
             if (!isServico) {

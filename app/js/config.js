@@ -1,13 +1,7 @@
-// REESCREVA O ARQUIVO COMPLETO: js/config.js
 
-// ===================================================================
-// CONFIGURAÇÕES DO N8N
-// ===================================================================
 
-// Detecta se estamos em ambiente de desenvolvimento (Live Server)
 const IS_DEV = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
 
-// Define a URL base dinamicamente: se for DEV, usa a URL completa. Se for produção, usa o proxy.
 const N8N_BASE_URL = IS_DEV 
     ? 'https://n8n-webhook.uptecnology.com.br/webhook/' 
     : '/api/'; 
@@ -110,6 +104,7 @@ const EVOLUTION_API_CONFIG = {
 // CONFIGURAÇÕES GLOBAIS DA APLICAÇÃO
 // ===================================================================
 const APP_CONFIG = {
+    isDemoMode: true, 
     origemCores: { 
         'DELIVERY': 'bg-blue-500', 
         'WHATSAPP': 'bg-green-500', 

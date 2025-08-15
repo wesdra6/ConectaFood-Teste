@@ -1,4 +1,3 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/caixa.js
 
 import { enviarParaN8N, fetchDeN8N } from './api.js';
 import { abrirModalGerenciamento } from './pedidos.js';
@@ -164,7 +163,6 @@ async function handleMesaClick(mesa) {
             
             const itensHtml = (pedidoDaMesaAtualizado.itens_pedido || []).map(item => `<div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #4a4480;"><span style="text-align: left;"><b style="color: #ff6b35;">${item.quantidade}x</b> ${item.item || ''}</span><span style="text-align: right;">R$ ${((item.quantidade || 0) * (item.preco_unitario || 0)).toFixed(2)}</span></div>`).join('');
             
-            // ➕ AQUI ESTÁ A CORREÇÃO MATEMÁTICA 👇
             const totalRecalculado = (pedidoDaMesaAtualizado.itens_pedido || []).reduce((acc, item) => {
                 return acc + ( (item.quantidade || 0) * (item.preco_unitario || 0) );
             }, 0);

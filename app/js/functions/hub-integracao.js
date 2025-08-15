@@ -1,4 +1,3 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/hub-integracao.js
 
 import { fetchDeN8N, enviarParaN8N } from './api.js';
 
@@ -96,14 +95,13 @@ function renderizarTabelaFiscais(pedidos) {
         
         const statusFiscal = pedido.status_fiscal || 'Pendente';
         let corStatus, acoesHtml;
-
         switch(statusFiscal) {
             case 'Emitida':
                 corStatus = 'bg-green-500/30 text-green-300';
                 acoesHtml = `<div class="flex items-center justify-center gap-2">
                     <button onclick="hubFunctions.baixarDocumento('${pedido.pdf_url}', 'pdf', '${pedido.id_pedido_publico}')" class="group relative flex items-center justify-center h-10 w-10 bg-sidebar rounded-lg hover:bg-fundo transition-colors" title="Baixar PDF da Nota"><i class="bi bi-file-earmark-arrow-down-fill text-xl text-blue-300 group-hover:text-blue-200"></i></button>
                     <button onclick="hubFunctions.baixarDocumento('${pedido.xml_url}', 'xml', '${pedido.id_pedido_publico}')" class="group relative flex items-center justify-center h-10 w-10 bg-sidebar rounded-lg hover:bg-fundo transition-colors" title="Baixar XML da Nota"><i class="bi bi-file-earmark-code-fill text-xl text-gray-300 group-hover:text-gray-200"></i></button>
-                    <button class="group relative flex items-center justify-center h-10 w-10 bg-red-600/80 rounded-lg hover:bg-red-700 transition-colors" title="Cancelar NFC-e"><i class="bi bi-x-lg text-xl text-white"></i></button>
+                    <button class="group relative flex items-center justify-center h-10 w-10 bg-red-600/80 rounded-lg hover:bg-red-700 transition-colors btn-demo-disable" title="Cancelar NFC-e"><i class="bi bi-x-lg text-xl text-white"></i></button>
                 </div>`;
                 break;
             case 'Processando':
@@ -112,11 +110,11 @@ function renderizarTabelaFiscais(pedidos) {
                 break;
             case 'Erro':
                 corStatus = 'bg-red-500/30 text-red-300';
-                acoesHtml = `<button onclick="hubFunctions.emitirNota('${pedido.pedido_id}')" class="bg-principal text-white font-bold py-2 px-3 rounded-lg hover:bg-orange-600 transition-colors text-sm w-full"><i class="bi bi-arrow-clockwise"></i> Tentar Novamente</button>`;
+                acoesHtml = `<button onclick="hubFunctions.emitirNota('${pedido.pedido_id}')" class="bg-principal text-white font-bold py-2 px-3 rounded-lg hover:bg-orange-600 transition-colors text-sm w-full btn-demo-disable"><i class="bi bi-arrow-clockwise"></i> Tentar Novamente</button>`;
                 break;
             default:
                 corStatus = 'bg-gray-500/30 text-gray-300';
-                acoesHtml = `<button onclick="hubFunctions.emitirNota('${pedido.pedido_id}')" class="bg-principal text-white font-bold py-2 px-3 rounded-lg hover:bg-orange-600 transition-colors text-sm w-full"><i class="bi bi-receipt-cutoff"></i> Emitir NFC-e</button>`;
+                acoesHtml = `<button onclick="hubFunctions.emitirNota('${pedido.pedido_id}')" class="bg-principal text-white font-bold py-2 px-3 rounded-lg hover:bg-orange-600 transition-colors text-sm w-full btn-demo-disable"><i class="bi bi-receipt-cutoff"></i> Emitir NFC-e</button>`;
         }
         
         const itemElement = document.createElement('div');

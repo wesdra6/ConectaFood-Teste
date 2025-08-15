@@ -1,4 +1,3 @@
-// REESCREVA O ARQUIVO COMPLETO: js/functions/api.js
 
 export async function fetchDeN8N(url) {
     try {
@@ -11,9 +10,6 @@ export async function fetchDeN8N(url) {
         }
         
         const responseText = await response.text();
-        
-        // 👇 A BLINDAGEM MÁGICA QUE FOI ADICIONADA 👇
-        // Se a resposta for uma string vazia, a gente já retorna um array vazio.
         if (responseText.trim() === '') {
             console.warn("Resposta do fetchDeN8N estava vazia, retornando [].");
             return []; // Retorna um array vazio, que é um JSON válido e seguro.
@@ -32,7 +28,6 @@ export async function fetchDeN8N(url) {
     }
 }
 
-// 👇 A FUNÇÃO QUE FALTAVA 👇
 export async function enviarParaN8N(url, data) {
     try {
         console.log("Enviando dados JSON para N8N:", { url, data });
@@ -70,7 +65,6 @@ export async function enviarParaN8N(url, data) {
     }
 }
 
-// 👇 A OUTRA FUNÇÃO QUE FICOU PARA TRÁS 👇
 export async function enviarArquivoParaN8N(url, file) {
     const formData = new FormData();
     formData.append('file', file);

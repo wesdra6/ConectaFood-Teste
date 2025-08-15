@@ -1,4 +1,3 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/garcom.js
 
 import { enviarParaN8N, fetchDeN8N } from './api.js';
 import { abrirModalGerenciamento } from './pedidos.js';
@@ -44,7 +43,6 @@ function renderizarMesasGarcom(mesas) {
     });
 }
 
-// ➕ ALTERAÇÃO AQUI 👇 A função foi reescrita para usar delegação de eventos
 function renderizarCardapio(containerId, produtos) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -149,7 +147,6 @@ function attachModalListeners() {
         } catch (error) { Swal.fire('Ops!', 'Não foi possível lançar o pedido.', 'error'); }
     });
 
-    // ➕ O ESCUTADOR ÚNICO FICA AQUI 👇
     const containerCardapio = document.getElementById('lista-produtos-garcom');
     if (containerCardapio) {
         containerCardapio.addEventListener('click', (event) => {

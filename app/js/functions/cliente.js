@@ -1,14 +1,11 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/cliente.js
 
 import { enviarParaN8N, fetchDeN8N } from './api.js';
 import { initCarrinho } from './carrinho.js';
 import { criaCardProduto } from './components.js';
 import { generateAndDisplayQRCode } from './qrCodeHandler.js';
 
-// --- VARIÁVEIS DE ESTADO DO MÓDULO ---
 let produtosDaVitrine = [];
 
-// ➕ NOVAS FUNÇÕES MÁGICAS 👇
 const DADOS_CLIENTE_KEY = 'dadosClienteLegalConnect';
 
 function salvarDadosCliente(dados) {
@@ -26,13 +23,10 @@ function carregarDadosCliente() {
         document.getElementById('clienteQuadra').value = dados.quadra || '';
         document.getElementById('clienteLote').value = dados.lote || '';
         document.getElementById('clienteReferencia').value = dados.referencia || '';
-        // Marcar o checkbox para o cliente saber que os dados foram carregados
         document.getElementById('lembrar-dados').checked = true;
     }
 }
-// --- FIM DAS NOVAS FUNÇÕES ---
 
-// --- FUNÇÕES DE LÓGICA E AÇÃO (As ferramentas que serão globais) ---
 
 function handleAdicionarAoCarrinho(id) {
     const produto = produtosDaVitrine.find(p => p.id === id);
@@ -96,7 +90,6 @@ async function finalizarPedido() {
         return; 
     }
     
-    // ➕ AQUI A GENTE DECIDE SE SALVA OU APAGA OS DADOS 👇
     const lembrar = document.getElementById('lembrar-dados').checked;
     if (lembrar) {
         salvarDadosCliente(dadosFormulario);
@@ -131,7 +124,6 @@ async function finalizarPedido() {
     }
 }
 
-// --- FUNÇÕES DE RENDERIZAÇÃO E UTILITÁRIAS ---
 
 function gerarIdPedidoPublico() {
     const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ012243456789';
@@ -332,7 +324,6 @@ export async function initClientePage() {
         finalizarPedido(); 
     });
 
-    // ➕ A GENTE CHAMA A FUNÇÃO DE CARREGAR OS DADOS QUANDO O MODAL ABRE 👇
     const modalEndereco = document.getElementById('enderecoModal');
     if(modalEndereco) {
         modalEndereco.addEventListener('show.bs.modal', carregarDadosCliente);

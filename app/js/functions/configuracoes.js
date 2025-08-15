@@ -1,4 +1,3 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/configuracoes.js
 
 import { enviarParaN8N, fetchDeN8N, enviarArquivoParaN8N } from './api.js';
 
@@ -10,7 +9,6 @@ let iconeCategoriaUrlAtual = '';
 let bannersExistentes = [];
 let bannerImagemUrlAtual = '';
 
-// --- FUNÇÕES DE CONFIGURAÇÕES DA LOJA ---
 function preencherFormulario(config) {
     if (!config) return;
     document.getElementById('config-nome-loja').value = config.nome_loja || '';
@@ -35,7 +33,7 @@ async function fetchConfiguracoes() {
 
 async function handleLogoNotaFiscalUpload(file) {
     if (!file) return;
-    const logoAntigaUrl = logoUrlAtual; // Guarda a URL antiga
+    const logoAntigaUrl = logoUrlAtual; 
     Swal.fire({ title: 'Enviando logo de impressão...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
         const resultado = await enviarArquivoParaN8N(window.ZIPLINE_CONFIG.upload, file, 'logo_nota');
@@ -46,7 +44,6 @@ async function handleLogoNotaFiscalUpload(file) {
             await enviarParaN8N(window.N8N_CONFIG.update_loja_config, { id: 1, logo_url: novaUrl });
             Swal.fire({ icon: 'success', title: 'Sucesso!', text: 'Logo de impressão atualizada e salva!', background: '#2c2854', color: '#ffffff' });
             
-            // Tenta deletar a imagem antiga em segundo plano
             if (logoAntigaUrl) {
                 const match = logoAntigaUrl.match(/ziplineFileId=(\w+)/);
                 if (match && match[1]) {
@@ -61,7 +58,7 @@ async function handleLogoNotaFiscalUpload(file) {
 
 async function handleLogoVitrineUpload(file) {
     if (!file) return;
-    const logoAntigaUrl = logoVitrineUrlAtual; // Guarda a URL antiga
+    const logoAntigaUrl = logoVitrineUrlAtual; 
     Swal.fire({ title: 'Enviando nova logo...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
         const resultado = await enviarArquivoParaN8N(window.ZIPLINE_CONFIG.upload, file, 'logo_vitrine');
@@ -71,7 +68,6 @@ async function handleLogoVitrineUpload(file) {
             document.getElementById('logo-vitrine-preview').src = logoVitrineUrlAtual;
             await enviarParaN8N(window.N8N_CONFIG.update_loja_config, { id: 1, logo_vitrine_url: novaUrl });
             
-            // Atualiza a logo no header do painel dinamicamente
             const nomeLoja = document.getElementById('config-nome-loja').value;
             const logoDesktopContainer = document.getElementById('logo-header-desktop');
             const logoMobileContainer = document.getElementById('logo-header-mobile');
@@ -80,7 +76,6 @@ async function handleLogoVitrineUpload(file) {
 
             Swal.fire({ icon: 'success', title: 'Sucesso!', text: 'Logo do painel e vitrine atualizada e salva!', background: '#2c2854', color: '#ffffff' });
 
-            // ✅ Tenta deletar a imagem antiga em segundo plano, sem bloquear o usuário
             if (logoAntigaUrl) {
                 const match = logoAntigaUrl.match(/ziplineFileId=(\w+)/);
                 if (match && match[1]) {
@@ -115,7 +110,6 @@ async function salvarConfiguracoes(event) {
     } catch (error) { console.error("Erro ao salvar configurações:", error); Swal.fire('Ops!', `Não foi possível salvar as configurações: ${error.message}`, 'error'); }
 }
 
-// --- FUNÇÕES DE GERENCIAMENTO DE MESAS ---
 function renderMesas() {
     const container = document.getElementById('lista-mesas-existentes');
     if (!container) return;
@@ -126,7 +120,7 @@ function renderMesas() {
     }
     const mesasOrdenadas = [...mesasExistentes].sort((a, b) => a.numero_mesa - b.numero_mesa);
     mesasOrdenadas.forEach(mesa => {
-        container.innerHTML += `<div class="flex items-center justify-between bg-fundo p-3 rounded-lg"><div><span class="font-bold text-principal">Mesa ${mesa.numero_mesa}</span></div><button onclick="configFunctions.handleDeletarMesa(${mesa.id})" class="text-red-500 hover:text-red-400 p-1 rounded-full"><i class="bi bi-trash-fill text-lg"></i></button></div>`;
+        container.innerHTML += `<div class="flex items-center justify-between bg-fundo p-3 rounded-lg"><div><span class="font-bold text-principal">Mesa ${mesa.numero_mesa}</span></div><button onclick="configFunctions.handleDeletarMesa(${mesa.id})" class="text-red-500 hover:text-red-400 p-1 rounded-full btn-demo-disable"><i class="bi bi-trash-fill text-lg"></i></button></div>`;
     });
 }
 
@@ -172,7 +166,6 @@ async function handleDeletarMesa(id) {
     }
 }
 
-// --- FUNÇÕES DE GERENCIAMENTO DE CATEGORIAS ---
 function limparFormularioCategoria() {
     document.getElementById('form-nova-categoria').reset();
     document.getElementById('categoria-id').value = '';
@@ -211,8 +204,8 @@ function renderCategorias() {
                     <span class="font-bold truncate">${cat.nome}</span>
                 </div>
                 <div class="flex items-center gap-2 flex-shrink-0">
-                    <button onclick="configFunctions.handleEditarCategoria(${cat.id})" class="text-blue-400 hover:text-blue-300 p-1"><i class="bi bi-pencil-fill"></i></button>
-                    <button onclick="configFunctions.handleDeletarCategoria(${cat.id})" class="text-red-500 hover:text-red-400 p-1"><i class="bi bi-trash-fill"></i></button>
+                    <button onclick="configFunctions.handleEditarCategoria(${cat.id})" class="text-blue-400 hover:text-blue-300 p-1 btn-demo-disable"><i class="bi bi-pencil-fill"></i></button>
+                    <button onclick="configFunctions.handleDeletarCategoria(${cat.id})" class="text-red-500 hover:text-red-400 p-1 btn-demo-disable"><i class="bi bi-trash-fill"></i></button>
                 </div>
             </div>`;
     });
@@ -307,7 +300,6 @@ async function handleDeletarCategoria(id) {
     }
 }
 
-// --- FUNÇÕES DE GERENCIAMENTO DE BANNERS ---
 async function fetchBanners() {
     try {
         bannersExistentes = await fetchDeN8N(window.N8N_CONFIG.get_all_banners) || [];
@@ -330,6 +322,7 @@ function renderBanners() {
     const bannersOrdenados = [...bannersValidos].sort((a, b) => a.ordem_exibicao - b.ordem_exibicao);
     let bannersHtml = bannersOrdenados.map(banner => {
         const statusClass = banner.ativo ? 'bg-green-500' : 'bg-red-500';
+        // ➕ AQUI ESTÁ A BLINDAGEM! 👇
         return `
             <div class="flex items-center justify-between bg-fundo p-3 rounded-lg" data-id="${banner.id}">
                 <div class="flex items-center gap-3">
@@ -337,13 +330,13 @@ function renderBanners() {
                     <img src="${banner.url_imagem}" class="w-24 h-12 object-cover rounded-md">
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="configFunctions.handleToggleBannerStatus(${banner.id}, ${banner.ativo})" class="p-1">
+                    <button onclick="configFunctions.handleToggleBannerStatus(${banner.id}, ${banner.ativo})" class="p-1 btn-demo-disable">
                         <span class="w-4 h-4 rounded-full inline-block ${statusClass}"></span>
                     </button>
-                    <button onclick="configFunctions.handleEditarBanner(${banner.id})" class="text-blue-400 hover:text-blue-300 p-1">
+                    <button onclick="configFunctions.handleEditarBanner(${banner.id})" class="text-blue-400 hover:text-blue-300 p-1 btn-demo-disable">
                         <i class="bi bi-pencil-fill"></i>
                     </button>
-                    <button onclick="configFunctions.handleDeletarBanner(${banner.id})" class="text-red-500 hover:text-red-400 p-1">
+                    <button onclick="configFunctions.handleDeletarBanner(${banner.id})" class="text-red-500 hover:text-red-400 p-1 btn-demo-disable">
                         <i class="bi bi-trash-fill"></i>
                     </button>
                 </div>
