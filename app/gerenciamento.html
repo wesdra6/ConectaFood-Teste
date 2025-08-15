@@ -1,3 +1,4 @@
+<!-- REESCREVA O ARQUIVO COMPLETO: app/gerenciamento.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -36,12 +37,14 @@
 <body class="bg-fundo text-texto-base">
 <div class="flex h-screen overflow-hidden">
 
+    <!-- Header para Mobile (idêntico ao do index.html) -->
     <header class="md:hidden bg-sidebar px-4 py-2 flex justify-between items-center w-full fixed top-0 left-0 z-30">
         <div id="logo-header-mobile" class="flex items-center h-full"><span class="text-2xl font-bold text-principal">LegalConnect</span></div>
         <button id="btn-mobile-menu" class="text-3xl"><i class="bi bi-list"></i></button>
     </header>
     <div id="menu-overlay" class="fixed inset-0 bg-black/50 z-30 hidden"></div>
 
+    <!-- Sidebar (MUITO parecida com a do index.html) -->
     <aside id="admin-sidebar" class="bg-sidebar w-64 px-4 pt-3 pb-6 flex flex-col fixed top-0 left-0 h-full z-40 transform -translate-x-full md:relative md:translate-x-0 no-scrollbar">
         <div class="flex-shrink-0">
             <div class="flex justify-between items-center mb-2">
@@ -51,6 +54,7 @@
         </div>
         <nav class="flex-grow min-h-0 overflow-y-auto no-scrollbar">
             <div class="flex flex-col space-y-1">
+                <!-- Links atualizados para chamar a função loadPage -->
                 <a href="#" onclick="event.preventDefault(); loadPage('financeiro.html')" data-page="financeiro.html" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card">
                     <i class="bi bi-clipboard-data-fill text-xl"></i><span>Relatório Financeiro</span>
                 </a>
@@ -74,7 +78,9 @@
         </div>
     </aside>
 
+    <!-- O Palco Principal -->
     <main id="content-area" class="flex-1 p-4 sm:p-8 flex flex-col overflow-y-auto mt-24 md:mt-0">
+        <!-- O conteúdo das páginas será injetado aqui pelo gerenciamento.js -->
     </main>
 
 </div>
@@ -83,6 +89,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
 <script type="module" src="js/functions/authVigia.js"></script>
+<!-- Nosso novo maestro para este hub -->
 <script type="module" src="js/gerenciamento.js"></script> 
 </body>
 </html>

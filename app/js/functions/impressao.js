@@ -1,3 +1,4 @@
+// REESCREVA O ARQUIVO COMPLETO: app/js/functions/impressao.js
 
 export function gerarHtmlImpressao(pedido, lojaConfig, ehPreConta = false) {
     if (!pedido || !pedido.itens_pedido) return '';
@@ -7,6 +8,8 @@ export function gerarHtmlImpressao(pedido, lojaConfig, ehPreConta = false) {
     
     let titulo = ehPreConta ? 'PRÉ-CONTA (Conferência)' : (config.nome_loja || 'Meu Negócio');
     
+    // ➕ AQUI ESTÁ A LÓGICA NOVA 👇
+    // Criamos uma variável que só gera o HTML do garçom se o nome dele existir no pedido.
     let garcomHtml = pedido.garcom_responsavel ? `<p><strong>Garçom:</strong> ${pedido.garcom_responsavel}</p>` : '';
 
     let itensHtml = (pedido.itens_pedido || []).map(item => {
@@ -93,10 +96,11 @@ export function imprimirComprovante(html) {
     iframe.contentDocument.write(html);
     iframe.contentDocument.close();
     
+    // Adiciona um pequeno delay para garantir que a imagem da logo tenha tempo de carregar
     setTimeout(() => {
         iframe.contentWindow.focus();
         iframe.contentWindow.print();
-    }, 500); 
+    }, 500); // Meio segundo de "tolerância"
 
     setTimeout(() => {
         document.body.removeChild(iframe);

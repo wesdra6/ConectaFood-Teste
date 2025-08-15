@@ -1,16 +1,20 @@
+// REESCREVA O ARQUIVO COMPLETO: js/login.js
 
 import { supabase } from './supabaseClient.js';
 import { fetchDeN8N, enviarParaN8N } from './functions/api.js';
 
+// Função para perguntar sobre o status da loja e agir
 async function verificarEAbirLoja() {
     try {
         const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
         const lojaEstaAberta = configs[0]?.loja_aberta || false;
 
+        // Se a loja já estiver aberta, não faz nada.
         if (lojaEstaAberta) {
-            return; 
+            return; // Encerra a função silenciosamente
         }
 
+        // Se estiver fechada, pergunta se quer abrir.
         const resultado = await Swal.fire({
             title: 'Sua loja está fechada!',
             text: 'Deseja abrir a loja para receber pedidos agora?',
@@ -26,6 +30,7 @@ async function verificarEAbirLoja() {
 
         if (resultado.isConfirmed) {
             Swal.fire({ title: 'Abrindo a loja...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
+            // Adicionamos um novo endpoint para isso!
             await enviarParaN8N(window.N8N_CONFIG.update_loja_status, { loja_aberta: true });
             Swal.close();
         }
@@ -35,6 +40,7 @@ async function verificarEAbirLoja() {
     }
 }
 
+// Lógica de Login (o que já existia + a chamada da nova função)
 document.addEventListener('DOMContentLoaded', () => {
     const formLogin = document.getElementById('form-login');
     if (formLogin) {
@@ -49,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const { data, error } = await supabase.auth.signInWithPassword({ email, password });
                 if (error) throw error;
 
+                // 🚀 CHAMADA MÁGICA ANTES DE IR PRO PAINEL!
                 await verificarEAbirLoja();
                 
                 window.location.replace('index.html');
@@ -58,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Carrega a logo na tela de login
     (async () => {
         try {
             const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);

@@ -1,3 +1,4 @@
+<!-- REESCREVA O ARQUIVO COMPLETO: app/garcons-admin.html -->
 
 <main class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 pb-12">
     <h1 class="text-4xl font-bold">Torre de Controle dos Garçons 👨‍🍳</h1>
@@ -19,13 +20,14 @@
                         <input type="password" id="garcom-pin" placeholder="••••" maxlength="4" inputmode="numeric" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none" required>
                     </div>
                     <div class="pt-2 flex gap-4">
-                        <button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold btn-demo-disable">Salvar</button>
+                        <button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar</button>
                         <button type="button" id="btn-limpar-garcom-form" class="w-full py-3 px-5 rounded-lg bg-gray-500 hover:bg-gray-600 font-bold">Limpar</button>
                     </div>
                 </form>
             </div>
             <div>
                 <h3 class="text-xl font-bold mb-4">Equipe Cadastrada</h3>
+                <!-- ➕ AQUI APLICAMOS A CLASSE 👇 -->
                 <div id="lista-garcons" class="space-y-2 max-h-72 overflow-y-auto pr-2 no-scrollbar"></div>
             </div>
         </div>
@@ -48,7 +50,7 @@
             </div>
         </div>
         <div class="flex justify-end mt-6">
-            <button id="btn-salvar-atribuicoes" class="py-3 px-8 rounded-lg bg-principal hover:bg-orange-600 font-bold text-white transition-colors btn-demo-disable" disabled>Salvar Atribuições</button>
+            <button id="btn-salvar-atribuicoes" class="py-3 px-8 rounded-lg bg-principal hover:bg-orange-600 font-bold text-white transition-colors" disabled>Salvar Atribuições</button>
         </div>
     </div>
     

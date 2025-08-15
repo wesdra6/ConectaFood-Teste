@@ -1,3 +1,4 @@
+// REESCREVA O ARQUIVO COMPLETO: app/js/financeiro.js
 
 import { fetchDeN8N } from './functions/api.js';
 

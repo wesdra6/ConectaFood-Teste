@@ -108,8 +108,10 @@ export function initAcompanharPage() {
     const msgSucesso = document.getElementById('msg-sucesso');
     const resultadoBusca = document.getElementById('resultado-busca');
 
+    // 👇 ELE AGORA OLHA A PISTA CERTA! 👇
     if (localStorage.getItem('pedidoSucessoCliente') === 'true') {
         if(msgSucesso) msgSucesso.style.display = 'block';
+        // 👇 E SÓ APAGA A PISTA DELE 👇
         localStorage.removeItem('pedidoSucessoCliente');
         if (resultadoBusca) resultadoBusca.innerHTML = ''; 
     } else {

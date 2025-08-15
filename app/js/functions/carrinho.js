@@ -1,10 +1,17 @@
+// REESCREVA O ARQUIVO COMPLETO: app/js/functions/carrinho.js
 
+// ✅ A "foto" do carrinho agora começa tentando carregar do localStorage.
+// JSON.parse transforma o texto salvo de volta em um array.
+// Se não houver nada salvo (||), ele começa como um array vazio [].
 let carrinho = JSON.parse(localStorage.getItem('carrinhoLegalConnect')) || [];
 
+// ✅ NOVA FUNÇÃO: O "Fotógrafo"
+// Tira uma foto do estado atual do carrinho e salva no localStorage.
 function salvarCarrinho() {
     localStorage.setItem('carrinhoLegalConnect', JSON.stringify(carrinho));
 }
 
+// Função central que atualiza toda a interface do carrinho
 function atualizarCarrinhoUI() {
     const containerItens = document.getElementById('carrinho-itens');
     const totalEl = document.getElementById('carrinho-total');
@@ -96,7 +103,7 @@ const carrinhoFunctions = {
         } else {
             carrinho.push({ ...produto, quantidade: 1 });
         }
-        salvarCarrinho(); 
+        salvarCarrinho(); // ✅ Salva a foto
         atualizarCarrinhoUI();
     },
 
@@ -104,7 +111,7 @@ const carrinhoFunctions = {
         const produto = carrinho.filter(item => item.id !== 99999)[index];
         if (produto) {
             produto.quantidade++;
-            salvarCarrinho(); 
+            salvarCarrinho(); // ✅ Salva a foto
             atualizarCarrinhoUI();
         }
     },
@@ -117,7 +124,7 @@ const carrinhoFunctions = {
             if (produto.quantidade <= 0) {
                 carrinho = carrinho.filter(item => item.id !== produto.id);
             }
-            salvarCarrinho(); 
+            salvarCarrinho(); // ✅ Salva a foto
             atualizarCarrinhoUI();
         }
     },
@@ -127,14 +134,14 @@ const carrinhoFunctions = {
         const produtoParaRemover = produtosNoCarrinho[index];
         if (produtoParaRemover) {
             carrinho = carrinho.filter(item => item.id !== produtoParaRemover.id);
-            salvarCarrinho(); 
+            salvarCarrinho(); // ✅ Salva a foto
             atualizarCarrinhoUI();
         }
     },
 
     limpar: () => {
         carrinho = [];
-        salvarCarrinho(); 
+        salvarCarrinho(); // ✅ Salva a foto (vazia)
         atualizarCarrinhoUI();
     },
 
@@ -159,7 +166,7 @@ const carrinhoFunctions = {
         } else if (indexTaxa > -1) {
             carrinho.splice(indexTaxa, 1);
         }
-        salvarCarrinho(); 
+        salvarCarrinho(); // ✅ Salva a foto
         atualizarCarrinhoUI();
     },
     
@@ -174,5 +181,6 @@ const carrinhoFunctions = {
 
 export function initCarrinho() {
     window.carrinhoFunctions = carrinhoFunctions;
+    // Quando a página carrega, a UI é atualizada com os dados que já foram carregados do localStorage.
     atualizarCarrinhoUI(); 
 }

@@ -1,3 +1,4 @@
+<!-- REESCREVA O ARQUIVO COMPLETO: cardapio-digital.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -32,8 +33,10 @@
 </head>
 <body class="bg-fundo text-texto-base">
 
+    <!-- ➕ ALTERAÇÃO AQUI 👇 Adicionamos relative e o novo botão -->
     <header class="bg-sidebar py-4 shadow-lg text-center sticky-nav relative">
         <a id="logo-header-cardapio" href="cardapio-mesa.html" class="h-16 flex items-center justify-center w-full">
+            <!-- Logo será injetada aqui -->
         </a>
         <a href="cardapio-mesa.html" class="absolute top-1/2 -translate-y-1/2 right-4 bg-card/80 backdrop-blur-sm text-white font-semibold py-2 px-3 rounded-lg hover:bg-card transition-colors">
             <i class="bi bi-house-door-fill"></i> Início
@@ -42,6 +45,7 @@
 
     <nav id="nav-categorias" class="bg-card py-2 shadow-md sticky-nav top-24 overflow-x-auto whitespace-nowrap">
         <div class="container mx-auto px-4 flex items-center justify-center space-x-6">
+            <!-- Abas de categoria serão injetadas aqui -->
         </div>
     </nav>
     
@@ -59,6 +63,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="detalhesProdutoBodyMesa">
+                    <!-- Conteúdo dinâmico será injetado aqui -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="w-full py-3 rounded-lg bg-gray-600 hover:bg-gray-700 text-white font-bold" data-bs-dismiss="modal">Fechar</button>
