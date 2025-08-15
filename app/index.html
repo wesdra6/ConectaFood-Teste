@@ -110,7 +110,7 @@ body * { visibility: hidden; }
                 <div class="bg-principal/20 p-3 rounded-full"><i class="bi bi-journal-check text-principal text-3xl"></i></div>
                 <div><p class="text-texto-muted">Total de Pedidos Hoje</p><p id="dashboard-total-pedidos" class="text-3xl font-bold">...</p></div>
             </div>
-            <a href="financeiro.html" class="bg-card p-6 rounded-lg flex items-center space-x-4 hover:bg-card/80 transition-colors">
+            <a href="gerenciamento.html?view=financeiro" class="bg-card p-6 rounded-lg flex items-center space-x-4 hover:bg-card/80 transition-colors">
                 <div class="bg-green-500/20 p-3 rounded-full"><i class="bi bi-cash-coin text-green-400 text-3xl"></i></div>
                 <div><p class="text-texto-muted">Faturamento do Dia</p><p id="dashboard-faturamento-dia" class="text-3xl font-bold">...</p></div>
             </a>
@@ -119,38 +119,51 @@ body * { visibility: hidden; }
                 <div><p class="text-texto-muted">Ticket Médio</p><p id="dashboard-ticket-medio" class="text-3xl font-bold">...</p></div>
             </div>
         </div>
-        <div class="bg-card p-6 rounded-lg">
-            <h3 class="text-2xl font-bold mb-4 text-principal">🏆 Top 5 Produtos Mais Vendidos Hoje</h3>
-            <div id="dashboard-produtos-top" class="space-y-3"><p class="text-texto-muted animate-pulse">Calculando os campeões de venda...</p></div>
-        </div>
         <div class="mt-8">
             <h3 class="text-2xl font-bold mb-4">Atalhos Rápidos ⚡</h3>
+            <!-- 👇 SUBSTITUA O DIV ABAIXO NO SEU ARQUIVO 👇 -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <a href="gerenciamento.html?view=financeiro" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
-                    <i class="bi bi-clipboard-data-fill text-4xl text-principal mb-3"></i>
-                    <div><h4 class="text-xl font-bold">Relatório Financeiro</h4><p class="text-texto-muted text-sm mt-1">Analise vendas, fechamentos e repasses.</p></div>
+                <!-- ➕ ALTERADO 👇 Card 1 agora é Gerenciamento Geral -->
+                <a href="gerenciamento.html" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
+                    <i class="bi bi-gear-wide-connected text-4xl text-principal mb-3"></i>
+                    <div>
+                        <h4 class="text-xl font-bold">Gerenciamento Geral</h4>
+                        <p class="text-texto-muted text-sm mt-1">Finanças, equipe, notas fiscais e mais.</p>
+                    </div>
                 </a>
-                <a href="gerenciamento.html?view=garcons-admin" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
-                    <i class="bi bi-people-fill text-4xl text-principal mb-3"></i>
-                    <div><h4 class="text-xl font-bold">Gerenciar Equipe</h4><p class="text-texto-muted text-sm mt-1">Cadastre garçons e atribua mesas.</p></div>
+                <!-- ➕ ALTERADO 👇 Card 2 agora é Acesso Rápido Cardápio -->
+                <a href="cardapio-mesa.html" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
+                    <i class="bi bi-book-fill text-4xl text-principal mb-3"></i>
+                    <div>
+                        <h4 class="text-xl font-bold">Acesso Rápido Cardápio</h4>
+                        <p class="text-texto-muted text-sm mt-1">Visualize o cardápio de mesa do cliente.</p>
+                    </div>
                 </a>
+                <!-- Card 3 ficou como estava -->
                 <a href="garcom-login.html" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
                     <i class="bi bi-person-badge-fill text-4xl text-principal mb-3"></i>
-                    <div><h4 class="text-xl font-bold">Acesso Rápido Garçom</h4><p class="text-texto-muted text-sm mt-1">Link para a tela de login da equipe.</p></div>
+                    <div>
+                        <h4 class="text-xl font-bold">Acesso Rápido Garçom</h4>
+                        <p class="text-texto-muted text-sm mt-1">Link para a tela de login da equipe.</p>
+                    </div>
                 </a>
-                <a href="gerenciamento.html?view=hub-integracao" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
+                <!-- Card 4 ficou como estava -->
+                 <a href="gerenciamento.html?view=hub-integracao" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
                     <i class="bi bi-receipt-cutoff text-4xl text-principal mb-3"></i>
                     <div><h4 class="text-xl font-bold">Emitir NFC-e</h4><p class="text-texto-muted text-sm mt-1">Integração para emissão de notas fiscais.</p></div>
                 </a>
+                <!-- Card 5 ficou como estava -->
                 <a href="#" class="relative overflow-hidden bg-card p-6 rounded-lg flex flex-col items-center text-center transition-colors transform hover:-translate-y-1 group">
                     <div class="absolute top-0 left-0 w-32 h-32"><div class="absolute top-8 -left-5 w-full transform -rotate-45 bg-principal text-white text-center text-sm py-1">Em Breve</div></div>
                     <div class="opacity-40 group-hover:opacity-100 transition-opacity"><i class="bi bi-box-seam-fill text-4xl text-principal mb-3"></i><div><h4 class="text-xl font-bold">Controle de Estoque</h4><p class="text-texto-muted text-sm mt-1">Gerencie insumos e produtos.</p></div></div>
                 </a>
+                <!-- Card 6 ficou como estava -->
                 <a href="#" class="relative overflow-hidden bg-card p-6 rounded-lg flex flex-col items-center text-center transition-colors transform hover:-translate-y-1 group">
                     <div class="absolute top-0 left-0 w-32 h-32"><div class="absolute top-8 -left-5 w-full transform -rotate-45 bg-principal text-white text-center text-sm py-1">Em Breve</div></div>
                     <div class="opacity-40 group-hover:opacity-100 transition-opacity"><i class="bi bi-magic text-4xl text-principal mb-3"></i><div><h4 class="text-xl font-bold">Criador Mágico com IA</h4><p class="text-texto-muted text-sm mt-1">Deixe a IA cuidar do Marketing.</p></div></div>
                 </a>
             </div>
+            <!-- 👆 FIM DO BLOCO DE SUBSTITUIÇÃO 👆 -->
         </div>
     </div>
 
