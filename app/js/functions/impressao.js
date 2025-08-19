@@ -1,4 +1,3 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/impressao.js
 
 export function gerarHtmlImpressao(pedido, lojaConfig, ehPreConta = false) {
     if (!pedido || !pedido.itens_pedido) return '';
@@ -8,9 +7,10 @@ export function gerarHtmlImpressao(pedido, lojaConfig, ehPreConta = false) {
     
     let titulo = ehPreConta ? 'PRÉ-CONTA (Conferência)' : (config.nome_loja || 'Meu Negócio');
     
-    // ➕ AQUI ESTÁ A LÓGICA NOVA 👇
-    // Criamos uma variável que só gera o HTML do garçom se o nome dele existir no pedido.
     let garcomHtml = pedido.garcom_responsavel ? `<p><strong>Garçom:</strong> ${pedido.garcom_responsavel}</p>` : '';
+    let pagamentoHtml = (pedido.forma_pagamento && !ehPreConta) 
+        ? `<p><strong>Pagamento:</strong> ${pedido.forma_pagamento}</p>` 
+        : '';
 
     let itensHtml = (pedido.itens_pedido || []).map(item => {
         const precoItem = Number(item.preco_unitario || item.preco || 0).toFixed(2);
@@ -71,8 +71,9 @@ export function gerarHtmlImpressao(pedido, lojaConfig, ehPreConta = false) {
             <hr>
             <p><strong>Pedido:</strong> #${pedido.id_pedido_publico}</p>
             <p><strong>Cliente:</strong> ${pedido.nome_cliente}</p>
-            ${garcomHtml} <!-- E AQUI A GENTE IMPRIME A VARIÁVEL -->
+            ${garcomHtml}
             <p><strong>Data:</strong> ${dataHora}</p>
+            ${pagamentoHtml} <!-- E AQUI A GENTE IMPRIME A VARIÁVEL -->
             <hr>
             <table>
                 <thead><tr><th>Qtd</th><th>Item</th><th>Valor</th></tr></thead>

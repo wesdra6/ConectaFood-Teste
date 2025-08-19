@@ -8,7 +8,6 @@ import { generateAndDisplayQRCode } from './qrCodeHandler.js';
 // --- VARIÁVEIS DE ESTADO DO MÓDULO ---
 let produtosDaVitrine = [];
 
-// ➕ NOVAS FUNÇÕES MÁGICAS 👇
 const DADOS_CLIENTE_KEY = 'dadosClienteLegalConnect';
 
 function salvarDadosCliente(dados) {
@@ -26,7 +25,6 @@ function carregarDadosCliente() {
         document.getElementById('clienteQuadra').value = dados.quadra || '';
         document.getElementById('clienteLote').value = dados.lote || '';
         document.getElementById('clienteReferencia').value = dados.referencia || '';
-        // Marcar o checkbox para o cliente saber que os dados foram carregados
         document.getElementById('lembrar-dados').checked = true;
     }
 }
@@ -96,7 +94,6 @@ async function finalizarPedido() {
         return; 
     }
     
-    // ➕ AQUI A GENTE DECIDE SE SALVA OU APAGA OS DADOS 👇
     const lembrar = document.getElementById('lembrar-dados').checked;
     if (lembrar) {
         salvarDadosCliente(dadosFormulario);
@@ -243,16 +240,29 @@ async function fetchDadosDaVitrine() {
         ]);
         produtosDaVitrine = produtos || [];
         
+        // ➕ LÓGICA MÁGICA ACONTECE AQUI 👇
+        // 1. Criamos um "mapa" com os IDs das categorias que realmente têm produtos.
+        const idsCategoriasComProdutos = new Set(
+            produtosDaVitrine
+                .filter(p => p.ativo && p.tipo_item === 'PRODUTO' && p.categoria_id)
+                .map(p => p.categoria_id)
+        );
+
+        // 2. Filtramos a lista de categorias original, mantendo apenas as que estão no nosso mapa.
+        const categoriasComProdutos = (categorias || []).filter(cat => idsCategoriasComProdutos.has(cat.id));
+
         container.innerHTML = '';
         const fragment = document.createDocumentFragment();
 
         const bannersEl = renderizarBanners(banners || []);
         if (bannersEl) fragment.appendChild(bannersEl);
 
-        const categoriasEl = renderizarIconesCategoria(categorias || []);
+        // 3. Usamos a lista filtrada para renderizar os ícones/abas
+        const categoriasEl = renderizarIconesCategoria(categoriasComProdutos);
         if (categoriasEl) fragment.appendChild(categoriasEl);
 
-        const secoesDeProdutos = renderizarProdutosPorCategoria(produtosDaVitrine, categorias || []);
+        // 4. E também para renderizar as seções de produtos
+        const secoesDeProdutos = renderizarProdutosPorCategoria(produtosDaVitrine, categoriasComProdutos);
         secoesDeProdutos.forEach(secao => fragment.appendChild(secao));
 
         container.appendChild(fragment);
@@ -332,7 +342,6 @@ export async function initClientePage() {
         finalizarPedido(); 
     });
 
-    // ➕ A GENTE CHAMA A FUNÇÃO DE CARREGAR OS DADOS QUANDO O MODAL ABRE 👇
     const modalEndereco = document.getElementById('enderecoModal');
     if(modalEndereco) {
         modalEndereco.addEventListener('show.bs.modal', carregarDadosCliente);

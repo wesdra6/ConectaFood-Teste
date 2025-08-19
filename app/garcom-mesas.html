@@ -1,4 +1,3 @@
-<!-- REESCREVA O ARQUIVO COMPLETO: garcom-mesas.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -52,19 +51,15 @@
             <div id="grade-mesas-garcom" class="grid grid-cols-2 sm:grid-cols-3 gap-6"></div>
         </main>
     
-        <!-- Modal de Lançamento (para mesas livres) -->
         <div class="modal fade" id="modal-lancamento-garcom" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-xl modal-dialog-centered"><div class="modal-content" style="background-color: #2c2854; color: #ffffff;"><div class="modal-header border-b border-borda"><h5 class="modal-title text-2xl font-bold" id="modal-lancamento-titulo">Lançar Pedido</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div class="md:col-span-1"><h3 class="font-bold text-lg mb-2">Cardápio</h3><input type="text" id="busca-produto-garcom" placeholder="Buscar produto..." class="w-full bg-fundo p-2 rounded-lg border border-borda mb-4"><div id="lista-produtos-garcom" class="flex-grow overflow-y-auto pr-2" style="max-height: 400px;"></div></div><div class="bg-card p-4 rounded-lg flex flex-col md:col-span-1"><h3 class="font-bold text-lg mb-4">Comanda</h3><div id="comanda-itens-garcom" class="flex-grow space-y-2 min-h-[200px]"></div>
         
-        <!-- ➕ AQUI ESTÁ O NOVO CAMPO DE OBSERVAÇÕES 👇 -->
         <div class="mt-4 pt-4 border-t border-borda/50">
             <label for="garcom-observacoes" class="block mb-2 font-semibold text-texto-muted">Observações do Pedido</label>
             <textarea id="garcom-observacoes" placeholder="Ex: Sem cebola, ponto da carne, etc." class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none" rows="3"></textarea>
         </div>
-        <!-- FIM DO NOVO CAMPO -->
         
         <div class="border-t border-borda mt-4 pt-4"><div class="flex justify-between items-center text-xl"><span class="font-semibold">Total:</span><span class="font-bold text-principal" id="comanda-total-garcom">R$ 0,00</span></div></div></div></div></div><div class="modal-footer border-t border-borda"><button type="button" class="py-2 px-4 rounded-lg bg-gray-500 hover:bg-gray-600" data-bs-dismiss="modal">Cancelar</button><button type="button" id="btn-finalizar-lancamento-garcom" class="py-2 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Lançar na Cozinha</button></div></div></div></div>
 
-        <!-- Modal de Gerenciamento (para mesas ocupadas) -->
         <div class="modal fade" id="modal-gerenciamento-pedido" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-xl modal-dialog-centered">
                 <div class="modal-content" style="background-color: #2c2854; color: #ffffff;">

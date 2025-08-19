@@ -1,10 +1,9 @@
-<!-- REESCREVA O ARQUIVO COMPLETO: app/index.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel Admin - Conecta Food</title>
+<title>Painel Admin - ConnectFood</title>
 <link rel="icon" href="https://uptecnology.com.br/wp-content/uploads/2025/02/LOGO-UP.png" type="image/png">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -86,7 +85,6 @@ body * { visibility: hidden; }
 
 <main class="flex-1 p-4 sm:p-8 flex flex-col overflow-y-auto mt-24 md:mt-0">
     
-    <!-- ✅ VIEW CONTAINER DO DASHBOARD -->
     <div id="dashboard-page" class="view-container hidden">
         <div class="flex flex-wrap justify-between items-center gap-4 mb-2">
             <h2 class="text-4xl font-bold">Dashboard</h2>
@@ -121,53 +119,47 @@ body * { visibility: hidden; }
         </div>
         <div class="mt-8">
             <h3 class="text-2xl font-bold mb-4">Atalhos Rápidos ⚡</h3>
-            <!-- 👇 SUBSTITUA O DIV ABAIXO NO SEU ARQUIVO 👇 -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- ➕ ALTERADO 👇 Card 1 agora é Gerenciamento Geral -->
                 <a href="gerenciamento.html" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
                     <i class="bi bi-gear-wide-connected text-4xl text-principal mb-3"></i>
                     <div>
                         <h4 class="text-xl font-bold">Gerenciamento Geral</h4>
-                        <p class="text-texto-muted text-sm mt-1">Finanças, equipe, notas fiscais e mais.</p>
+                        <p class="text-texto-muted text-sm mt-1">Finanças, equipe, notas fiscais e mais</p>
                     </div>
                 </a>
-                <!-- ➕ ALTERADO 👇 Card 2 agora é Acesso Rápido Cardápio -->
                 <a href="cardapio-mesa.html" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
                     <i class="bi bi-book-fill text-4xl text-principal mb-3"></i>
                     <div>
                         <h4 class="text-xl font-bold">Acesso Rápido Cardápio</h4>
-                        <p class="text-texto-muted text-sm mt-1">Visualize o cardápio de mesa do cliente.</p>
+                        <p class="text-texto-muted text-sm mt-1">Visualize o cardápio de mesa do cliente</p>
                     </div>
                 </a>
-                <!-- Card 3 ficou como estava -->
                 <a href="garcom-login.html" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
                     <i class="bi bi-person-badge-fill text-4xl text-principal mb-3"></i>
                     <div>
                         <h4 class="text-xl font-bold">Acesso Rápido Garçom</h4>
-                        <p class="text-texto-muted text-sm mt-1">Link para a tela de login da equipe.</p>
+                        <p class="text-texto-muted text-sm mt-1">Link para a tela de login da equipe</p>
                     </div>
                 </a>
-                <!-- Card 4 ficou como estava -->
                  <a href="gerenciamento.html?view=hub-integracao" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
                     <i class="bi bi-receipt-cutoff text-4xl text-principal mb-3"></i>
-                    <div><h4 class="text-xl font-bold">Emitir NFC-e</h4><p class="text-texto-muted text-sm mt-1">Integração para emissão de notas fiscais.</p></div>
+                    <div><h4 class="text-xl font-bold">Emitir NFC-e</h4><p class="text-texto-muted text-sm mt-1">Integração para emissão de notas fiscais</p></div>
                 </a>
-                <!-- Card 5 ficou como estava -->
                 <a href="#" class="relative overflow-hidden bg-card p-6 rounded-lg flex flex-col items-center text-center transition-colors transform hover:-translate-y-1 group">
                     <div class="absolute top-0 left-0 w-32 h-32"><div class="absolute top-8 -left-5 w-full transform -rotate-45 bg-principal text-white text-center text-sm py-1">Em Breve</div></div>
-                    <div class="opacity-40 group-hover:opacity-100 transition-opacity"><i class="bi bi-box-seam-fill text-4xl text-principal mb-3"></i><div><h4 class="text-xl font-bold">Controle de Estoque</h4><p class="text-texto-muted text-sm mt-1">Gerencie insumos e produtos.</p></div></div>
+                    <div class="opacity-40 group-hover:opacity-100 transition-opacity"><i class="bi bi-box-seam-fill text-4xl text-principal mb-3"></i><div><h4 class="text-xl font-bold">Controle de Estoque</h4><p class="text-texto-muted text-sm mt-1">Gerencie insumos e produtos</p></div></div>
                 </a>
-                <!-- Card 6 ficou como estava -->
-                <a href="#" class="relative overflow-hidden bg-card p-6 rounded-lg flex flex-col items-center text-center transition-colors transform hover:-translate-y-1 group">
-                    <div class="absolute top-0 left-0 w-32 h-32"><div class="absolute top-8 -left-5 w-full transform -rotate-45 bg-principal text-white text-center text-sm py-1">Em Breve</div></div>
-                    <div class="opacity-40 group-hover:opacity-100 transition-opacity"><i class="bi bi-magic text-4xl text-principal mb-3"></i><div><h4 class="text-xl font-bold">Criador Mágico com IA</h4><p class="text-texto-muted text-sm mt-1">Deixe a IA cuidar do Marketing.</p></div></div>
-                </a>
+                <a href="agente-ia.html" target="_blank" rel="noopener noreferrer" class="bg-card p-6 rounded-lg flex flex-col items-center text-center hover:bg-card/80 transition-colors transform hover:-translate-y-1">
+            <i class="bi bi-magic text-4xl text-principal mb-3"></i>
+            <div>
+                <h4 class="text-xl font-bold">Criador Mágico com IA</h4>
+                <p class="text-texto-muted text-sm mt-1">Suporte & Marketing</p>
             </div>
-            <!-- 👆 FIM DO BLOCO DE SUBSTITUIÇÃO 👆 -->
-        </div>
+        </a>
+    </div>
+</div>
     </div>
 
-    <!-- ✅ VIEW CONTAINER DE MEUS PRODUTOS -->
     <div id="meus-produtos-page" class="view-container hidden flex-col h-full">
         <h2 class="text-4xl font-bold mb-4">Meus Produtos</h2>
         <div class="mb-8 border-b border-borda">
@@ -177,7 +169,6 @@ body * { visibility: hidden; }
         <div id="paginacao-container-admin" class="flex justify-center items-center space-x-2 mt-8"></div>
     </div>
 
-    <!-- ✅ VIEW CONTAINER DE PEDIDOS -->
     <div id="pedidos-page" class="view-container hidden flex-col h-full">
         <h2 class="text-4xl font-bold mb-4">Pedidos Recebidos</h2>
         <div class="mb-4 border-b border-borda overflow-x-auto">
@@ -214,7 +205,6 @@ body * { visibility: hidden; }
         </div>
     </div>
     
-    <!-- ✅ VIEW CONTAINER DO CAIXA -->
     <div id="caixa-page" class="view-container hidden">
         <header class="flex justify-between items-center mb-8">
             <div>
@@ -233,7 +223,6 @@ body * { visibility: hidden; }
         <div id="grade-mesas" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6"></div>
     </div>
 
-    <!-- ✅ VIEW CONTAINER DE CONFIGURAÇÕES -->
     <div id="configuracoes-page" class="view-container hidden">
         <h2 class="text-4xl font-bold mb-2">Configurações Gerais</h2>
         <p class="text-texto-muted mb-8">Personalize as informações e aparência da sua loja.</p>
