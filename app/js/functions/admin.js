@@ -1,5 +1,3 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/admin.js
-
 import { enviarParaN8N, fetchDeN8N, enviarArquivoParaN8N } from './api.js';
 import { criaCardProduto } from './components.js';
 
@@ -12,6 +10,10 @@ const itensPorPagina = 8;
 const desktopMediaQuery = window.matchMedia('(min-width: 768px)');
 let uploadedImageUrls = [];
 let modalProduto = null;
+
+// ===================================================================
+// FUNÇÕES DO DASHBOARD
+// ===================================================================
 
 function renderizarToggleLoja(status) {
     const toggle = document.getElementById('toggle-loja-aberta');
@@ -72,50 +74,220 @@ async function verificarStatusLoja() {
     }
 }
 
-function renderizarDashboard(stats) {
+function renderizarDashboardStats(stats) {
     const totalPedidosEl = document.getElementById('dashboard-total-pedidos');
     const faturamentoDiaEl = document.getElementById('dashboard-faturamento-dia');
     const ticketMedioEl = document.getElementById('dashboard-ticket-medio');
-    const containerTopProdutos = document.getElementById('dashboard-produtos-top');
+
     if (totalPedidosEl) totalPedidosEl.textContent = stats.totalPedidos;
-    if (faturamentoDiaEl) faturamentoDiaEl.textContent = `R$ ${stats.faturamento.toFixed(2)}`;
-    if (ticketMedioEl) ticketMedioEl.textContent = `R$ ${stats.ticketMedio.toFixed(2)}`;
-    if (containerTopProdutos) {
-        containerTopProdutos.innerHTML = '';
-        if (stats.topProdutos && stats.topProdutos.length > 0) {
-            stats.topProdutos.forEach((produto, index) => {
-                containerTopProdutos.innerHTML += `<div class="flex items-center justify-between text-texto-muted"><span class="font-semibold">${index + 1}. ${produto.nome}</span><span class="font-bold text-principal">${produto.quantidade} vendidos</span></div>`;
-            });
-        } else {
-            containerTopProdutos.innerHTML = '<p class="text-texto-muted">Ainda não há vendas de produtos hoje para gerar um ranking.</p>';
-        }
+    if (faturamentoDiaEl) faturamentoDiaEl.textContent = `R$ ${stats.faturamento.toFixed(2).replace('.', ',')}`;
+    if (ticketMedioEl) ticketMedioEl.textContent = `R$ ${stats.ticketMedio.toFixed(2).replace('.', ',')}`;
+}
+
+function renderMapaDeMesas(mesas, pedidos) {
+    const container = document.getElementById('dashboard-mapa-mesas');
+    if (!container) return;
+
+    container.innerHTML = '';
+    if (!mesas || mesas.length === 0) {
+        container.innerHTML = '<p class="col-span-full text-center text-texto-muted">Nenhuma mesa cadastrada.</p>';
+        return;
+    }
+
+    mesas.sort((a, b) => a.numero_mesa - b.numero_mesa).forEach(mesa => {
+        const isOcupada = mesa.status === 'OCUPADA';
+        const pedidoDaMesa = isOcupada ? pedidos.find(p => p.id_mesa === mesa.id) : null;
+        
+        const corBorda = isOcupada ? 'border-red-500' : 'border-green-500';
+        const corPonto = isOcupada ? 'bg-red-500' : 'bg-green-500';
+        const textoTitle = isOcupada ? `OCUPADA\nCliente: ${pedidoDaMesa?.nome_cliente}\nTotal: R$ ${pedidoDaMesa?.total.toFixed(2)}` : 'LIVRE';
+
+        const cardMesa = document.createElement('div');
+        cardMesa.className = `mesa-card flex flex-col justify-between bg-fundo p-3 rounded-lg text-center cursor-pointer border-2 ${corBorda}`;
+        cardMesa.title = textoTitle;
+        
+        cardMesa.innerHTML = `
+            <div class="text-3xl md:text-4xl font-bold">${mesa.numero_mesa}</div>
+            <div class="flex justify-center items-center mt-2">
+                <span class="w-4 h-4 rounded-full ${corPonto}"></span>
+            </div>
+        `;
+        cardMesa.onclick = () => window.location.href = '?view=caixa';
+        container.appendChild(cardMesa);
+    });
+}
+
+function renderFeedDePedidos(pedidos) {
+    const container = document.getElementById('dashboard-feed-pedidos');
+    if (!container) return;
+    
+    const pedidosExternos = pedidos.filter(p => p.origem === 'DELIVERY' || p.origem === 'WHATSAPP' || p.origem === 'BALCAO');
+    
+    container.innerHTML = '';
+    if (pedidosExternos.length === 0) {
+        container.innerHTML = '<p class="text-center text-texto-muted py-4">Nenhum pedido externo ativo no momento. ✨</p>';
+        return;
+    }
+
+    pedidosExternos.slice(0, 5).forEach(pedido => {
+        const corOrigem = window.APP_CONFIG.origemCores[pedido.origem] || 'bg-gray-500';
+        const hora = new Date(pedido.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        
+        const itemHtml = document.createElement('a');
+        itemHtml.href = `?view=pedidos`;
+        itemHtml.className = 'block bg-fundo p-3 rounded-lg hover:bg-sidebar transition-colors';
+        itemHtml.innerHTML = `
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="px-2 py-1 text-xs font-bold rounded-full text-white ${corOrigem}">${pedido.origem}</span>
+                    <p class="font-bold mt-1 truncate">${pedido.nome_cliente}</p>
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <p class="font-bold text-principal text-lg">R$ ${pedido.total.toFixed(2)}</p>
+                    <p class="text-sm text-texto-muted">${hora}</p>
+                </div>
+            </div>
+        `;
+        container.appendChild(itemHtml);
+    });
+}
+
+function initDashboardSliders() {
+    const swiperAtalhos = document.querySelector('.swiper-atalhos');
+    if (swiperAtalhos && !swiperAtalhos.swiper) {
+        new Swiper(swiperAtalhos, {
+            slidesPerView: 'auto',
+            spaceBetween: 16,
+            freeMode: true,
+        });
     }
 }
 
 async function initDashboard() {
     try {
-        const pedidosDeHoje = await fetchDeN8N(window.N8N_CONFIG.get_dashboard_stats);
-        if (!Array.isArray(pedidosDeHoje)) { throw new Error("Dados do dashboard não são um array."); }
+        const [statsData, mesas, pedidosAtivos] = await Promise.all([
+            fetchDeN8N(window.N8N_CONFIG.get_dashboard_stats),
+            fetchDeN8N(window.N8N_CONFIG.get_all_tables),
+            fetchDeN8N(window.N8N_CONFIG.get_all_orders)
+        ]);
+
+        if (!Array.isArray(statsData)) { throw new Error("Dados de estatísticas inválidos."); }
         
-        const faturamento = pedidosDeHoje.reduce((acc, p) => acc + Number(p.total || 0), 0);
-        const totalPedidos = pedidosDeHoje.length;
+        const faturamento = statsData.reduce((acc, p) => acc + Number(p.total || 0), 0);
+        const totalPedidos = statsData.length;
         const ticketMedio = totalPedidos > 0 ? faturamento / totalPedidos : 0;
-        const contagemProdutos = {};
-        pedidosDeHoje.forEach(pedido => {
-            if (pedido.itens_pedido && Array.isArray(pedido.itens_pedido)) {
-                pedido.itens_pedido.forEach(item => {
-                    if (item && item.item && item.tipo_item === 'PRODUTO') { 
-                        contagemProdutos[item.item] = (contagemProdutos[item.item] || 0) + (item.quantidade || 0); 
-                    } 
-                });
-            }
-        });
-        const topProdutos = Object.entries(contagemProdutos).map(([nome, quantidade]) => ({ nome, quantidade })).sort((a, b) => b.quantidade - a.quantidade).slice(0, 5);
-        renderizarDashboard({ totalPedidos, faturamento, ticketMedio, topProdutos });
+        
+        renderizarDashboardStats({ totalPedidos, faturamento, ticketMedio });
+        renderMapaDeMesas(mesas, pedidosAtivos);
+        renderFeedDePedidos(pedidosAtivos);
+        initDashboardSliders();
+
     } catch (error) {
-        console.error("Erro ao montar o dashboard:", error);
+        console.error("Erro ao montar o dashboard operacional:", error);
         const dashboardPage = document.getElementById('dashboard-page');
         if(dashboardPage) { dashboardPage.innerHTML = '<p class="text-red-400">Não foi possível carregar os dados do dashboard. Verifique o console.</p>'; }
+    }
+}
+
+
+// ===================================================================
+// FUNÇÕES DE PRODUTOS E IA DE MARKETING
+// ===================================================================
+
+// SUBSTITUA A SUA FUNÇÃO ANTIGA POR ESTA COMPLETA 👇
+async function chamarAgenteDeMarketing(tipo, contexto = {}) {
+    // ➕ A principal mudança é aqui: agora ele pega os dados do 'contexto' se eles existirem.
+    const nomeProduto = contexto.nome || document.getElementById('produtoNome').value;
+    const ingredientes = contexto.ingredientes || document.getElementById('produtoIngredientes').value;
+
+    if ( (tipo === 'descricao' || tipo === 'post_social') && !nomeProduto) {
+        Swal.fire({ icon: 'warning', title: 'Opa!', text: 'Digite ou selecione um produto antes de usar a IA.', background: '#2c2854', color: '#ffffff' });
+        return;
+    }
+    
+    let prompt;
+    let tituloSwal;
+    
+    if (tipo === 'nome') {
+        prompt = `Gere 3 opções de nomes criativos e comerciais para um produto que atualmente se chama "${nomeProduto || 'nosso novo lanche'}". Os nomes devem ser curtos, marcantes e despertar curiosidade. Formate a resposta apenas com os nomes, um por linha.`;
+        tituloSwal = 'Sugerindo nomes... 🪄';
+    } else if (tipo === 'descricao') {
+        prompt = `Crie 3 variações de descrição de produto, vendedoras e irresistíveis, para o cardápio. Use técnicas de storytelling e copywriting. O produto é: "${nomeProduto}". Os ingredientes são: "${ingredientes || 'não informados'}". Cada descrição deve ter no máximo 250 caracteres e um estilo um pouco diferente. Separe cada descrição com '---'.`;
+        tituloSwal = 'Criando descrições mágicas... 🪄';
+    } else if (tipo === 'post_social') { // ➕ A NOVA TAREFA
+        prompt = `Crie uma legenda de post para rede social (Instagram/Facebook) para divulgar o produto "${nomeProduto}". Use um tom animado, emojis e um Call to Action claro para incentivar o pedido. Inclua hashtags relevantes.`;
+        tituloSwal = 'Gerando post... 📣';
+    } else {
+        return; // Se o tipo for desconhecido, não faz nada.
+    }
+
+    Swal.fire({
+        title: tituloSwal,
+        text: 'Aguarde enquanto a criatividade flui...',
+        allowOutsideClick: false,
+        background: '#2c2854', color: '#ffffff',
+        didOpen: () => { Swal.showLoading() }
+    });
+
+    try {
+        const WEBHOOK_URL_MARKETING = "https://n8n-webhook.uptecnology.com.br/webhook/agente/suporte"; 
+        
+        const user = "admin";
+        const pass = "aK7$!zPq@8#R&bE*vY$L";
+        const basicAuth = 'Basic ' + btoa(user + ":" + pass);
+
+        const response = await fetch(WEBHOOK_URL_MARKETING, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': basicAuth
+            },
+            body: JSON.stringify({ pergunta: prompt })
+        });
+
+        if (!response.ok) throw new Error(`A resposta da IA não foi OK. Status: ${response.status}`);
+
+        const data = await response.json();
+        const textoGerado = data[0].output;
+        
+        const sugestoes = textoGerado.split(/---|\n/).filter(s => s.trim() !== '');
+        let htmlParaSwal = '<div class="space-y-4 text-left">';
+
+        sugestoes.forEach((sugestao, index) => {
+            const textoLimpo = sugestao.trim().replace(/\n/g, '<br>');
+            htmlParaSwal += `
+                <div class="bg-fundo p-3 rounded-lg flex justify-between items-start gap-3">
+                    <p id="sugestao-ia-${index}" class="flex-grow text-texto-base">${textoLimpo}</p>
+                    <button onclick="copiarSugestao('sugestao-ia-${index}', this)" class="bg-principal text-white font-bold py-1 px-3 rounded-md text-sm flex-shrink-0 hover:bg-orange-600">Copiar</button>
+                </div>
+            `;
+        });
+        htmlParaSwal += '</div>';
+        
+        window.copiarSugestao = (elementId, button) => {
+            const textoParaCopiar = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(textoParaCopiar).then(() => {
+                button.textContent = 'Copiado!';
+                button.classList.add('bg-green-500');
+                setTimeout(() => {
+                    button.textContent = 'Copiar';
+                    button.classList.remove('bg-green-500');
+                }, 1500);
+            });
+        };
+
+        Swal.fire({
+            title: 'Aqui estão as sugestões!',
+            html: htmlParaSwal,
+            confirmButtonText: 'Fechar',
+            background: '#2c2854', 
+            color: '#ffffff',
+            width: '600px'
+        });
+
+    } catch (error) {
+        console.error('Erro ao chamar Agente de Marketing:', error);
+        Swal.fire({ icon: 'error', title: 'Ops! IA offline', text: 'Não foi possível contatar o assistente de marketing.', background: '#2c2854', color: '#ffffff' });
     }
 }
 
@@ -384,6 +556,20 @@ async function handleFormSubmit(e) {
 
 let isInitialized = false;
 
+// ADICIONE ESTA NOVA FUNÇÃO 👇
+function criarPostParaRedeSocial(produtoId) {
+    const produto = produtosLocais.find(p => p.id === produtoId);
+    if (!produto) {
+        Swal.fire('Ops!', 'Produto não encontrado para criar o post.', 'error');
+        return;
+    }
+    // A mágica: chama a função que já existe, mas com o tipo e contexto corretos
+    chamarAgenteDeMarketing('post_social', { 
+        nome: produto.nome, 
+        ingredientes: (produto.ingredientes || []).join(', ') 
+    });
+}
+
 export function initAdminPage(params) {
     const { view } = params;
 
@@ -412,6 +598,10 @@ export function initAdminPage(params) {
             console.log("Admin ouviu: 'categoriasAtualizadas'. Recarregando o select.");
             fetchCategoriasParaAdmin();
         });
+
+        // ➕ Adicionando os "escutadores" para os botões de IA
+        document.getElementById('btn-ia-nome')?.addEventListener('click', () => chamarAgenteDeMarketing('nome'));
+        document.getElementById('btn-ia-descricao')?.addEventListener('click', () => chamarAgenteDeMarketing('descricao'));
         
         fetchCategoriasParaAdmin();
         isInitialized = true;
@@ -424,5 +614,5 @@ export function initAdminPage(params) {
         fetchProdutosAdmin();
     }
     
-    window.adminFunctions = { editarProduto, removerImagem, abrirModalParaCriar, toggleProdutoStatus };
+    window.adminFunctions = { editarProduto, removerImagem, abrirModalParaCriar, toggleProdutoStatus, criarPostParaRedeSocial };
 }
