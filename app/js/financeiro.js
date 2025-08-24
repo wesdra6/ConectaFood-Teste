@@ -1,12 +1,13 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/financeiro.js
-
-import { fetchDeN8N } from './functions/api.js';
+import { fetchDeAPI } from './functions/api.js';
+import { API_ENDPOINTS } from './config.js';
 
 let todosOsPedidosDoPeriodo = [];
 let pedidosFiltrados = [];
 let graficoLinha = null;
 let graficoPizza = null;
 let lojaConfig = null;
+let paginaAtual = 1;
+const ITENS_POR_PAGINA = 10;
 
 const formatarMoeda = (valor) => (valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -27,7 +28,7 @@ function obterPeriodo(periodo) {
 async function carregarConfigDaLoja() {
     if (lojaConfig) return;
     try {
-        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
+        const configs = await fetchDeAPI(API_ENDPOINTS.get_loja_config);
         if (configs && configs.length > 0) {
             lojaConfig = configs[0];
             const { nome_loja, logo_vitrine_url } = lojaConfig;
@@ -46,8 +47,8 @@ async function buscarDadosFinanceiros(dataInicio, dataFim) {
     document.getElementById('kpi-container').innerHTML = `<div class="bg-card p-6 rounded-lg text-center animate-pulse col-span-full"><p>Carregando dados...</p></div>`;
     document.getElementById('tabela-pedidos-corpo').innerHTML = `<tr><td colspan="5" class="text-center p-8 text-texto-muted animate-pulse">Buscando dados no servidor... 🚀</td></tr>`;
     try {
-        const url = `${window.N8N_CONFIG.get_financial_report}?inicio=${dataInicio}&fim=${dataFim}`;
-        const resposta = await fetchDeN8N(url);
+        const url = `${API_ENDPOINTS.get_financial_report}?inicio=${dataInicio}&fim=${dataFim}`;
+        const resposta = await fetchDeAPI(url);
         todosOsPedidosDoPeriodo = Array.isArray(resposta) ? resposta : [];
         aplicarFiltrosLocais();
     } catch (error) {
@@ -57,15 +58,18 @@ async function buscarDadosFinanceiros(dataInicio, dataFim) {
 }
 
 function aplicarFiltrosLocais() {
+    paginaAtual = 1; // ✅ Reseta para a primeira página sempre que um filtro é aplicado
     const origem = document.getElementById('filtro-origem').value;
     const pagamento = document.getElementById('filtro-pagamento').value;
     const termoBusca = document.getElementById('busca-tabela').value.toLowerCase();
     pedidosFiltrados = todosOsPedidosDoPeriodo.filter(p => (origem === 'todos' || p.origem === origem) && (pagamento === 'todos' || p.forma_pagamento === pagamento) && (termoBusca === '' || (p.id_pedido_publico?.toLowerCase().includes(termoBusca)) || (p.nome_cliente?.toLowerCase().includes(termoBusca))));
+    
     renderizarKPIs();
-    renderizarTabela();
+    renderizarTabela(); // Já renderiza a primeira página
     renderizarGraficoLinha();
     renderizarGraficoPizza();
     renderizarFechamentoCaixa(pedidosFiltrados);
+    renderizarPaginacaoFinanceiro(); // ✅ Chama a nova função de paginação
 }
 
 function gerarHtmlImpressaoFechamento(dados, datas) {
@@ -124,11 +128,11 @@ function renderizarFechamentoCaixa(pedidos) {
         </h2>
         <p class="text-texto-muted mb-8">Resumo consolidado para o período selecionado.</p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="bg-card p-6 rounded-lg"><h3 class="text-xl font-bold mb-4"><i class="bi bi-signpost-split-fill mr-2"></i>Totais por Origem</h3>${origemHtml || '<p class="text-texto-muted">N/A</p>'}</div>
-            <div class="bg-card p-6 rounded-lg"><h3 class="text-xl font-bold mb-4"><i class="bi bi-wallet-fill mr-2"></i>Repasses e Comissões</h3><div class="flex justify-between py-2 border-b border-borda/50"><span class="font-medium">Couvert Artístico</span><span class="font-bold text-principal">${formatarMoeda(totalCouvert)}</span></div>${Object.keys(totaisPorGarcom).length > 0 ? `<h4 class="font-semibold mt-4 text-principal">Garçons (10%)</h4><table class="w-full"><tbody>${garcomHtml}</tbody></table>` : ''}</div>
+            <div class="bg-card p-6 rounded-lg"><h3 class="text-xl font-bold mb-4 text-principal"><i class="bi bi-signpost-split-fill mr-2"></i>Totais por Origem</h3>${origemHtml || '<p class="text-texto-muted">N/A</p>'}</div>
+            <div class="bg-card p-6 rounded-lg"><h3 class="text-xl font-bold mb-4 text-principal"><i class="bi bi-wallet-fill mr-2"></i>Repasses e Comissões</h3><div class="flex justify-between py-2 border-b border-borda/50"><span class="font-medium">Couvert Artístico</span><span class="font-bold text-principal">${formatarMoeda(totalCouvert)}</span></div>${Object.keys(totaisPorGarcom).length > 0 ? `<h4 class="font-semibold mt-4 text-principal">Garçons (10%)</h4><table class="w-full"><tbody>${garcomHtml}</tbody></table>` : ''}</div>
         </div>
         <div class="bg-card p-6 rounded-lg mt-8 ${Object.keys(acertoEntregadores).length === 0 ? 'hidden' : ''}">
-             <h3 class="text-xl font-bold mb-4"><i class="bi bi-bicycle mr-2"></i>Acerto de Entregadores</h3>
+             <h3 class="text-xl font-bold mb-4 text-principal"><i class="bi bi-bicycle mr-2 text-principal"></i>Acerto de Entregadores</h3>
              <div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="border-b border-borda"><th class="p-3">ID Entregador</th><th class="p-3 text-center">Nº Entregas</th><th class="p-3 text-right">Total a Pagar</th></tr></thead><tbody>${entregadorHtml}</tbody></table></div>
         </div>
     `;
@@ -149,11 +153,55 @@ function renderizarFechamentoCaixa(pedidos) {
 function renderizarGraficoPizza() {
     const ctx = document.getElementById('grafico-origem-pizza');
     if (!ctx) return;
-    const vendasPorOrigem = pedidosFiltrados.reduce((acc, pedido) => { acc[pedido.origem] = (acc[pedido.origem] || 0) + 1; return acc; }, {});
+
+    const vendasPorOrigem = pedidosFiltrados.reduce((acc, pedido) => { 
+        const origem = pedido.origem || 'OUTROS';
+        acc[origem] = (acc[origem] || 0) + 1; 
+        return acc; 
+    }, {});
+    
     const labels = Object.keys(vendasPorOrigem);
     const data = Object.values(vendasPorOrigem);
-    if (graficoPizza) { graficoPizza.destroy(); }
-    graficoPizza = new Chart(ctx, { type: 'doughnut', data: { labels: labels, datasets: [{ label: 'Pedidos por Origem', data: data, backgroundColor: ['#ff6b35', '#4caf50', '#9c27b0', '#2196f3', '#ffc107'], borderColor: '#38326b', borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { color: '#a3a0c2' } } } } });
+
+    const coresHex = {
+        'DELIVERY': '#3b82f6', // blue-500
+        'WHATSAPP': '#22c55e', // green-500
+        'IFOOD': '#ef4444',    // red-500
+        'MESA': '#a855f7',     // purple-500
+        'BALCAO': '#eab308'    // yellow-500
+    };
+    
+    const backgroundColors = labels.map(label => coresHex[label] || '#6b7280'); 
+
+    if (graficoPizza) { 
+        graficoPizza.destroy(); 
+    }
+
+    graficoPizza = new Chart(ctx, { 
+        type: 'doughnut', 
+        data: { 
+            labels: labels, 
+            datasets: [{ 
+                label: 'Pedidos por Origem', 
+                data: data, 
+                backgroundColor: backgroundColors,
+                borderColor: '#38326b', 
+                borderWidth: 2 
+            }] 
+        }, 
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { 
+                legend: { 
+                    position: 'top', 
+                    labels: { 
+                        color: '#a3a0c2' 
+                    } 
+                } 
+            } 
+        } 
+    });
 }
 
 function renderizarGraficoLinha() {
@@ -181,16 +229,50 @@ function renderizarKPIs() {
         <div class="bg-card p-6 rounded-lg"><p class="text-texto-muted font-semibold mb-2">Vendas por Pagamento</p><div class="space-y-1">${pagamentosHtml || '<p class="text-texto-muted text-sm">N/A</p>'}</div></div>`;
 }
 
+// ✅ FUNÇÃO renderizarTabela MODIFICADA
 function renderizarTabela() {
     const corpoTabela = document.getElementById('tabela-pedidos-corpo');
     if (!corpoTabela) return;
+    
     corpoTabela.innerHTML = '';
-    if (pedidosFiltrados.length === 0) { corpoTabela.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-texto-muted">Nenhum pedido encontrado.</td></tr>`; return; }
-    pedidosFiltrados.forEach(pedido => {
+    
+    if (pedidosFiltrados.length === 0) { 
+        corpoTabela.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-texto-muted">Nenhum pedido encontrado.</td></tr>`; 
+        return; 
+    }
+
+    const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+    const fim = inicio + ITENS_POR_PAGINA;
+    const pedidosPaginados = pedidosFiltrados.slice(inicio, fim);
+
+    pedidosPaginados.forEach(pedido => {
         const dataHora = new Date(pedido.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
         const corOrigem = { 'DELIVERY': 'bg-blue-500/20 text-blue-300', 'WHATSAPP': 'bg-green-500/20 text-green-300', 'MESA': 'bg-purple-500/20 text-purple-300', 'BALCAO': 'bg-yellow-500/20 text-yellow-300' }[pedido.origem] || 'bg-gray-500/20 text-gray-300';
         corpoTabela.innerHTML += `<tr class="hover:bg-sidebar/50"><td class="p-3 font-mono">#${pedido.id_pedido_publico}</td><td class="p-3">${dataHora}</td><td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${corOrigem}">${pedido.origem}</span></td><td class="p-3">${pedido.forma_pagamento || 'N/A'}</td><td class="p-3 text-right font-bold text-principal">${formatarMoeda(pedido.total)}</td></tr>`;
     });
+}
+
+// ✅ NOVA FUNÇÃO DE PAGINAÇÃO
+function renderizarPaginacaoFinanceiro() {
+    const pagContainer = document.getElementById('paginacao-financeiro-container');
+    if (!pagContainer) return;
+
+    pagContainer.innerHTML = '';
+    const totalPaginas = Math.ceil(pedidosFiltrados.length / ITENS_POR_PAGINA);
+
+    if (totalPaginas <= 1) return;
+
+    for (let i = 1; i <= totalPaginas; i++) {
+        const btn = document.createElement('button');
+        btn.className = `px-4 py-2 rounded-md font-bold ${i === paginaAtual ? 'bg-principal text-white' : 'bg-card hover:bg-sidebar'}`;
+        btn.innerText = i;
+        btn.onclick = () => {
+            paginaAtual = i;
+            renderizarTabela(); // Apenas renderiza a tabela de novo
+            renderizarPaginacaoFinanceiro(); // Re-renderiza a paginação para atualizar o botão ativo
+        };
+        pagContainer.appendChild(btn);
+    }
 }
 
 export async function initFinanceiroPage() {

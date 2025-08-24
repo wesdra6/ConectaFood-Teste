@@ -1,11 +1,11 @@
 // REESCREVA O ARQUIVO COMPLETO: app/js/functions/cliente.js
 
-import { enviarParaN8N, fetchDeN8N } from './api.js';
+import { enviarParaAPI, fetchDeAPI } from './api.js';
 import { initCarrinho } from './carrinho.js';
 import { criaCardProduto } from './components.js';
 import { generateAndDisplayQRCode } from './qrCodeHandler.js';
+import { API_ENDPOINTS } from '../config.js';
 
-// --- VARIÁVEIS DE ESTADO DO MÓDULO ---
 let produtosDaVitrine = [];
 
 const DADOS_CLIENTE_KEY = 'dadosClienteLegalConnect';
@@ -112,7 +112,7 @@ async function finalizarPedido() {
     };
 
     try {
-        const resultado = await enviarParaN8N(window.N8N_CONFIG.create_order_app, pedido);
+        const resultado = await enviarParaAPI(API_ENDPOINTS.create_order_app, pedido);
         if (resultado.success) {
             localStorage.setItem('pedidoSucessoCliente', 'true');
             localStorage.setItem('novoPedidoAdmin', 'external'); 
@@ -234,9 +234,9 @@ async function fetchDadosDaVitrine() {
     
     try {
         const [categorias, banners, produtos] = await Promise.all([
-            fetchDeN8N(window.N8N_CONFIG.get_all_categories),
-            fetchDeN8N(window.N8N_CONFIG.get_all_banners),
-            fetchDeN8N(window.N8N_CONFIG.get_all_products)
+            fetchDeAPI(API_ENDPOINTS.get_all_categories),
+            fetchDeAPI(API_ENDPOINTS.get_all_banners),
+            fetchDeAPI(API_ENDPOINTS.get_all_products)
         ]);
         produtosDaVitrine = produtos || [];
         
@@ -283,7 +283,7 @@ async function carregarConfiguracoesDaLoja() {
     const badge = document.getElementById('status-loja-badge');
 
     try {
-        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
+        const configs = await fetchDeAPI(API_ENDPOINTS.get_loja_config);
         if (configs && configs.length > 0) {
             const { nome_loja, logo_vitrine_url, taxa_entrega_fixa, loja_aberta } = configs[0];
             const logoContainer = document.getElementById('logo-vitrine-container');

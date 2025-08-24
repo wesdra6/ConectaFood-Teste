@@ -1,115 +1,88 @@
-// REESCREVA O ARQUIVO COMPLETO: js/config.js
 
-// ===================================================================
-// CONFIGURAÇÕES DO N8N
-// ===================================================================
+const API_BASE_URL = window.ENVIRONMENT_CONFIG?.API_BASE_URL;
 
-// Detecta se estamos em ambiente de desenvolvimento (Live Server)
-const IS_DEV = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
 
-// Define a URL base dinamicamente: se for DEV, usa a URL completa. Se for produção, usa o proxy.
-const N8N_BASE_URL = IS_DEV 
-    ? 'https://n8n-webhook.uptecnology.com.br/webhook/' 
-    : '/api/'; 
-
-const N8N_ENDPOINTS = {
-    // --- FINANCEIRO ---
-    get_financial_report: N8N_BASE_URL + 'financeiro/relatorio',
-
-    // --- DASHBOARD ---
-    get_dashboard_stats: N8N_BASE_URL + 'dashboard/stats',
-
-    // --- PRODUTOS ---
-    get_all_products:      N8N_BASE_URL + 'produtos/listar', 
-    create_product:        N8N_BASE_URL + 'produto/criar',
-    update_product:        N8N_BASE_URL + 'produto/atualizar',
-    toggle_product_status: N8N_BASE_URL + 'produto/alternar-status',
-
-    // --- CATEGORIAS ---
-    get_all_categories:    N8N_BASE_URL + 'categorias/listar',
-    create_category:       N8N_BASE_URL + 'categoria/criar',
-    update_category:       N8N_BASE_URL + 'categoria/atualizar',
-    delete_category:       N8N_BASE_URL + 'categoria/deletar',
-    reorder_categories:    N8N_BASE_URL + 'categorias/reordenar',
-
-    // --- BANNERS ---
-    get_all_banners:       N8N_BASE_URL + 'banners/listar',
-    create_banner:         N8N_BASE_URL + 'banner/criar',
-    update_banner:         N8N_BASE_URL + 'banner/atualizar',
-    reorder_banners:       N8N_BASE_URL + 'banners/reordenar',
-    delete_banner:         N8N_BASE_URL + 'banner/deletar',
-    toggle_banner_status:  N8N_BASE_URL + 'banner/alternar-status',
-    delete_banner_on_clear: N8N_BASE_URL + 'banner/deletar-limpar',
-
-    // --- PEDIDOS ---
-    create_order_app:      N8N_BASE_URL + 'pedido/criar-app',
-    create_order_internal: N8N_BASE_URL + 'pedido/lancar-interno', 
-    update_order_status:   N8N_BASE_URL + 'pedido/atualizar-status',
-    get_all_orders:        N8N_BASE_URL + 'pedidos/listar-todos',
-    get_order_status:      N8N_BASE_URL + 'pedido/buscar-status',
-    get_order_acompanhar:  N8N_BASE_URL + 'pedido/buscar-acompanhar',
-    send_whatsapp_status:  N8N_BASE_URL + 'pedido/enviar-status-whatsapp',
-    send_delivery_details: N8N_BASE_URL + 'delivery/send-details',
-    get_finalized_orders_by_date: N8N_BASE_URL + 'pedidos/listar-por-data',
-    get_finalized_order_by_code: N8N_BASE_URL + 'pedido/buscar-finalizado-por-codigo', 
-    cancel_order:          N8N_BASE_URL +  'pedido/cancelar',
-    finalize_order_and_table: N8N_BASE_URL + 'pedido/finalizar-e-liberar-mesa',
-    add_item_to_order:     N8N_BASE_URL + 'pedido/adicionar-item',
-    remove_item_from_order: N8N_BASE_URL + 'pedido/remover-item',
-
-    // BUSCAR TODOS OS ITENS (PRODUTOS E SERVIÇOS)
-    get_all_products_with_type: N8N_BASE_URL + 'produtos/listar-com-tipo',
+export const API_ENDPOINTS = {
+    get_financial_report: API_BASE_URL + 'financeiro/relatorio',
+    get_dashboard_stats: API_BASE_URL + 'dashboard/stats',
     
-    // FINALIZAR PEDIDO ADICIONANDO SERVIÇOS
-    finalize_order_with_services: N8N_BASE_URL + 'pedido/finalizar-com-servicos',
+    get_all_products:      API_BASE_URL + 'produtos/listar', 
+    create_product:        API_BASE_URL + 'produto/criar',
+    update_product:        API_BASE_URL + 'produto/atualizar',
+    toggle_product_status: API_BASE_URL + 'produto/alternar-status',
+    get_all_products_with_type: API_BASE_URL + 'produtos/listar-com-tipo',
+    
 
-    // ENDPOINT FISCAL 
-    emitir_nfce:           N8N_BASE_URL + 'fiscal/emitir-nfce',
-    retorno_status_fiscal: N8N_BASE_URL + 'fiscal/retorno-status',
-    download_documento_fiscal: N8N_BASE_URL + 'fiscal/download',
+    get_all_categories:    API_BASE_URL + 'categorias/listar',
+    create_category:       API_BASE_URL + 'categoria/criar',
+    update_category:       API_BASE_URL + 'categoria/atualizar',
+    delete_category:       API_BASE_URL + 'categoria/deletar',
+    reorder_categories:    API_BASE_URL + 'categorias/reordenar',
+    
+    get_all_banners:       API_BASE_URL + 'banners/listar',
+    create_banner:         API_BASE_URL + 'banner/criar',
+    update_banner:         API_BASE_URL + 'banner/atualizar',
+    reorder_banners:       API_BASE_URL + 'banners/reordenar',
+    delete_banner:         API_BASE_URL + 'banner/deletar',
+    toggle_banner_status:  API_BASE_URL + 'banner/alternar-status',
+    delete_banner_on_clear: API_BASE_URL + 'banner/deletar-limpar',
+    
+    create_order_app:      API_BASE_URL + 'pedido/criar-app',
+    create_order_internal: API_BASE_URL + 'pedido/lancar-interno', 
+    update_order_status:   API_BASE_URL + 'pedido/atualizar-status',
+    get_all_orders:        API_BASE_URL + 'pedidos/listar-todos',
+    get_order_status:      API_BASE_URL + 'pedido/buscar-status',
+    get_order_acompanhar:  API_BASE_URL + 'pedido/buscar-acompanhar',
+    send_whatsapp_status:  API_BASE_URL + 'proxy/evolution/send-status',
+    send_delivery_details: API_BASE_URL + 'proxy/evolution/send-delivery-details',
+    get_finalized_orders_by_date: API_BASE_URL + 'pedidos/listar-por-data',
+    get_finalized_order_by_code: API_BASE_URL + 'pedido/buscar-finalizado-por-codigo', 
+    cancel_order:          API_BASE_URL +  'pedido/cancelar',
+    finalize_order_and_table: API_BASE_URL + 'pedido/finalizar-e-liberar-mesa',
+    add_item_to_order:     API_BASE_URL + 'pedido/adicionar-item',
+    remove_item_from_order: API_BASE_URL + 'pedido/remover-item',
+    finalize_order_with_services: API_BASE_URL + 'pedido/finalizar-com-servicos',
+    
+    emitir_nfce:           API_BASE_URL + 'fiscal/emitir-nfce',
+    retorno_status_fiscal: API_BASE_URL + 'fiscal/retorno-status',
+    download_documento_fiscal: API_BASE_URL + 'fiscal/download',
+    
+    get_all_tables:        API_BASE_URL + 'mesas/listar',
+    update_table_status:   API_BASE_URL + 'mesa/atualizar-status', 
+    create_table:          API_BASE_URL + 'mesas/criar',
+    delete_table:          API_BASE_URL + 'mesas/deletar',
+    update_table_assignments: API_BASE_URL + 'mesas/atualizar-atribuicao',
+    clear_table_assignments:  API_BASE_URL + 'mesas/limpar-atribuicao',
+    
+    get_all_garcons:       API_BASE_URL + 'garcons/listar',
+    create_garcom:         API_BASE_URL + 'garcom/criar',
+    update_garcom:         API_BASE_URL + 'garcom/atualizar',
+    delete_garcom:         API_BASE_URL + 'garcom/deletar',
+    garcom_login:          API_BASE_URL + 'garcom/login',
+    get_garcons_resumo:    API_BASE_URL + 'garcons/resumo',
+    
+    get_all_insumos:       API_BASE_URL + 'insumos/listar',
+    create_insumo:         API_BASE_URL + 'insumo/criar',
+    update_insumo:         API_BASE_URL + 'insumo/atualizar',
+    delete_insumo:         API_BASE_URL + 'insumo/deletar',
+    get_ficha_produto:     API_BASE_URL + 'produto/ficha/listar',
+    add_insumo_ficha:      API_BASE_URL + 'produto/ficha/adicionar',
+    remove_insumo_ficha:   API_BASE_URL + 'produto/ficha/remover',
+    get_all_products_with_cmv: API_BASE_URL + 'produtos/listar-com-cmv',
+    get_rentabilidade_produtos: API_BASE_URL + 'relatorios/rentabilidade',
+    
+    get_loja_config:       API_BASE_URL + 'loja/config/obter',
+    update_loja_config:    API_BASE_URL + 'loja/config/atualizar',
+    update_loja_status:    API_BASE_URL + 'loja/status/atualizar',
+    call_ia_proxy:         API_BASE_URL + 'ia/proxy/suporte',
+};  
 
-    // --- MESAS ---
-    get_all_tables:        N8N_BASE_URL + 'mesas/listar',
-    update_table_status:   N8N_BASE_URL + 'mesa/atualizar-status', 
-    create_table:          N8N_BASE_URL + 'mesas/criar',
-    delete_table:          N8N_BASE_URL + 'mesas/deletar',
-    update_table_assignments: N8N_BASE_URL + 'mesas/atualizar-atribuicao',
-    clear_table_assignments:  N8N_BASE_URL + 'mesas/limpar-atribuicao',
-
-    // GARÇONS
-    get_all_garcons:       N8N_BASE_URL + 'garcons/listar',
-    create_garcom:         N8N_BASE_URL + 'garcom/criar',
-    update_garcom:         N8N_BASE_URL + 'garcom/atualizar',
-    delete_garcom:         N8N_BASE_URL + 'garcom/deletar',
-    garcom_login:          N8N_BASE_URL + 'garcom/login',
-    get_garcons_resumo:    N8N_BASE_URL + 'garcons/resumo',
-
-    // --- LOJA ---
-    get_loja_config:       N8N_BASE_URL + 'loja/config/obter',
-    update_loja_config:    N8N_BASE_URL + 'loja/config/atualizar',
-    update_loja_status:    N8N_BASE_URL + 'loja/status/atualizar',
+export const ZIPLINE_CONFIG = {
+    upload: window.ENVIRONMENT_CONFIG?.ZIPLINE_UPLOAD_URL,
+    delete: window.ENVIRONMENT_CONFIG?.ZIPLINE_DELETE_URL,
 };
 
-// ===================================================================
-// CONFIGURAÇÕES DE SERVIÇOS EXTERNOS
-// ===================================================================
-// --- ARMAZENAMENTO DE IMAGENS ---
-const ZIPLINE_CONFIG = {
-    upload: 'https://n8n-webhook.uptecnology.com.br/webhook/enviar-imagem',
-    delete: 'https://n8n-webhook.uptecnology.com.br/webhook/deletar-imagem',
-};
-
-// --- API DE WHATSAPP ---
-const EVOLUTION_API_CONFIG = {
-    baseUrl:      'https://evolution-up.uptecnology.com.br',
-    instanceName: 'NOME_DA_SUA_INSTANCIA',
-    apiKey:       'SUA_API_KEY_SECRETA_VAI_AQUI' 
-};
-
-// ===================================================================
-// CONFIGURAÇÕES GLOBAIS DA APLICAÇÃO
-// ===================================================================
-const APP_CONFIG = {
+export const APP_CONFIG = {
     origemCores: { 
         'DELIVERY': 'bg-blue-500', 
         'WHATSAPP': 'bg-green-500', 
@@ -135,10 +108,8 @@ const APP_CONFIG = {
     flowOrder: ['CONFIRMADO', 'EM_PREPARO', 'PRONTO_PARA_ENTREGA', 'A_CAMINHO', 'ENTREGUE', 'CANCELADO']
 };
 
-// ===================================================================
-// DISPONIBILIZA AS CONFIGURAções GLOBALMENTE
-// ===================================================================
-window.N8N_CONFIG = N8N_ENDPOINTS;
-window.ZIPLINE_CONFIG = ZIPLINE_CONFIG;
-window.EVOLUTION_CONFIG = EVOLUTION_API_CONFIG;
-window.APP_CONFIG = APP_CONFIG;
+if (typeof window !== 'undefined') {
+    window.API_CONFIG = API_ENDPOINTS;
+    window.ZIPLINE_CONFIG = ZIPLINE_CONFIG;
+    window.APP_CONFIG = APP_CONFIG;
+}

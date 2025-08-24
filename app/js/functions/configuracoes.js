@@ -1,6 +1,7 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/configuracoes.js
 
-import { enviarParaN8N, fetchDeN8N, enviarArquivoParaN8N } from './api.js';
+import { enviarParaAPI, fetchDeAPI, enviarArquivoParaAPI } from './api.js';
+// ✅ CORREÇÃO AQUI: Adicionamos ZIPLINE_CONFIG na importação
+import { API_ENDPOINTS, ZIPLINE_CONFIG } from '../config.js';
 
 let logoUrlAtual = '';
 let logoVitrineUrlAtual = '';
@@ -28,30 +29,30 @@ function preencherFormulario(config) {
 
 async function fetchConfiguracoes() {
     try {
-        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
+        const configs = await fetchDeAPI(API_ENDPOINTS.get_loja_config);
         if (configs && configs.length > 0) { preencherFormulario(configs[0]); }
     } catch (error) { console.error("Erro ao buscar configurações da loja:", error); Swal.fire('Ops!', 'Não foi possível carregar as configurações.', 'error'); }
 }
 
 async function handleLogoNotaFiscalUpload(file) {
     if (!file) return;
-    const logoAntigaUrl = logoUrlAtual; // Guarda a URL antiga
+    const logoAntigaUrl = logoUrlAtual;
     Swal.fire({ title: 'Enviando logo de impressão...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
-        const resultado = await enviarArquivoParaN8N(window.ZIPLINE_CONFIG.upload, file, 'logo_nota');
+        // ✅ CORREÇÃO AQUI
+        const resultado = await enviarArquivoParaAPI(ZIPLINE_CONFIG.upload, file, 'logo_nota');
         const novaUrl = resultado[0]?.urlParaCopiarComId || resultado[0]?.imageUrlToCopy;
         if (novaUrl) {
             logoUrlAtual = novaUrl;
             document.getElementById('logo-preview').src = logoUrlAtual;
-            await enviarParaN8N(window.N8N_CONFIG.update_loja_config, { id: 1, logo_url: novaUrl });
+            await enviarParaAPI(API_ENDPOINTS.update_loja_config, { id: 1, logo_url: novaUrl });
             Swal.fire({ icon: 'success', title: 'Sucesso!', text: 'Logo de impressão atualizada e salva!', background: '#2c2854', color: '#ffffff' });
             
-            // Tenta deletar a imagem antiga em segundo plano
             if (logoAntigaUrl) {
                 const match = logoAntigaUrl.match(/ziplineFileId=(\w+)/);
                 if (match && match[1]) {
                     console.log(`Limpando logo de impressão antiga: ${match[1]}`);
-                    enviarParaN8N(window.N8N_CONFIG.delete_banner_on_clear, { fileIdentifier: match[1] })
+                    enviarParaAPI(API_ENDPOINTS.delete_banner_on_clear, { fileIdentifier: match[1] })
                         .catch(err => console.error("Falha ao deletar logo antiga:", err));
                 }
             }
@@ -61,17 +62,17 @@ async function handleLogoNotaFiscalUpload(file) {
 
 async function handleLogoVitrineUpload(file) {
     if (!file) return;
-    const logoAntigaUrl = logoVitrineUrlAtual; // Guarda a URL antiga
+    const logoAntigaUrl = logoVitrineUrlAtual;
     Swal.fire({ title: 'Enviando nova logo...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
-        const resultado = await enviarArquivoParaN8N(window.ZIPLINE_CONFIG.upload, file, 'logo_vitrine');
+        // ✅ CORREÇÃO AQUI
+        const resultado = await enviarArquivoParaAPI(ZIPLINE_CONFIG.upload, file, 'logo_vitrine');
         const novaUrl = resultado[0]?.urlParaCopiarComId || resultado[0]?.imageUrlToCopy;
         if (novaUrl) {
             logoVitrineUrlAtual = novaUrl;
             document.getElementById('logo-vitrine-preview').src = logoVitrineUrlAtual;
-            await enviarParaN8N(window.N8N_CONFIG.update_loja_config, { id: 1, logo_vitrine_url: novaUrl });
+            await enviarParaAPI(API_ENDPOINTS.update_loja_config, { id: 1, logo_vitrine_url: novaUrl });
             
-            // Atualiza a logo no header do painel dinamicamente
             const nomeLoja = document.getElementById('config-nome-loja').value;
             const logoDesktopContainer = document.getElementById('logo-header-desktop');
             const logoMobileContainer = document.getElementById('logo-header-mobile');
@@ -80,12 +81,11 @@ async function handleLogoVitrineUpload(file) {
 
             Swal.fire({ icon: 'success', title: 'Sucesso!', text: 'Logo do painel e vitrine atualizada e salva!', background: '#2c2854', color: '#ffffff' });
 
-            // ✅ Tenta deletar a imagem antiga em segundo plano, sem bloquear o usuário
             if (logoAntigaUrl) {
                 const match = logoAntigaUrl.match(/ziplineFileId=(\w+)/);
                 if (match && match[1]) {
                     console.log(`Limpando logo de vitrine antiga: ${match[1]}`);
-                    enviarParaN8N(window.N8N_CONFIG.delete_banner_on_clear, { fileIdentifier: match[1] })
+                    enviarParaAPI(API_ENDPOINTS.delete_banner_on_clear, { fileIdentifier: match[1] })
                         .catch(err => console.error("Falha ao deletar logo antiga:", err));
                 }
             }
@@ -110,12 +110,11 @@ async function salvarConfiguracoes(event) {
     };
     Swal.fire({ title: 'Salvando informações...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
-        await enviarParaN8N(window.N8N_CONFIG.update_loja_config, configData);
+        await enviarParaAPI(API_ENDPOINTS.update_loja_config, configData);
         Swal.fire('Sucesso!', 'Configurações da loja salvas!', 'success');
     } catch (error) { console.error("Erro ao salvar configurações:", error); Swal.fire('Ops!', `Não foi possível salvar as configurações: ${error.message}`, 'error'); }
 }
 
-// --- FUNÇÕES DE GERENCIAMENTO DE MESAS ---
 function renderMesas() {
     const container = document.getElementById('lista-mesas-existentes');
     if (!container) return;
@@ -132,7 +131,7 @@ function renderMesas() {
 
 async function fetchMesas() {
     try {
-        mesasExistentes = await fetchDeN8N(window.N8N_CONFIG.get_all_tables) || [];
+        mesasExistentes = await fetchDeAPI(API_ENDPOINTS.get_all_tables) || [];
         renderMesas();
     } catch (error) {
         console.error("Erro ao buscar mesas:", error);
@@ -147,7 +146,7 @@ async function handleCriarMesa(event) {
     if (!numero) { Swal.fire('Ops!', 'O número da mesa é obrigatório.', 'warning'); return; }
     Swal.fire({ title: 'Criando mesa...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
-        await enviarParaN8N(window.N8N_CONFIG.create_table, { numero_mesa: parseInt(numero) });
+        await enviarParaAPI(API_ENDPOINTS.create_table, { numero_mesa: parseInt(numero) });
         Swal.fire('Sucesso!', 'Mesa criada!', 'success');
         numeroInput.value = '';
         fetchMesas(); 
@@ -165,14 +164,13 @@ async function handleDeletarMesa(id) {
     if (result.isConfirmed) {
         Swal.fire({ title: 'Apagando...', didOpen: () => Swal.showLoading() });
         try {
-            await enviarParaN8N(window.N8N_CONFIG.delete_table, { id: id });
+            await enviarParaAPI(API_ENDPOINTS.delete_table, { id: id });
             Swal.fire('Apagada!', 'A mesa foi removida.', 'success');
             fetchMesas();
         } catch (error) { Swal.fire('Erro!', `Não foi possível apagar a mesa: ${error.message}`, 'error'); }
     }
 }
 
-// --- FUNÇÕES DE GERENCIAMENTO DE CATEGORIAS ---
 function limparFormularioCategoria() {
     document.getElementById('form-nova-categoria').reset();
     document.getElementById('categoria-id').value = '';
@@ -184,7 +182,7 @@ function limparFormularioCategoria() {
 
 async function fetchCategorias() {
     try {
-        categoriasExistentes = await fetchDeN8N(window.N8N_CONFIG.get_all_categories) || [];
+        categoriasExistentes = await fetchDeAPI(API_ENDPOINTS.get_all_categories) || [];
         renderCategorias();
     } catch (error) {
         console.error("Erro ao buscar categorias:", error);
@@ -227,7 +225,7 @@ function renderCategorias() {
             });
             const itens = container.querySelectorAll('.flex[data-id]');
             const novaOrdemIds = Array.from(itens).map(item => item.dataset.id);
-            enviarParaN8N(window.N8N_CONFIG.reorder_categories, { ordem: novaOrdemIds })
+            enviarParaAPI(API_ENDPOINTS.reorder_categories, { ordem: novaOrdemIds })
                 .then(() => window.dispatchEvent(new CustomEvent('categoriasAtualizadas')))
                 .catch(err => {
                     console.error("Erro ao salvar a nova ordem:", err);
@@ -241,7 +239,8 @@ async function handleIconeCategoriaUpload(file) {
     if (!file) return;
     Swal.fire({ title: 'Enviando ícone...', didOpen: () => Swal.showLoading() });
     try {
-        const resultado = await enviarArquivoParaN8N(window.ZIPLINE_CONFIG.upload, file, 'icone_categoria');
+        // ✅ CORREÇÃO AQUI
+        const resultado = await enviarArquivoParaAPI(ZIPLINE_CONFIG.upload, file, 'icone_categoria');
         const novaUrl = resultado[0]?.urlParaCopiarComId || resultado[0]?.imageUrlToCopy;
         if (novaUrl) {
             iconeCategoriaUrlAtual = novaUrl;
@@ -262,10 +261,10 @@ async function handleSalvarCategoria(event) {
         url_icone: iconeCategoriaUrlAtual
     };
     if (id) payload.id = parseInt(id);
-    const endpoint = id ? window.N8N_CONFIG.update_category : window.N8N_CONFIG.create_category;
+    const endpoint = id ? API_ENDPOINTS.update_category : API_ENDPOINTS.create_category;
     Swal.fire({ title: 'Salvando categoria...', didOpen: () => Swal.showLoading() });
     try {
-        await enviarParaN8N(endpoint, payload);
+        await enviarParaAPI(endpoint, payload);
         Swal.fire('Sucesso!', `Categoria ${id ? 'atualizada' : 'criada'}!`, 'success');
         limparFormularioCategoria();
         fetchCategorias();
@@ -299,7 +298,7 @@ async function handleDeletarCategoria(id) {
     if (result.isConfirmed) {
         Swal.fire({ title: 'Apagando...', didOpen: () => Swal.showLoading() });
         try {
-            await enviarParaN8N(window.N8N_CONFIG.delete_category, { id: id });
+            await enviarParaAPI(API_ENDPOINTS.delete_category, { id: id });
             Swal.fire('Apagada!', 'A categoria foi removida.', 'success');
             fetchCategorias();
             window.dispatchEvent(new CustomEvent('categoriasAtualizadas'));
@@ -307,10 +306,9 @@ async function handleDeletarCategoria(id) {
     }
 }
 
-// --- FUNÇÕES DE GERENCIAMENTO DE BANNERS ---
 async function fetchBanners() {
     try {
-        bannersExistentes = await fetchDeN8N(window.N8N_CONFIG.get_all_banners) || [];
+        bannersExistentes = await fetchDeAPI(API_ENDPOINTS.get_all_banners) || [];
         renderBanners();
     } catch (error) {
         console.error("Erro ao buscar banners:", error);
@@ -362,7 +360,7 @@ function renderBanners() {
 
             const itens = container.querySelectorAll('.flex[data-id]');
             const novaOrdemIds = Array.from(itens).map(item => item.dataset.id);
-            enviarParaN8N(window.N8N_CONFIG.reorder_banners, { ordem: novaOrdemIds })
+            enviarParaAPI(API_ENDPOINTS.reorder_banners, { ordem: novaOrdemIds })
                 .catch(err => Swal.fire('Ops!', 'Não foi possível salvar a ordem dos banners.', 'error'));
         }
     });
@@ -376,7 +374,7 @@ async function handleBannerImagemUpload(file) {
     const bannerFileInput = document.getElementById('banner-imagem-file-input');
 
     try {
-        const resultado = await enviarArquivoParaN8N(window.ZIPLINE_CONFIG.upload, file, 'banner');
+        const resultado = await enviarArquivoParaAPI(ZIPLINE_CONFIG.upload, file, 'banner');
         const novaUrl = resultado[0]?.urlParaCopiarComId || resultado[0]?.imageUrlToCopy;
         if (novaUrl) {
             bannerImagemUrlAtual = novaUrl;
@@ -418,13 +416,13 @@ async function handleSalvarBanner(event) {
     if (isUpdating) {
         payload.id = parseInt(id);
     }
-    const endpoint = isUpdating ? window.N8N_CONFIG.update_banner : window.N8N_CONFIG.create_banner;
+    const endpoint = isUpdating ? API_ENDPOINTS.update_banner : API_ENDPOINTS.create_banner;
     const acao = isUpdating ? 'Atualizando' : 'Criando';
 
     Swal.fire({ title: `${acao} banner...`, didOpen: () => Swal.showLoading() });
 
     try {
-        await enviarParaN8N(endpoint, payload);
+        await enviarParaAPI(endpoint, payload);
         Swal.fire('Sucesso!', `Banner ${isUpdating ? 'atualizado' : 'criado'}!`, 'success');
         
         resetarVisualFormularioBanner(); 
@@ -488,7 +486,7 @@ async function handleDeletarBanner(id) {
                 }
             }
             
-            await enviarParaN8N(window.N8N_CONFIG.delete_banner, payload);
+            await enviarParaAPI(API_ENDPOINTS.delete_banner, payload);
 
             Swal.fire({ icon: 'success', title: 'Apagado!', text: 'O banner foi removido com sucesso.', background: '#2c2854', color: '#ffffff' });
             
@@ -504,7 +502,7 @@ async function handleDeletarBanner(id) {
 
 async function handleToggleBannerStatus(id, statusAtual) {
     try {
-        await enviarParaN8N(window.N8N_CONFIG.toggle_banner_status, { id: id, status: !statusAtual });
+        await enviarParaAPI(API_ENDPOINTS.toggle_banner_status, { id: id, status: !statusAtual });
         fetchBanners();
     } catch (error) { Swal.fire('Ops!', 'Não foi possível alterar o status do banner.', 'error'); }
 }
@@ -537,7 +535,7 @@ async function limparFormularioBanner() {
             if (match && match[1]) {
                 const fileIdentifier = match[1];
                 console.log(`Faxina iniciada! Apagando imagem órfã: ${fileIdentifier}`);
-                await enviarParaN8N(window.N8N_CONFIG.delete_banner_on_clear, { fileIdentifier });
+                await enviarParaAPI(API_ENDPOINTS.delete_banner_on_clear, { fileIdentifier });
             }
         } catch (e) {
             console.error("Erro ao tentar limpar imagem do banner:", e);

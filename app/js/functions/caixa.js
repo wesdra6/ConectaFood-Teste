@@ -1,9 +1,9 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/caixa.js
 
-import { enviarParaN8N, fetchDeN8N } from './api.js';
+import { enviarParaAPI, fetchDeAPI } from './api.js';
 import { abrirModalGerenciamento } from './pedidos.js';
 import { gerarHtmlImpressao, imprimirComprovante } from './impressao.js';
 import { criaCardProduto } from './components.js';
+import { API_ENDPOINTS } from '../config.js';
 
 let todasAsMesas = [];
 let todosOsPedidosAtivosCaixa = [];
@@ -39,8 +39,8 @@ async function fetchDadosDoCaixa() {
 
     try {
         const [mesas, pedidos] = await Promise.all([
-            fetchDeN8N(window.N8N_CONFIG.get_all_tables),
-            fetchDeN8N(window.N8N_CONFIG.get_all_orders)
+            fetchDeAPI(API_ENDPOINTS.get_all_tables),
+            fetchDeAPI(API_ENDPOINTS.get_all_orders)
         ]);
 
         todasAsMesas = Array.isArray(mesas) ? mesas.sort((a, b) => a.numero_mesa - b.numero_mesa) : [];
@@ -58,19 +58,34 @@ async function fetchDadosDoCaixa() {
 async function fetchProdutosCaixa() { 
     const listaProdutosContainer = document.getElementById('lista-produtos-caixa'); 
     try { 
-        if (todosOsProdutos.length === 0) { 
-            const produtosDoBanco = await fetchDeN8N(window.N8N_CONFIG.get_all_products_with_type);
-            todosOsProdutos = produtosDoBanco.filter(p => p.tipo_item === 'PRODUTO' && p.ativo);
-            produtosServicos = produtosDoBanco.filter(p => p.tipo_item !== 'PRODUTO');
-        } 
+        // Vamos forçar a busca sempre para garantir dados frescos
+        console.log("Caixa: Buscando lista de produtos e serviços...");
+        const produtosDoBanco = await fetchDeAPI(API_ENDPOINTS.get_all_products_with_type);
+        
+        if (!Array.isArray(produtosDoBanco)) {
+            console.error("Caixa: A resposta dos produtos não foi um array.", produtosDoBanco);
+            todosOsProdutos = [];
+            produtosServicos = [];
+            return;
+        }
+
+        todosOsProdutos = produtosDoBanco.filter(p => p.tipo_item === 'PRODUTO' && p.ativo);
+        produtosServicos = produtosDoBanco.filter(p => p.tipo_item !== 'PRODUTO');
+        
+        console.log(`Caixa: ${todosOsProdutos.length} produtos e ${produtosServicos.length} serviços carregados.`);
         renderizarProdutosCaixa(todosOsProdutos); 
-    } catch (error) { console.error("Erro ao buscar produtos para o caixa:", error); if (listaProdutosContainer) listaProdutosContainer.innerHTML = '<p class="text-red-500 p-4">Ops, falha ao carregar o cardápio.</p>'; } 
+    } catch (error) { 
+        console.error("Erro CRÍTICO ao buscar produtos para o caixa:", error); 
+        if (listaProdutosContainer) {
+            listaProdutosContainer.innerHTML = '<p class="text-red-500 p-4">Ops, falha ao carregar o cardápio. Verifique o console.</p>';
+        }
+    } 
 }
 
 async function fetchLojaConfig() { 
     if (lojaConfig) return; 
     try { 
-        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config); 
+        const configs = await fetchDeAPI(API_ENDPOINTS.get_loja_config); 
         if (configs && configs.length > 0) { lojaConfig = configs[0]; } 
     } catch (error) { 
         console.error("Não foi possível carregar as configs da loja para impressão.", error); 
@@ -146,7 +161,7 @@ async function handleMesaClick(mesa) {
         
         if (!pedidoDaMesaLocal) {
             Swal.fire({ icon: 'info', title: 'Mesa sem Pedido', text: 'Não encontramos um pedido ativo para esta mesa. Liberando...', background: '#2c2854', color: '#ffffff' });
-            await enviarParaN8N(window.N8N_CONFIG.update_table_status, { id: mesa.id, status: 'LIVRE' });
+            await enviarParaAPI(API_ENDPOINTS.update_table_status, { id: mesa.id, status: 'LIVRE' });
             fetchDadosDoCaixa();
             return;
         }
@@ -154,8 +169,8 @@ async function handleMesaClick(mesa) {
         Swal.fire({ title: 'Buscando comanda...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
 
         try {
-            const url = `${window.N8N_CONFIG.get_order_status}?id=${pedidoDaMesaLocal.id}`;
-            const resposta = await fetchDeN8N(url);
+            const url = `${API_ENDPOINTS.get_order_status}?id=${pedidoDaMesaLocal.id}`;
+            const resposta = await fetchDeAPI(url);
             const pedidoDaMesaAtualizado = (Array.isArray(resposta) && resposta.length > 0) ? resposta[0] : null;
 
             if (!pedidoDaMesaAtualizado) {
@@ -194,27 +209,38 @@ async function handleMesaClick(mesa) {
 function renderizarProdutosCaixa(produtos) { 
     const listaProdutos = document.getElementById('lista-produtos-caixa'); 
     if (!listaProdutos) return; 
+    
     listaProdutos.innerHTML = ''; 
+    
     if (!produtos || produtos.length === 0) { 
         listaProdutos.innerHTML = '<p class="text-texto-muted text-center p-4">Nenhum produto encontrado.</p>'; 
         return; 
     } 
+    
     const produtosPorCategoria = produtos.reduce((acc, produto) => { 
         (acc[produto.nome_categoria || 'Outros'] = acc[produto.nome_categoria || 'Outros'] || []).push(produto); 
         return acc; 
     }, {});
+
     const categoriasOrdenadas = Object.keys(produtosPorCategoria).sort(); 
     const fragment = document.createDocumentFragment();
+
     for (const categoria of categoriasOrdenadas) { 
         const h3 = document.createElement('h3');
         h3.className = "text-lg font-bold text-principal border-b-2 border-principal/50 mb-3 mt-4 first:mt-0";
         h3.textContent = categoria;
         fragment.appendChild(h3);
+        
         produtosPorCategoria[categoria].forEach(produto => {
+            // ✅ A CHAMADA CRÍTICA ESTÁ AQUI 👇
+            // Garantimos que o contexto 'caixa' está sendo passado corretamente.
             const cardComponent = criaCardProduto(produto, 'caixa');
-            if (cardComponent) fragment.appendChild(cardComponent);
+            if (cardComponent) {
+                fragment.appendChild(cardComponent);
+            }
         }); 
     }
+    
     listaProdutos.appendChild(fragment);
 }
 
@@ -287,11 +313,20 @@ function renderizarComanda() {
 }
 
 async function prepararModalPara(modo, dados = {}) {
-    if (!modalLancamento) {
-        const modalEl = document.getElementById('modal-lancamento-pedido');
-        if (modalEl) { modalLancamento = new bootstrap.Modal(modalEl); } 
-        else { console.error("Elemento do modal de lançamento não encontrado."); return; }
+    console.log(`[CAIXA] Preparando modal para o modo: ${modo}`);
+
+    // ✅ MUDANÇA CRUCIAL AQUI 👇
+    // Em vez de guardar a instância, buscamos o elemento e criamos uma nova instância a cada chamada.
+    const modalEl = document.getElementById('modal-lancamento-pedido');
+    if (!modalEl) {
+        console.error("[CAIXA] Elemento do modal '#modal-lancamento-pedido' NÃO encontrado no DOM.");
+        return;
     }
+    
+    // Força a criação de uma nova instância do modal para garantir que ele encontre o elemento.
+    const modalInstance = new bootstrap.Modal(modalEl);
+    console.log("[CAIXA] Nova instância do modal Bootstrap criada.");
+
     if (!isModalListenersAttached) {
         document.getElementById('btn-finalizar-lancamento')?.addEventListener('click', finalizarLancamento);
         document.getElementById('btn-finalizar-checkout')?.addEventListener('click', finalizarCheckout);
@@ -302,7 +337,9 @@ async function prepararModalPara(modo, dados = {}) {
             renderizarProdutosCaixa(produtosFiltrados);
         });
         isModalListenersAttached = true;
+        console.log("[CAIXA] Listeners do modal anexados.");
     }
+    
     const btnLancar = document.getElementById('btn-finalizar-lancamento');
     const btnCheckout = document.getElementById('btn-finalizar-checkout');
     const areaPagamento = document.getElementById('area-pagamento');
@@ -315,18 +352,20 @@ async function prepararModalPara(modo, dados = {}) {
         tipoPedidoEmLancamento = dados.tipo;
         idMesaEmLancamento = dados.id_mesa || null;
         numeroMesaEmLancamento = dados.numero_mesa || null;
+        
         if (btnLancar) btnLancar.classList.remove('hidden');
         if (btnCheckout) btnCheckout.classList.add('hidden');
         if (areaPagamento) areaPagamento.classList.add('hidden');
         if (colunaEsquerda) colunaEsquerda.classList.remove('hidden');
         if (btnTaxa) btnTaxa.classList.add('hidden');
+        
         document.getElementById('modal-titulo').textContent = `Lançar Pedido - ${dados.tipo === 'MESA' ? `Mesa ${dados.numero_mesa}` : 'Balcão'}`;
     } else if (modo === 'CHECKOUT') {
         if (dados.pedido_id) {
             Swal.fire({ title: 'Carregando comanda...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             try {
-                const url = `${window.N8N_CONFIG.get_order_status}?id=${dados.pedido_id}`;
-                const resposta = await fetchDeN8N(url);
+                const url = `${window.API_CONFIG.get_order_status}?id=${dados.pedido_id}`;
+                const resposta = await fetchDeAPI(url);
                 const pedidoAtualizado = (Array.isArray(resposta) && resposta.length > 0) ? resposta[0] : null;
                 if (!pedidoAtualizado) throw new Error('Pedido não encontrado.');
                 pedidoAtualParaCheckout = pedidoAtualizado;
@@ -349,55 +388,137 @@ async function prepararModalPara(modo, dados = {}) {
     }
     renderizarComanda();
     if (modalLancamento) modalLancamento.show();
-}
 
+
+    renderizarComanda();
+    console.log("[CAIXA] Tentando exibir o modal...");
+    modalInstance.show();
+
+}
 async function finalizarLancamento() { 
-    if (comandaAtual.length === 0) { Swal.fire('Comanda Vazia', 'Adicione pelo menos um item.', 'warning'); return; } 
-    Swal.fire({ title: 'Lançando pedido...', text: 'Aguarde...', allowOutsideClick: false, didOpen: () => Swal.showLoading() }); 
+    if (comandaAtual.length === 0) { 
+        Swal.fire('Comanda Vazia', 'Adicione pelo menos um item.', 'warning'); 
+        return; 
+    } 
+    
+    Swal.fire({ 
+        title: 'Lançando pedido...', 
+        text: 'Aguarde...', 
+        allowOutsideClick: false, 
+        didOpen: () => Swal.showLoading() 
+    }); 
+    
     const nomeCliente = tipoPedidoEmLancamento === 'MESA' ? `Mesa ${numeroMesaEmLancamento}` : 'Balcão'; 
     const dadosPedido = { 
-        origem: tipoPedidoEmLancamento, nome_cliente: nomeCliente, id_mesa: idMesaEmLancamento, 
+        origem: tipoPedidoEmLancamento, 
+        nome_cliente: nomeCliente, 
+        id_mesa: idMesaEmLancamento, 
         numero_mesa: numeroMesaEmLancamento, 
-        itens: comandaAtual.map(item => ({ id: item.id, quantidade: item.quantidade, preco: item.preco_unitario || item.preco })), 
-        total: comandaAtual.reduce((acc, item) => acc + ( (item.preco_unitario || item.preco) * item.quantidade), 0) 
+        itens: comandaAtual.map(item => ({ 
+            id: item.id, 
+            quantidade: item.quantidade, 
+            preco: item.preco_unitario || item.preco 
+        })), 
+        total: comandaAtual.reduce((acc, item) => acc + ((item.preco_unitario || item.preco) * item.quantidade), 0) 
     }; 
+    
+    const modalEl = document.getElementById('modal-lancamento-pedido');
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+
     try { 
-        const resultado = await enviarParaN8N(window.N8N_CONFIG.create_order_internal, dadosPedido); 
+        const resultado = await enviarParaAPI(API_ENDPOINTS.create_order_internal, dadosPedido); 
         if (resultado.success) { 
-            Swal.fire('Sucesso!', 'Pedido lançado!', 'success'); 
-            if (modalLancamento) modalLancamento.hide(); 
-            fetchDadosDoCaixa(); 
-            localStorage.setItem('novoPedidoAdmin', 'internal'); 
-        } else { throw new Error(resultado.message || "Erro no servidor."); } 
-    } catch (error) { console.error("Erro ao finalizar lançamento:", error); Swal.fire('Ops!', 'Não foi possível lançar o pedido.', 'error'); } 
+            Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: 'Pedido lançado!',
+                background: '#2c2854',
+                color: '#ffffff',
+                confirmButtonColor: '#ff6b35'
+            }).then(() => {
+                if (modalInstance) modalInstance.hide(); 
+                fetchDadosDoCaixa(); 
+                localStorage.setItem('novoPedidoAdmin', 'internal'); 
+            });
+        } else { 
+            throw new Error(resultado.message || "Erro no servidor."); 
+        } 
+    } catch (error) { 
+        console.error("Erro ao finalizar lançamento:", error); 
+        Swal.fire('Ops!', 'Não foi possível lançar o pedido.', 'error'); 
+    } 
 }
 
 async function finalizarCheckout() { 
     const formaPagamento = document.getElementById('caixa-forma-pagamento').value; 
-    if (!formaPagamento) { Swal.fire('Pagamento Pendente', 'Selecione a forma de pagamento.', 'warning'); return; } 
+    if (!formaPagamento) { 
+        Swal.fire('Pagamento Pendente', 'Selecione a forma de pagamento.', 'warning'); 
+        return; 
+    } 
+    
     const totalFinal = comandaAtual.reduce((acc, item) => acc + (Number(item.preco_unitario || item.preco) * item.quantidade), 0); 
-    const pedidoAtualizado = { ...pedidoAtualParaCheckout, total: totalFinal, itens_pedido: comandaAtual.map(item => ({ item: item.nome || item.item, quantidade: item.quantidade, preco_unitario: item.preco_unitario || item.preco, tipo_item: item.tipo_item })) }; 
+    const pedidoAtualizado = { 
+        ...pedidoAtualParaCheckout, 
+        total: totalFinal, 
+        itens_pedido: comandaAtual.map(item => ({ 
+            item: item.nome || item.item, 
+            quantidade: item.quantidade, 
+            preco_unitario: item.preco_unitario || item.preco, 
+            tipo_item: item.tipo_item 
+        })) 
+    }; 
     pedidoAtualizado.forma_pagamento = formaPagamento;
+    
     const htmlParaImprimir = gerarHtmlImpressao(pedidoAtualizado, lojaConfig); 
     const impressoComSucesso = imprimirComprovante(htmlParaImprimir); 
     if (!impressoComSucesso) return; 
     
-    Swal.fire({ title: 'Finalizando Pedido...', text: 'Aguarde...', didOpen: () => Swal.showLoading() }); 
+    // ✅ CORREÇÃO AQUI: Buscamos a instância do modal ANTES de mostrar o alerta
+    const modalEl = document.getElementById('modal-lancamento-pedido');
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+
+    Swal.fire({ 
+        title: 'Finalizando Pedido...', 
+        text: 'Aguarde...', 
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading() 
+    }); 
+    
     try { 
         const payload = { 
             pedido_id: pedidoAtualizado.id, 
             id_mesa: pedidoAtualizado.id_mesa || null, 
             forma_pagamento: formaPagamento, 
-            novos_itens: comandaAtual.filter(item => !pedidoAtualParaCheckout.itens_pedido.some(original => original.id === item.id)).map(item => ({ produto_id: item.produto_id || item.id, quantidade: item.quantidade, preco_unitario: item.preco_unitario || item.preco })), 
+            novos_itens: comandaAtual.filter(item => 
+                !pedidoAtualParaCheckout.itens_pedido.some(original => original.id === item.id)
+            ).map(item => ({ 
+                produto_id: item.produto_id || item.id, 
+                quantidade: item.quantidade, 
+                preco_unitario: item.preco_unitario || item.preco 
+            })), 
             novo_total: totalFinal 
         }; 
-        await enviarParaN8N(window.N8N_CONFIG.finalize_order_and_table, payload); 
-        if (modalLancamento) modalLancamento.hide(); 
-        Swal.fire({ icon: 'success', title: 'Sucesso!', text: 'Pedido finalizado!' }).then(() => { 
+        
+        await enviarParaAPI(API_ENDPOINTS.finalize_order_and_table, payload); 
+        
+        // ✅ CORREÇÃO AQUI: O alerta de sucesso agora espera o "OK"
+        Swal.fire({ 
+            icon: 'success', 
+            title: 'Sucesso!', 
+            text: 'Pedido finalizado!',
+            background: '#2c2854',
+            color: '#ffffff',
+            confirmButtonColor: '#ff6b35'
+        }).then(() => { 
+            if (modalInstance) modalInstance.hide(); 
             fetchDadosDoCaixa(); 
             window.dispatchEvent(new CustomEvent('pedidoFinalizado')); 
         }); 
-    } catch (error) { console.error('Erro ao finalizar o pedido:', error); Swal.fire('Ops!', 'A conta foi impressa, mas houve um erro ao finalizar o pedido. Verifique o console.', 'error'); } 
+
+    } catch (error) { 
+        console.error('Erro ao finalizar o pedido:', error); 
+        Swal.fire('Ops!', 'A conta foi impressa, mas houve um erro ao finalizar o pedido. Verifique o console.', 'error'); 
+    } 
 }
 
 let isCaixaInitialized = false;

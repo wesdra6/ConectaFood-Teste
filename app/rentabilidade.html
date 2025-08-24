@@ -1,0 +1,46 @@
+
+<main class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 pb-12">
+    <div class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold">Relatório de Rentabilidade 📈</h1>
+        <p class="text-texto-muted">Analise o lucro de cada produto e descubra suas estrelas de venda.</p>
+    </div>
+
+    <div class="bg-card p-2 sm:p-4 rounded-lg">
+        <h2 class="text-2xl font-bold mb-4 px-2 text-principal sm:px-0">Análise por Produto</h2>
+
+        <!-- ✅ CONTAINER SÓ PARA MOBILE 👇 -->
+        <div id="container-rentabilidade-mobile" class="space-y-4 md:hidden">
+            <!-- Cards mobile serão inseridos aqui -->
+        </div>
+
+        <!-- ✅ CONTAINER SÓ PARA DESKTOP 👇 -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b-2 border-borda">
+                        <th class="p-3 text-principal">Produto</th>
+                        <th class="p-3 text-principal text-center">Unidades Vendidas</th>
+                        <th class="p-3 text-principal text-right hidden lg:table-cell">Preço Venda</th>
+                        <th class="p-3 text-principal text-right hidden lg:table-cell">CMV Unitário</th>
+                        <th class="p-3 text-principal text-right">Faturamento Total</th>
+                        <th class="p-3 text-principal text-right font-bold text-green-400">Lucro Total</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-rentabilidade-desktop" class="divide-y divide-borda/50">
+                    <!-- Linhas da tabela serão inseridas aqui -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Placeholder de Carregamento (Unificado) -->
+        <div id="container-loading-placeholder" class="text-center p-10 text-texto-muted animate-pulse">
+            Calculando a lucratividade dos seus produtos...
+        </div>
+
+    </div>
+</main>
+
+<script type="module">
+    import { initRentabilidadePage } from './js/rentabilidade.js';
+    initRentabilidadePage();
+</script>

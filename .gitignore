@@ -62,3 +62,4 @@ docker-compose.local.yml
 
 # Ignorar o arquivo do Docker Compose para evitar conflito com o Dockerfile no deploy
 docker-compose.yml
+env.js

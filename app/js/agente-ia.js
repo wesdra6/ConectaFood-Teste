@@ -1,7 +1,5 @@
-// NOVO ARQUIVO: app/js/functions/agente-ia.js
-
-// ⚠️ ATENÇÃO, CHEFIA! ⚠️ Cole sua URL do Webhook do N8N aqui!
-const WEBHOOK_URL_IA = "https://n8n-webhook.uptecnology.com.br/webhook/agente/suporte";
+// A URL agora será lida do nosso objeto de configuração global
+// const WEBHOOK_URL_IA = "https://n8n-webhook.uptecnology.com.br/webhook/agente/suporte"; // LINHA REMOVIDA
 
 // Elementos da DOM que vamos manipular
 let botao, janela, corpoChat, form, input, btnFechar;
@@ -56,7 +54,7 @@ function adicionarMensagem(texto, autor) {
 }
 
 /**
- * Envia a pergunta do usuário para o N8N e aguarda a resposta.
+ * Envia a pergunta do usuário para a API e aguarda a resposta.
  * @param {string} pergunta - A pergunta digitada pelo usuário.
  */
 async function enviarPerguntaParaIA(pergunta) {
@@ -64,7 +62,7 @@ async function enviarPerguntaParaIA(pergunta) {
     adicionarMensagem('', 'loading'); // Mostra o "digitando..."
 
     try {
-        const response = await fetch(WEBHOOK_URL_IA, {
+        const response = await fetch(window.API_CONFIG.call_ia_proxy, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ pergunta: pergunta })
@@ -75,7 +73,8 @@ async function enviarPerguntaParaIA(pergunta) {
         }
 
         const data = await response.json();
-        const respostaIA = data.resposta || "Desculpe, não consegui processar sua pergunta agora.";
+        // A resposta do proxy da IA pode vir encapsulada
+        const respostaIA = data[0]?.output || data.resposta || "Desculpe, não consegui processar sua pergunta agora.";
 
         adicionarMensagem(respostaIA, 'ia');
 
@@ -106,7 +105,7 @@ function toggleJanela() {
  * Ponto de entrada: inicializa o chat, busca os elementos e adiciona os listeners.
  */
 export function initAgenteIA() {
-    // Roda somente na página principal (index.html)
+    // Roda somente na página principal (index.html), onde o chat flutuante existe
     if (!document.getElementById('dashboard-page')) {
         return;
     }

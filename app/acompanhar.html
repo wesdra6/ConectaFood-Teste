@@ -12,6 +12,7 @@
       tailwind.config = { theme: { extend: { colors: { 'fundo': '#1a163a', 'sidebar': '#2c2854', 'card': '#38326b', 'principal': '#ff6b35', 'texto-base': '#ffffff', 'texto-muted': '#a3a0c2', 'borda': '#4a4480', } } } }
     </script>
     <style>body { font-family: 'Poppins', sans-serif; }</style>
+    <script src="env.js"></script>
 </head>
 <body class="bg-fundo text-texto-base">
 
@@ -32,7 +33,8 @@
         
         <form id="form-busca-pedido" class="w-full max-w-md mt-8">
             <div class="flex gap-2">
-                <input type="text" id="codigo-pedido" class="flex-1 w-full bg-card p-4 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none text-center text-lg" placeholder="Seu código aqui...">
+                <input type="text" id="codigo-pedido" class="flex-1 w-full bg-card p-4 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none text-center text-lg" placeholder="Seu código aqui..."numeric"
+    oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                 <button class="bg-principal text-white font-bold h-16 w-16 flex-shrink-0 flex items-center justify-center rounded-lg hover:bg-orange-600 transition-colors" type="submit"><i class="bi bi-search text-2xl"></i></button>
             </div>
         </form>

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -9,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/config.js"></script>
     <script>
       tailwind.config = { 
         theme: { 
@@ -38,6 +41,7 @@
             left: 8px; /* Move 4px para a direita */
         }
     </style>
+    <script src="env.js"></script>
 </head>
 <body class="bg-fundo text-texto-base">
 <div class="flex h-screen overflow-hidden">
@@ -66,6 +70,12 @@
                  <a href="#" onclick="event.preventDefault(); loadPage('hub-integracao.html')" data-page="hub-integracao.html" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card">
                     <i class="bi bi-receipt-cutoff text-xl"></i><span>Emitir NFC-e</span>
                 </a>
+                <a href="#" onclick="event.preventDefault(); loadPage('precificacao.html')" data-page="precificacao.html" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card">
+                    <i class="bi bi-tags-fill text-xl"></i><span>Precificação</span>
+                </a>
+                <a href="#" onclick="event.preventDefault(); loadPage('rentabilidade.html')" data-page="rentabilidade.html" class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card">
+                <i class="bi bi-graph-up-arrow text-xl"></i><span>Rentabilidade</span>
+                </a>
             </div>
         </nav>
         <div class="flex-shrink-0 pt-4">
@@ -86,7 +96,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/config.js"></script>
 <script type="module" src="js/functions/authVigia.js"></script>
 <script type="module" src="js/gerenciamento.js"></script> 
 </body>

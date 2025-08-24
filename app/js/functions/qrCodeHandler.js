@@ -1,4 +1,3 @@
-// NOVO ARQUIVO: app/js/functions/qrCodeHandler.js
 
 /**
  * Pega a URL atual e gera um QR Code para ser exibido na tela de bloqueio de desktop.

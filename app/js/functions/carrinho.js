@@ -1,12 +1,6 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/carrinho.js
 
-// ✅ A "foto" do carrinho agora começa tentando carregar do localStorage.
-// JSON.parse transforma o texto salvo de volta em um array.
-// Se não houver nada salvo (||), ele começa como um array vazio [].
 let carrinho = JSON.parse(localStorage.getItem('carrinhoLegalConnect')) || [];
 
-// ✅ NOVA FUNÇÃO: O "Fotógrafo"
-// Tira uma foto do estado atual do carrinho e salva no localStorage.
 function salvarCarrinho() {
     localStorage.setItem('carrinhoLegalConnect', JSON.stringify(carrinho));
 }

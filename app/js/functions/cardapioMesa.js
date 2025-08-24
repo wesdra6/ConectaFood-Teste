@@ -1,6 +1,6 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/cardapioMesa.js
 
-import { fetchDeN8N } from './api.js';
+import { fetchDeAPI } from './api.js';
+import { API_ENDPOINTS } from '../config.js';
 
 let lojaConfig = null;
 let todosOsProdutos = []; // ➕ Armazenaremos os produtos aqui
@@ -10,7 +10,7 @@ let modalDetalhes = null; // ➕ Variável para a instância do modal
 async function getLojaConfig() {
     if (!lojaConfig) {
         try {
-            const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
+            const configs = await fetchDeAPI(API_ENDPOINTS.get_loja_config);
             if (configs && configs.length > 0) {
                 lojaConfig = configs[0];
             }
@@ -117,8 +117,8 @@ export async function initCardapioDigital() {
 
     try {
         const [categorias, produtosDoBanco] = await Promise.all([
-            fetchDeN8N(window.N8N_CONFIG.get_all_categories),
-            fetchDeN8N(window.N8N_CONFIG.get_all_products)
+            fetchDeAPI(API_ENDPOINTS.get_all_categories),
+            fetchDeAPI(API_ENDPOINTS.get_all_products)
         ]);
         
         todosOsProdutos = produtosDoBanco; // ➕ Guarda os produtos na variável global

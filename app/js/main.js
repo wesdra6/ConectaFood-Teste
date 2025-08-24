@@ -1,10 +1,11 @@
 // REESCREVA O ARQUIVO COMPLETO: app/js/main.js
 
 import { supabase } from './supabaseClient.js';
+import { API_ENDPOINTS } from './config.js';
 
 console.log("Maestro: Iniciando com calma e sabedoria.");
 
-const VIGIA_RATE_MS = 5000;
+const VIGIA_RATE_MS = 3000; // Tempo de verificação reduzido
 let audioContextDesbloqueado = false;
 let vigiaInterval = null;
 
@@ -98,8 +99,8 @@ function atualizarLogoPainel(url, nomeLoja) {
 
 async function fetchAndSetLogo() {
     try {
-        const {fetchDeN8N} = await import('./functions/api.js');
-        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
+        const {fetchDeAPI} = await import('./functions/api.js');
+        const configs = await fetchDeAPI(API_ENDPOINTS.get_loja_config);
         if (configs && configs.length > 0) {
             const { logo_vitrine_url, nome_loja } = configs[0];
             atualizarLogoPainel(logo_vitrine_url, nome_loja);
@@ -107,18 +108,6 @@ async function fetchAndSetLogo() {
     } catch (error) {
         console.error("Não foi possível carregar a logo do painel.", error);
         atualizarLogoPainel(null, 'Falha ao carregar');
-    }
-}
-
-function tocarNotificacao() {
-    if (!audioContextDesbloqueado) {
-        console.warn("Contexto de áudio não desbloqueado. O som da notificação pode não tocar.");
-        return;
-    }
-    const sound = document.getElementById('notification-sound');
-    if (sound) {
-        sound.currentTime = 0;
-        sound.play().catch(e => console.error("Erro ao tocar som:", e));
     }
 }
 
@@ -143,23 +132,20 @@ function unlockAudio() {
     }
 }
 
+// ✅ VERSÃO SIMPLES E FIEL AO README
 function iniciarVigiaDePedidos() {
     if (vigiaInterval) clearInterval(vigiaInterval);
+
     vigiaInterval = setInterval(() => {
         const tipoDeAlerta = localStorage.getItem('novoPedidoAdmin');
-        if (!tipoDeAlerta) return;
-        localStorage.removeItem('novoPedidoAdmin');
-        window.dispatchEvent(new CustomEvent('novoPedidoRecebido', { detail: { tipo: tipoDeAlerta } }));
-        if (tipoDeAlerta === 'external') {
-            tocarNotificacao();
-            Swal.fire({
-                toast: true, position: 'top-end', icon: 'info', title: 'Novo pedido na área!',
-                showConfirmButton: false, timer: 4000, background: '#38326b', color: '#ffffff'
-            });
+        if (tipoDeAlerta) {
+            console.log(`[VIGIA] Flag encontrada: '${tipoDeAlerta}'. Disparando evento.`);
+            localStorage.removeItem('novoPedidoAdmin');
+            
+            window.dispatchEvent(new CustomEvent('novoPedidoRecebido', { detail: { tipo: tipoDeAlerta } }));
         }
     }, VIGIA_RATE_MS);
 }
-
 
 document.addEventListener('DOMContentLoaded', async () => {
     await handleDemoAccess();
@@ -195,18 +181,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('btn-logout').addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
 
-        // ➕ AQUI ESTÁ A LÓGICA CORRETA E ÚNICA PARA NAVEGAÇÃO 👇
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
-                e.preventDefault(); // Impede o link de recarregar a página
+                e.preventDefault();
                 
                 const url = new URL(link.href);
                 const view = url.searchParams.get('view') || 'dashboard';
                 
-                history.pushState({ view }, '', `?view=${view}`); // Atualiza a URL
-                navigateTo(view); // Carrega a nova view
+                history.pushState({ view }, '', `?view=${view}`);
+                navigateTo(view);
                 
-                // Fecha o menu se estiver no mobile
                 if (window.innerWidth < 768) {
                     closeMenu();
                 }

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -25,6 +26,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
+    <script src="env.js"></script>
 </head>
 <body class="bg-fundo text-texto-base flex flex-col h-screen">
 
@@ -51,11 +53,16 @@
         </form>
     </footer>
 
+    <!-- ✅ SCRIPTS CARREGADOS COMO MÓDULOS -->
+    <script type="module" src="js/config.js"></script>
+    <script type="module" src="js/functions/api.js"></script>
     <script type="module">
-        const WEBHOOK_URL_IA = "https://n8n-webhook.uptecnology.com.br/webhook/agente/suporte";
+        // ✅ IMPORTANDO AS FUNÇÕES QUE PRECISAMOS
+        import { API_ENDPOINTS } from './js/config.js';
+        // Importa a função de enviar dados do api.js, mas renomeia para evitar conflito
+        import { enviarParaAPI as enviarParaAPI_API } from './js/functions/api.js';
+
         const HISTORICO_CHAT_KEY = 'historicoChatAgenteIA';
-        const BASIC_AUTH_USER = "admin";
-        const BASIC_AUTH_PASS = "aK7$!zPq@8#R&bE*vY$L";  
 
         const corpoChat = document.getElementById('agente-ia-corpo');
         const form = document.getElementById('agente-ia-form');
@@ -109,7 +116,7 @@
             const p = divMensagem.querySelector('p');
             if (p) {
                 if (autor === 'ia') {
-                    p.innerHTML = texto;
+                    p.innerHTML = texto.replace(/\n/g, '<br>'); // Garante que quebras de linha da IA sejam renderizadas
                 } else {
                     p.textContent = texto;
                 }
@@ -120,35 +127,19 @@
         }
 
         async function enviarPerguntaParaIA(pergunta) {
-    adicionarMensagem(pergunta, 'user');
-    adicionarMensagem('', 'loading', false);
+            adicionarMensagem(pergunta, 'user');
+            adicionarMensagem('', 'loading', false);
 
-    const user = 'admin';
-    const pass = 'aK7$!zPq@8#R&bE*vY$L';
-    const basicAuth = 'Basic ' + btoa(user + ":" + pass);
+            try {
+                // ✅ CHAMADA SEGURA PARA O PROXY, USANDO NOSSA FUNÇÃO PADRÃO
+                const data = await enviarParaAPI_API(API_ENDPOINTS.call_ia_proxy, { pergunta: pergunta });
 
-    try {
-        const response = await fetch(WEBHOOK_URL_IA, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': basicAuth 
-            },
-            body: JSON.stringify({ pergunta: pergunta })
-        });
-
-                if (!response.ok) {
-                    console.error('Status do Erro:', response.status, response.statusText);
-                    throw new Error(`Falha na rede ou chave de acesso inválida. Status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                const respostaIA = data[0].output || "Não entendi, pode repetir?";
+                const respostaIA = data[0]?.output || data.resposta || "Não entendi, pode repetir?";
                 adicionarMensagem(respostaIA, 'ia');
 
             } catch (error) {
-                console.error('Erro ao chamar o Agente IA:', error);
-                adicionarMensagem("Tive um probleminha de conexão. 😥 Verifique a chave de API ou tente de novo.", 'ia');
+                console.error('Erro ao chamar o Agente IA via Proxy:', error);
+                adicionarMensagem("Tive um probleminha de conexão. 😥 Tente de novo, por favor.", 'ia');
             }
         }
         

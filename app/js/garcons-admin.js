@@ -1,6 +1,6 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/garcons-admin.js
 
-import { fetchDeN8N, enviarParaN8N } from './functions/api.js';
+import { fetchDeAPI, enviarParaAPI } from './functions/api.js';
+import { API_ENDPOINTS } from './config.js';
 
 let todosOsGarcons = [];
 let todasAsMesas = [];
@@ -10,9 +10,9 @@ let garcomSelecionadoParaAtribuicao = null;
 async function fetchDadosIniciais() {
     try {
         const [garcons, mesas, resumo] = await Promise.all([
-            fetchDeN8N(window.N8N_CONFIG.get_all_garcons),
-            fetchDeN8N(window.N8N_CONFIG.get_all_tables),
-            fetchDeN8N(window.N8N_CONFIG.get_garcons_resumo) 
+            fetchDeAPI(API_ENDPOINTS.get_all_garcons),
+            fetchDeAPI(API_ENDPOINTS.get_all_tables),
+            fetchDeAPI(API_ENDPOINTS.get_garcons_resumo) 
         ]);
         todosOsGarcons = Array.isArray(garcons) ? garcons : [];
         todasAsMesas = Array.isArray(mesas) ? mesas : [];
@@ -160,14 +160,14 @@ async function handleSalvarGarcom(event) {
     if (!nome || !pin) { Swal.fire('Campos vazios', 'Nome e PIN são obrigatórios.', 'warning'); return; }
     if (pin.length !== 4 || !/^\d+$/.test(pin)) { Swal.fire('PIN Inválido', 'O PIN deve ter exatamente 4 dígitos numéricos.', 'warning'); return; }
 
-    const endpoint = id ? window.N8N_CONFIG.update_garcom : window.N8N_CONFIG.create_garcom;
+    const endpoint = id ? API_ENDPOINTS.update_garcom : API_ENDPOINTS.create_garcom;
     const payload = { nome, pin };
     if (id) payload.id = parseInt(id);
     
     Swal.fire({ title: 'Salvando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
     try {
-        await enviarParaN8N(endpoint, payload);
+        await enviarParaAPI(endpoint, payload);
         Swal.fire('Sucesso!', `Garçom ${id ? 'atualizado' : 'cadastrado'}!`, 'success');
         limparFormulario();
         fetchDadosIniciais();
@@ -205,7 +205,7 @@ async function handleDeletarGarcom(id) {
     if (result.isConfirmed) {
         Swal.fire({ title: 'Apagando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         try {
-            await enviarParaN8N(window.N8N_CONFIG.delete_garcom, { id: idNumerico });
+            await enviarParaAPI(API_ENDPOINTS.delete_garcom, { id: idNumerico });
             Swal.fire('Apagado!', 'O garçom foi removido.', 'success');
             fetchDadosIniciais();
         } catch (error) {
@@ -228,7 +228,7 @@ async function handleSalvarAtribuicoes() {
     Swal.fire({ title: 'Salvando atribuições...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     
     try {
-        await enviarParaN8N(window.N8N_CONFIG.update_table_assignments, payload);
+        await enviarParaAPI(API_ENDPOINTS.update_table_assignments, payload);
         Swal.fire('Sucesso!', 'As atribuições foram atualizadas!', 'success');
         await fetchDadosIniciais();
         document.getElementById('select-garcom-atribuicao').value = '';
@@ -254,7 +254,7 @@ async function handleLiberarMesasDoGarcom(garcomId, garcomNome) {
         Swal.fire({ title: 'Liberando mesas...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
         try {
-            await enviarParaN8N(window.N8N_CONFIG.clear_table_assignments, { garcom_id: garcomId });
+            await enviarParaAPI(API_ENDPOINTS.clear_table_assignments, { garcom_id: garcomId });
             Swal.fire('Sucesso!', `As mesas de ${garcomNome} foram liberadas.`, 'success');
             await fetchDadosIniciais();
             document.getElementById('select-garcom-atribuicao').value = '';

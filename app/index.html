@@ -35,6 +35,36 @@ body { font-family: 'Poppins', sans-serif; }
 .mesa-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+#abas-categorias-admin::-webkit-scrollbar {
+        height: 12px;
+    }
+#abas-categorias-admin::-webkit-scrollbar-track {
+        background: #2c2854; 
+        border-radius: 10px;
+    }
+#abas-categorias-admin::-webkit-scrollbar-thumb {
+        background-color: #ff6b35; 
+        border-radius: 10px;
+        border: 2px solid #2c2854; 
+    }
+#abas-categorias-admin::-webkit-scrollbar-thumb:hover {
+        background-color: #e65c2e; 
+    }
+.custom-scrollbar::-webkit-scrollbar {
+    width: 12px; 
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #2c2854; 
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #ff6b35; 
+    border-radius: 10px;
+    border: 2px solid #2c2854; 
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #e65c2e; 
+}
 @media print {
 body * { visibility: hidden; }
 #print-area, #print-area * { visibility: visible; }
@@ -46,8 +76,9 @@ body * { visibility: hidden; }
 .modal-backdrop { z-index: 9998 !important; }
 .swiper-slide { height: auto; }
 </style>
+<script src="env.js"></script>
 </head>
-<body class="bg-fundo text-texto-base">
+<body class="bg-fundo text-texto-base overflow-hidden">
 <div class="flex h-screen overflow-hidden">
     <header class="md:hidden bg-sidebar px-4 py-2 flex justify-between items-center w-full fixed top-0 left-0 z-30">
         <div id="logo-header-mobile" class="flex items-center h-full"><span class="text-2xl font-bold text-principal">LegalConnect</span></div>
@@ -84,7 +115,7 @@ body * { visibility: hidden; }
     </div>
 </aside>
 
-<main class="flex-1 p-4 sm:p-8 flex flex-col overflow-y-auto mt-24 md:mt-0">
+<main class="flex-1 p-4 sm:p-8 flex flex-col overflow-y-auto mt-24 md:mt-0 min-w-0">
     
     <div id="dashboard-page" class="view-container hidden">
         <div class="flex flex-wrap justify-between items-center gap-4 mb-2">
@@ -139,40 +170,34 @@ body * { visibility: hidden; }
                 </div>
                 <div class="bg-card p-6 rounded-lg">
                     <h3 class="text-2xl font-bold mb-4 text-principal">Atalhos Rápidos ⚡</h3>
-                    <!-- No arquivo index.html, substitua esta seção inteira -->
-
-<div class="swiper swiper-atalhos">
-    <div class="swiper-wrapper">
-        <div class="swiper-slide !w-auto">
-            <a href="gerenciamento.html" target="_blank" class="block w-56 text-left p-4 rounded-lg bg-sidebar hover:bg-fundo transition-colors h-full flex flex-col">
-                <!-- 🎨 COR ALTERADA AQUI 👇 -->
-                <h4 class="font-bold text-principal"><i class="bi bi-gear-wide-connected mr-2"></i>Gerenciamento</h4>
-                <p class="text-xs text-texto-muted mt-1 flex-grow">Finanças, equipe e notas fiscais.</p>
-            </a>
-        </div>
-        <div class="swiper-slide !w-auto">
-            <a href="agente-ia.html" target="_blank" class="block w-56 text-left p-4 rounded-lg bg-sidebar hover:bg-fundo transition-colors h-full flex flex-col">
-                <!-- 🎨 COR ALTERADA AQUI 👇 -->
-                <h4 class="font-bold text-principal"><i class="bi bi-magic mr-2"></i>Criador Mágico IA</h4>
-                <p class="text-xs text-texto-muted mt-1 flex-grow">Suporte e ideias de marketing.</p>
-            </a>
-        </div>
-        <div class="swiper-slide !w-auto">
-            <a href="garcom-login.html" target="_blank" class="block w-56 text-left p-4 rounded-lg bg-sidebar hover:bg-fundo transition-colors h-full flex flex-col">
-                <!-- 🎨 COR ALTERADA AQUI 👇 -->
-                <h4 class="font-bold text-principal"><i class="bi bi-person-badge-fill mr-2"></i>Acesso do Garçom</h4>
-                <p class="text-xs text-texto-muted mt-1 flex-grow">Link para a tela de login da equipe.</p>
-            </a>
-        </div>
-         <div class="swiper-slide !w-auto">
-            <a href="cardapio-mesa.html" target="_blank" class="block w-56 text-left p-4 rounded-lg bg-sidebar hover:bg-fundo transition-colors h-full flex flex-col">
-                <!-- 🎨 COR ALTERADA AQUI 👇 -->
-                <h4 class="font-bold text-principal"><i class="bi bi-book-fill mr-2"></i>Cardápio de Mesa</h4>
-                <p class="text-xs text-texto-muted mt-1 flex-grow">Visualize o cardápio do cliente.</p>
-            </a>
-        </div>
-    </div>
-</div>
+                    <div class="swiper swiper-atalhos">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide !w-auto">
+                                <a href="gerenciamento.html" target="_blank" class="block w-56 text-left p-4 rounded-lg bg-sidebar hover:bg-fundo transition-colors h-full flex flex-col">
+                                    <h4 class="font-bold text-principal"><i class="bi bi-gear-wide-connected mr-2"></i>Gerenciamento</h4>
+                                    <p class="text-xs text-texto-muted mt-1 flex-grow">Finanças, equipe e notas fiscais.</p>
+                                </a>
+                            </div>
+                            <div class="swiper-slide !w-auto">
+                                <a href="agente-ia.html" target="_blank" class="block w-56 text-left p-4 rounded-lg bg-sidebar hover:bg-fundo transition-colors h-full flex flex-col">
+                                    <h4 class="font-bold text-principal"><i class="bi bi-magic mr-2"></i>Criador Mágico IA</h4>
+                                    <p class="text-xs text-texto-muted mt-1 flex-grow">Suporte e ideias de marketing.</p>
+                                </a>
+                            </div>
+                            <div class="swiper-slide !w-auto">
+                                <a href="garcom-login.html" target="_blank" class="block w-56 text-left p-4 rounded-lg bg-sidebar hover:bg-fundo transition-colors h-full flex flex-col">
+                                    <h4 class="font-bold text-principal"><i class="bi bi-person-badge-fill mr-2"></i>Acesso do Garçom</h4>
+                                    <p class="text-xs text-texto-muted mt-1 flex-grow">Link para a tela de login da equipe.</p>
+                                </a>
+                            </div>
+                             <div class="swiper-slide !w-auto">
+                                <a href="cardapio-mesa.html" target="_blank" class="block w-56 text-left p-4 rounded-lg bg-sidebar hover:bg-fundo transition-colors h-full flex flex-col">
+                                    <h4 class="font-bold text-principal"><i class="bi bi-book-fill mr-2"></i>Cardápio de Mesa</h4>
+                                    <p class="text-xs text-texto-muted mt-1 flex-grow">Visualize o cardápio do cliente.</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -183,6 +208,14 @@ body * { visibility: hidden; }
         <div class="mb-8 border-b border-borda">
             <nav id="abas-categorias-admin" class="flex space-x-2 -mb-px overflow-x-auto" aria-label="Tabs"></nav>
         </div>
+        <div class="bg-card border-l-4 border-principal p-4 rounded-lg mb-8 flex items-center justify-between gap-4">
+        <div>
+            <h4 class="font-bold text-lg text-principal">✨ Assistente de Marketing IA</h4>
+            <p class="text-texto-muted text-sm mt-1">
+                Sem criatividade? Use nossos assistentes! Ao criar ou editar um produto, procure pelo ícone ✨ para gerar nomes e descrições vendedoras. Para posts de redes sociais, use o ícone 📣 direto no card do produto.
+            </p>
+        </div>
+    </div>
         <div id="lista-produtos-admin" class="flex-grow"></div>
         <div id="paginacao-container-admin" class="flex justify-center items-center space-x-2 mt-8"></div>
     </div>
@@ -267,89 +300,220 @@ body * { visibility: hidden; }
                     <div class="flex justify-end pt-4"><button type="submit" class="w-full py-3 px-8 rounded-lg bg-principal hover:bg-orange-600 font-bold text-white transition-colors">Salvar Configurações</button></div>
                 </form>
             </div>
-            <div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto"><h2 class="text-3xl font-bold mb-2">Gerenciamento de Mesas</h2><p class="text-texto-muted mb-8">Adicione ou remova as mesas do seu estabelecimento.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div><h3 class="text-xl font-bold mb-4 text-principal">Adicionar Nova Mesa</h3><form id="form-nova-mesa" class="space-y-4"><div><label for="mesa-numero" class="block mb-1 font-medium text-texto-muted">Número da Mesa</label><input type="number" id="mesa-numero" class="w-full bg-fundo p-3 rounded-lg border border-borda" required></div><div class="pt-2"><button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold"><i class="bi bi-plus-circle-fill"></i> Criar Mesa</button></div></form></div><div><h3 class="text-xl font-bold mb-4 text-principal">Mesas Existentes</h3><div id="lista-mesas-existentes" class="space-y-2 max-h-72 overflow-y-auto pr-2"><p class="text-texto-muted animate-pulse">Buscando mesas...</p></div></div></div></div><div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto" id="gerenciamento-categorias"><h2 class="text-3xl font-bold mb-2">Gerenciamento de Categorias</h2><p class="text-texto-muted mb-8">Crie e organize as categorias que aparecerão na vitrine.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div><h3 class="text-xl font-bold mb-4 text-principal">Adicionar / Editar Categoria</h3><form id="form-nova-categoria" class="space-y-4"><input type="hidden" id="categoria-id"><div><label for="categoria-nome" class="block mb-1 font-medium text-texto-muted">Nome da Categoria</label><input type="text" id="categoria-nome" class="w-full bg-fundo p-3 rounded-lg border border-borda" required></div><div><label for="categoria-cor" class="block mb-1 font-medium text-texto-muted">Cor do Card</label><input type="color" id="categoria-cor" class="w-full h-12 bg-fundo p-1 rounded-lg border border-borda cursor-pointer" value="#38326b"></div><div><label class="block mb-1 font-medium text-texto-muted">Ícone da Categoria (PNG ou SVG)</label><div id="categoria-icone-upload-area" class="w-full p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors"><img id="categoria-icone-preview" src="" alt="Pré-visualização do Ícone" class="w-16 h-16 mx-auto mb-2 hidden object-contain"><i id="categoria-icone-placeholder" class="bi bi-cloud-arrow-up-fill text-3xl"></i><span class="block mt-2 font-semibold">Buscar ícone</span></div><input type="file" id="categoria-icone-file-input" accept="image/png, image/svg+xml" class="hidden"><input type="hidden" id="categoria-icone-url"></div><div class="pt-2 flex flex-col md:flex-row gap-4"><button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar Categoria</button><button type="button" id="btn-limpar-form-categoria" class="w-full py-3 px-5 rounded-lg bg-gray-500 hover:bg-gray-600 font-bold">Limpar</button></div></form></div><div><h3 class="text-xl font-bold mb-4 text-principal">Categorias Existentes</h3><p class="text-sm text-texto-muted mb-2">Arraste para reordenar.</p><div id="lista-categorias-existentes" class="space-y-2 max-h-96 overflow-y-auto pr-2"></div></div></div></div><div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto" id="gerenciamento-banners"><h2 class="text-3xl font-bold mb-2">Banners Promocionais</h2><p class="text-texto-muted mb-8">Adicione e organize os banners da página inicial da sua vitrine.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div><h3 class="text-xl font-bold mb-4 text-principal">Adicionar / Editar Banner</h3><form id="form-novo-banner" class="space-y-4"><input type="hidden" id="banner-id"><div><label class="block mb-1 font-medium text-texto-muted">Imagem do Banner</label><div id="banner-imagem-upload-area" class="w-full p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors"><img id="banner-imagem-preview" src="" alt="Pré-visualização do Banner" class="w-full h-auto mx-auto mb-2 hidden object-contain rounded-md"><i id="banner-imagem-placeholder" class="bi bi-cloud-arrow-up-fill text-3xl"></i><span class="block mt-2 font-semibold">Buscar a imagem</span></div><input type="file" id="banner-imagem-file-input" accept="image/png, image/jpeg, image/webp" class="hidden"><input type="hidden" id="banner-imagem-url"></div><div class="pt-2 flex flex-col md:flex-row gap-4"><button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar Banner</button><button type="button" id="btn-limpar-form-banner" class="w-full py-3 px-5 rounded-lg bg-gray-500 hover:bg-gray-600 font-bold">Limpar</button></div></form></div><div><h3 class="text-xl font-bold mb-4 text-principal">Banners Atuais</h3><p class="text-sm text-texto-muted mb-2">Arraste para reordenar.</p><div id="lista-banners-existentes" class="space-y-2 max-h-96 overflow-y-auto pr-2"><p class="text-texto-muted animate-pulse">Buscando banners...</p></div></div></div></div>
+            <div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto"><h2 class="text-3xl font-bold mb-2">Gerenciamento de Mesas</h2><p class="text-texto-muted mb-8">Adicione ou remova as mesas do seu estabelecimento.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div><h3 class="text-xl font-bold mb-4 text-principal">Adicionar Nova Mesa</h3><form id="form-nova-mesa" class="space-y-4"><div><label for="mesa-numero" class="block mb-1 font-medium text-texto-muted">Número da Mesa</label><input type="number" id="mesa-numero" class="w-full bg-fundo p-3 rounded-lg border border-borda" required></div><div class="pt-2"><button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold"><i class="bi bi-plus-circle-fill"></i> Criar Mesa</button></div></form></div><div><h3 class="text-xl font-bold mb-4 text-principal">Mesas Existentes</h3><div id="lista-mesas-existentes" class="space-y-2 max-h-72 overflow-y-auto pr-2 custom-scrollbar"><p class="text-texto-muted animate-pulse">Buscando mesas...</p></div></div></div></div><div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto" id="gerenciamento-categorias"><h2 class="text-3xl font-bold mb-2">Gerenciamento de Categorias</h2><p class="text-texto-muted mb-8">Crie e organize as categorias que aparecerão na vitrine.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div><h3 class="text-xl font-bold mb-4 text-principal">Adicionar / Editar Categoria</h3><form id="form-nova-categoria" class="space-y-4"><input type="hidden" id="categoria-id"><div><label for="categoria-nome" class="block mb-1 font-medium text-texto-muted">Nome da Categoria</label><input type="text" id="categoria-nome" class="w-full bg-fundo p-3 rounded-lg border border-borda" required></div><div><label for="categoria-cor" class="block mb-1 font-medium text-texto-muted">Cor do Card</label><input type="color" id="categoria-cor" class="w-full h-12 bg-fundo p-1 rounded-lg border border-borda cursor-pointer" value="#38326b"></div><div><label class="block mb-1 font-medium text-texto-muted">Ícone da Categoria (PNG ou SVG)</label><div id="categoria-icone-upload-area" class="w-full p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors"><img id="categoria-icone-preview" src="" alt="Pré-visualização do Ícone" class="w-16 h-16 mx-auto mb-2 hidden object-contain"><i id="categoria-icone-placeholder" class="bi bi-cloud-arrow-up-fill text-3xl"></i><span class="block mt-2 font-semibold">Buscar ícone</span></div><input type="file" id="categoria-icone-file-input" accept="image/png, image/svg+xml" class="hidden"><input type="hidden" id="categoria-icone-url"></div><div class="pt-2 flex flex-col md:flex-row gap-4"><button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar Categoria</button><button type="button" id="btn-limpar-form-categoria" class="w-full py-3 px-5 rounded-lg bg-gray-500 hover:bg-gray-600 font-bold">Limpar</button></div></form></div><div><h3 class="text-xl font-bold mb-4 text-principal">Categorias Existentes</h3><p class="text-sm text-texto-muted mb-2">Arraste para reordenar.</p><div id="lista-categorias-existentes" class="space-y-2 max-h-96 overflow-y-auto pr-2 custom-scrollbar"></div></div></div></div><div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto" id="gerenciamento-banners"><h2 class="text-3xl font-bold mb-2">Banners Promocionais</h2><p class="text-texto-muted mb-8">Adicione e organize os banners da página inicial da sua vitrine.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div><h3 class="text-xl font-bold mb-4 text-principal">Adicionar / Editar Banner</h3><form id="form-novo-banner" class="space-y-4"><input type="hidden" id="banner-id"><div><label class="block mb-1 font-medium text-texto-muted">Imagem do Banner</label><div id="banner-imagem-upload-area" class="w-full p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors"><img id="banner-imagem-preview" src="" alt="Pré-visualização do Banner" class="w-full h-auto mx-auto mb-2 hidden object-contain rounded-md"><i id="banner-imagem-placeholder" class="bi bi-cloud-arrow-up-fill text-3xl"></i><span class="block mt-2 font-semibold">Buscar a imagem</span></div><input type="file" id="banner-imagem-file-input" accept="image/png, image/jpeg, image/webp" class="hidden"><input type="hidden" id="banner-imagem-url"></div><div class="pt-2 flex flex-col md:flex-row gap-4"><button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar Banner</button><button type="button" id="btn-limpar-form-banner" class="w-full py-3 px-5 rounded-lg bg-gray-500 hover:bg-gray-600 font-bold">Limpar</button></div></form></div><div><h3 class="text-xl font-bold mb-4 text-principal">Banners Atuais</h3><p class="text-sm text-texto-muted mb-2">Arraste para reordenar.</p><div id="lista-banners-existentes" class="space-y-2 max-h-96 overflow-y-auto pr-2 custom-scrollbar"><p class="text-texto-muted animate-pulse">Buscando banners...</p></div></div></div></div>
         </div>
     </div>
 
 </main>
 </div>
+
 <!-- MODAIS E SCRIPTS -->
-<div class="modal fade" id="modal-produto" tabindex="-1" aria-labelledby="modal-produto-label" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content" style="background-color:#2c2854;color:white"><div class="modal-header border-b border-borda"><h5 class="modal-title text-2xl font-bold" id="modal-produto-label">Gerenciar Produto</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body">
-    <!-- ➕ NOVA ESTRUTURA DO FORMULÁRIO 👇 -->
-    <form id="form-produto" class="space-y-4">
-        <input type="hidden" id="produtoId">
-        
-        <!-- Campo Nome com Botão IA -->
-        <div class="relative">
-            <input type="text" id="produtoNome" placeholder="Nome do Produto" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none pr-12" required>
-            <button type="button" id="btn-ia-nome" class="absolute top-1/2 right-3 -translate-y-1/2 text-principal text-2xl hover:opacity-80" title="Gerar nomes criativos com IA">✨</button>
-        </div>
-
-        <div id="container-produto-categoria">
-            <select id="produtoCategoria" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none" required>
-                <option value="" disabled selected>Selecione uma categoria...</option>
-            </select>
-        </div>
-        
-        <input type="number" step="0.01" id="produtoPreco" placeholder="Preço (ex: 9.99)" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none" required>
-        
-        <!-- Campo Descrição com Botão IA -->
-        <div id="container-produto-descricao" class="relative">
-            <textarea id="produtoDescricao" rows="3" placeholder="Descrição Curta" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none pr-12"></textarea>
-            <button type="button" id="btn-ia-descricao" class="absolute top-3 right-3 text-principal text-2xl hover:opacity-80" title="Gerar descrição vendedora com IA">✨</button>
-        </div>
-        
-        <div id="container-produto-ingredientes">
-            <input type="text" id="produtoIngredientes" placeholder="Ingredientes (separados por vírgula)" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none">
-        </div>
-
-        <div id="container-produto-imagens">
-            <label class="block mb-1 font-medium text-texto-muted">Imagens</label>
-            <div id="upload-area" class="w-full p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors">
-                <i class="bi bi-cloud-arrow-up-fill text-3xl"></i>
-                <span class="block mt-2 font-semibold">Buscar imagens</span>
+<div class="modal fade" id="modal-produto" tabindex="-1" aria-labelledby="modal-produto-label" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="background-color:#2c2854;color:white">
+            <div class="modal-header border-b border-borda">
+                <h5 class="modal-title text-2xl font-bold" id="modal-produto-label">Gerenciar Produto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <input type="file" id="file-input" multiple accept="image/*" class="hidden">
-            <div id="previews-container" class="mt-4 grid grid-cols-3 sm:grid-cols-5 gap-4"></div>
+            <div class="modal-body">
+                <form id="form-produto" class="space-y-4">
+                    <input type="hidden" id="produtoId">
+                    <div class="relative">
+                        <input type="text" id="produtoNome" placeholder="Nome do Produto" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none pr-12" required>
+                        <button type="button" id="btn-ia-nome" class="absolute top-1/2 right-3 -translate-y-1/2 text-principal text-2xl hover:opacity-80" title="Gerar nomes criativos com IA">✨</button>
+                    </div>
+                    <div id="container-produto-categoria">
+                        <select id="produtoCategoria" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none" required>
+                            <option value="" disabled selected>Selecione uma categoria...</option>
+                        </select>
+                    </div>
+                    <input type="number" step="0.01" id="produtoPreco" placeholder="Preço (ex: 9.99)" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none" required>
+                    <div id="container-produto-descricao" class="relative">
+                        <textarea id="produtoDescricao" rows="3" placeholder="Descrição Curta" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none pr-12"></textarea>
+                        <button type="button" id="btn-ia-descricao" class="absolute top-3 right-3 text-principal text-2xl hover:opacity-80" title="Gerar descrição vendedora com IA">✨</button>
+                    </div>
+                    <div id="container-produto-ingredientes">
+                        <input type="text" id="produtoIngredientes" placeholder="Ingredientes (separados por vírgula)" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none">
+                    </div>
+                    <div id="container-produto-imagens">
+                        <label class="block mb-1 font-medium text-texto-muted">Imagens</label>
+                        <div id="upload-area" class="w-full p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors">
+                            <i class="bi bi-cloud-arrow-up-fill text-3xl"></i>
+                            <span class="block mt-2 font-semibold">Buscar imagens</span>
+                        </div>
+                        <input type="file" id="file-input" multiple accept="image/*" class="hidden">
+                        <div id="previews-container" class="mt-4 grid grid-cols-3 sm:grid-cols-5 gap-4"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-t border-borda">
+                <button type="button" class="py-2 px-4 rounded-lg bg-gray-500 hover:bg-gray-600" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="form-produto" class="py-2 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar Produto</button>
+            </div>
         </div>
-    </form>
-</div><div class="modal-footer border-t border-borda"><button type="button" class="py-2 px-4 rounded-lg bg-gray-500 hover:bg-gray-600" data-bs-dismiss="modal">Cancelar</button><button type="submit" form="form-produto" class="py-2 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar Produto</button></div></div></div></div>
-<div class="modal fade" id="modal-lancamento-pedido" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-xl modal-dialog-centered"><div class="modal-content" style="background-color: #2c2854; color: white;"><div class="modal-header border-b border-borda"><h5 class="modal-title text-2xl font-bold" id="modal-titulo">Lançar Pedido</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div id="caixa-coluna-esquerda"><h3 class="font-bold text-lg mb-2">Cardápio</h3><input type="text" id="busca-produto-caixa" placeholder="Buscar produto..." class="w-full bg-fundo p-2 rounded-lg border border-borda mb-4"><div id="lista-produtos-caixa" class="flex-grow overflow-y-auto pr-2" style="max-height: 400px;"></div></div><div class="bg-card p-4 rounded-lg flex flex-col"><h3 class="font-bold text-lg mb-4">Comanda</h3><div id="comanda-itens" class="flex-grow space-y-2 min-h-[200px]"></div><div class="border-t border-borda mt-4 pt-4">
- <div id="area-pagamento" class="space-y-4 mb-4 hidden">
-    <h4 class="font-semibold text-lg">Pagamento</h4>
-    <select id="caixa-forma-pagamento" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none">
-        <option value="" disabled selected>Selecione a forma de pagamento...</option>
-        <option value="PIX">PIX 💠</option>
-        <option value="DINHEIRO">Dinheiro 💵</option>
-        <option value="DEBITO">Débito 💳</option>
-        <option value="CREDITO">Crédito 💳</option>
-    </select>
-</div>
-<div class="flex justify-between items-center text-xl">
-    <span class="font-semibold">Total:</span>
-    <div class="flex items-center gap-2">
-        <button id="btn-toggle-taxa" class="bg-sidebar text-sm font-semibold py-1 px-3 rounded-md hover:bg-fundo transition-colors">
-            + TAXA 10%
-        </button>
-        <span class="font-bold text-principal" id="comanda-total">R$ 0,00</span>
     </div>
 </div>
- </div></div></div></div><div class="modal-footer border-t border-borda"><button type="button" class="py-2 px-4 rounded-lg bg-gray-500 hover:bg-gray-600" data-bs-dismiss="modal">Cancelar</button><button type="button" id="btn-finalizar-lancamento" class="py-2 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Lançar na Cozinha</button><button type="button" id="btn-finalizar-checkout" class="py-2 px-5 rounded-lg bg-green-500 hover:bg-green-600 font-bold hidden">Finalizar e Imprimir</button></div></div></div></div>
-<div class="modal fade" id="modal-gerenciamento-pedido" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-xl modal-dialog-centered"><div class="modal-content" style="background-color: #2c2854; color: white;"><div class="modal-header border-b border-borda"><h5 class="modal-title text-2xl font-bold" id="gerenciamento-modal-titulo">Gerenciar Pedido</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div><h3 class="font-bold text-lg mb-2">Adicionar Itens</h3><input type="text" id="gerenciamento-busca-produto" placeholder="Buscar produto para adicionar..." class="w-full bg-fundo p-2 rounded-lg border border-borda mb-4"><div id="gerenciamento-lista-produtos" class="flex-grow overflow-y-auto pr-2" style="max-height: 400px;"></div></div><div class="bg-card p-4 rounded-lg flex flex-col"><h3 class="font-bold text-lg mb-4">Itens do Pedido</h3><div id="gerenciamento-comanda-itens" class="flex-grow space-y-2"></div><div class="border-t border-borda mt-4 pt-4"><div class="flex justify-between items-center text-xl"><span class="font-semibold">Novo Total:</span><span class="font-bold text-principal" id="gerenciamento-comanda-total">R$ 0,00</span></div></div></div></div></div>
-<div class="modal-footer border-t border-borda justify-between">
-    <button type="button" id="btn-cancelar-pedido" class="py-2 px-5 rounded-lg bg-red-600 hover:bg-red-700 font-bold">Cancelar Pedido</button>
-    <div class="flex items-center gap-4">
-        <button type="button" class="py-2 px-4 rounded-lg bg-gray-500 hover:bg-gray-600" data-bs-dismiss="modal">Fechar</button>
+
+<div class="modal fade" id="modal-ficha-tecnica" tabindex="-1" aria-labelledby="modal-ficha-tecnica-label" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="background-color:#2c2854;color:white">
+            <div class="modal-header border-b border-borda">
+                <h5 class="modal-title text-2xl font-bold text-principal" id="modal-ficha-tecnica-label">Ficha Técnica</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Adicionar Insumo</h3>
+                        <form id="form-adicionar-insumo" class="space-y-4">
+                            <input type="hidden" id="ficha-produto-id">
+                            <div>
+                                <label for="select-insumo" class="block mb-1 font-medium text-texto-muted">Insumo</label>
+                                <select id="select-insumo" class="w-full bg-fundo p-3 rounded-lg border border-borda" required></select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="insumo-quantidade" class="block mb-1 font-medium text-texto-muted">Quantidade</label>
+                                    <input type="number" step="0.001" id="insumo-quantidade" placeholder="Ex: 0.150" class="w-full bg-fundo p-3 rounded-lg border border-borda" required>
+                                </div>
+                                <div>
+                                    <label for="insumo-unidade" class="block mb-1 font-medium text-texto-muted">Unidade</label>
+                                    <select id="insumo-unidade" class="w-full bg-fundo p-3 rounded-lg border border-borda" required>
+                                        <option value="g">g (Grama)</option>
+                                        <option value="Kg">Kg (Quilograma)</option>
+                                        <option value="ml">ml (Mililitro)</option>
+                                        <option value="L">L (Litro)</option>
+                                        <option value="Unidade">Unidade</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="pt-2">
+                                <button type="submit" class="w-full py-3 rounded-lg bg-principal hover:bg-orange-600 font-bold">Adicionar à Ficha</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="bg-card p-4 rounded-lg">
+                        <h3 class="text-xl font-bold mb-4 text-principal">Composição e Preço</h3>
+                        <div id="lista-insumos-ficha" class="space-y-2 max-h-60 overflow-y-auto pr-2 mb-4">
+                            <p class="text-texto-muted text-center">Nenhum insumo adicionado.</p>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-borda pt-3">
+                            <p class="text-texto-muted">Custo Total (CMV)</p>
+                            <p id="cmv-total" class="text-xl font-bold text-green-400">R$ 0,00</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-3">
+                            <label for="markup-percentual" class="text-texto-muted whitespace-nowrap mr-4">Markup (%)</label>
+                            <input type="number" id="markup-percentual" value="200" class="w-24 bg-fundo p-2 rounded-lg border border-borda text-right font-bold text-lg">
+                        </div>
+                        <div class="flex justify-between items-center mt-4 pt-3 border-t-2 border-principal">
+                            <p class="font-bold text-principal text-lg">Preço Sugerido</p>
+                            <div class="flex items-center gap-2">
+                                <p id="preco-sugerido" class="text-2xl font-bold text-principal">R$ 0,00</p>
+                                <button id="btn-copiar-preco" type="button" class="p-2 text-texto-muted hover:text-white" title="Copiar preço sugerido"><i class="bi bi-clipboard-check-fill"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-t border-borda">
+                <button type="button" class="py-2 px-4 rounded-lg bg-gray-500 hover:bg-gray-600" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
     </div>
 </div>
-</div></div></div>
+
+<div class="modal fade" id="modal-lancamento-pedido" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="background-color: #2c2854; color: white;">
+            <div class="modal-header border-b border-borda">
+                <h5 class="modal-title text-2xl font-bold" id="modal-titulo">Lançar Pedido</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div id="caixa-coluna-esquerda">
+                        <h3 class="font-bold text-lg mb-2">Cardápio</h3>
+                        <input type="text" id="busca-produto-caixa" placeholder="Buscar produto..." class="w-full bg-fundo p-2 rounded-lg border border-borda mb-4">
+                        <div id="lista-produtos-caixa" class="flex-grow overflow-y-auto pr-2" style="max-height: 400px;"></div>
+                    </div>
+                    <div class="bg-card p-4 rounded-lg flex flex-col">
+                        <h3 class="font-bold text-lg mb-4">Comanda</h3>
+                        <div id="comanda-itens" class="flex-grow space-y-2 min-h-[200px]"></div>
+                        <div class="border-t border-borda mt-4 pt-4">
+                            <div id="area-pagamento" class="space-y-4 mb-4 hidden">
+                                <h4 class="font-semibold text-lg">Pagamento</h4>
+                                <select id="caixa-forma-pagamento" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none">
+                                    <option value="" disabled selected>Selecione a forma de pagamento...</option>
+                                    <option value="PIX">PIX 💠</option>
+                                    <option value="DINHEIRO">Dinheiro 💵</option>
+                                    <option value="DEBITO">Débito 💳</option>
+                                    <option value="CREDITO">Crédito 💳</option>
+                                </select>
+                            </div>
+                            <div class="flex justify-between items-center text-xl">
+                                <span class="font-semibold">Total:</span>
+                                <div class="flex items-center gap-2">
+                                    <button id="btn-toggle-taxa" class="bg-sidebar text-sm font-semibold py-1 px-3 rounded-md hover:bg-fundo transition-colors">+ TAXA 10%</button>
+                                    <span class="font-bold text-principal" id="comanda-total">R$ 0,00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-t border-borda">
+                <button type="button" class="py-2 px-4 rounded-lg bg-gray-500 hover:bg-gray-600" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btn-finalizar-lancamento" class="py-2 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Lançar na Cozinha</button>
+                <button type="button" id="btn-finalizar-checkout" class="py-2 px-5 rounded-lg bg-green-500 hover:bg-green-600 font-bold hidden">Finalizar e Imprimir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-gerenciamento-pedido" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="background-color: #2c2854; color: white;">
+            <div class="modal-header border-b border-borda">
+                <h5 class="modal-title text-2xl font-bold" id="gerenciamento-modal-titulo">Gerenciar Pedido</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold text-lg mb-2">Adicionar Itens</h3>
+                        <input type="text" id="gerenciamento-busca-produto" placeholder="Buscar produto para adicionar..." class="w-full bg-fundo p-2 rounded-lg border border-borda mb-4">
+                        <div id="gerenciamento-lista-produtos" class="flex-grow overflow-y-auto pr-2" style="max-height: 400px;"></div>
+                    </div>
+                    <div class="bg-card p-4 rounded-lg flex flex-col">
+                        <h3 class="font-bold text-lg mb-4">Itens do Pedido</h3>
+                        <div id="gerenciamento-comanda-itens" class="flex-grow space-y-2"></div>
+                        <div class="border-t border-borda mt-4 pt-4">
+                            <div class="flex justify-between items-center text-xl">
+                                <span class="font-semibold">Novo Total:</span>
+                                <span class="font-bold text-principal" id="gerenciamento-comanda-total">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-t border-borda justify-between">
+                <button type="button" id="btn-cancelar-pedido" class="py-2 px-5 rounded-lg bg-red-600 hover:bg-red-700 font-bold">Cancelar Pedido</button>
+                <button type="button" id="btn-imprimir-preconta" class="py-2 px-5 rounded-lg bg-blue-500 hover:bg-blue-600 font-bold hidden"><i class="bi bi-printer-fill mr-2"></i>Imprimir Pré-Conta</button>
+                <div class="flex items-center gap-4">
+                    <button type="button" class="py-2 px-4 rounded-lg bg-gray-500 hover:bg-gray-600" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="print-area" class="hidden"></div>
 <audio id="notification-sound" src="assets/notificacao.mp3" preload="auto"></audio>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-<script src="js/config.js"></script>
+<script type="module" src="js/config.js"></script>.
 <script type="module" src="js/main.js"></script>
 <script type="module" src="js/functions/authVigia.js"></script>
 </body>

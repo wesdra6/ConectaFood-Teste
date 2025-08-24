@@ -1,12 +1,28 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/hub-integracao.js
-
-import { fetchDeN8N, enviarParaN8N } from './api.js';
+import { fetchDeAPI, enviarParaAPI } from './api.js';
+import { API_ENDPOINTS } from '../config.js';
 
 let lojaConfigFiscal = null; 
+// ➕ NOVAS VARIÁVEIS DE ESTADO
+let todosOsPedidosDoPeriodo = [];
+let paginaAtual = 1;
+const ITENS_POR_PAGINA = 10;
 
 export function initHubIntegracaoPage() {
     console.log("Maestro: Página de Integração Fiscal iniciada. 🎵");
     inicializarFiltros();
+}
+
+// Orquestrador principal que aplica filtros e chama as funções de renderização
+function aplicarFiltrosEExibir() {
+    const termoBusca = document.getElementById('busca-pedidos-fiscais').value.toLowerCase();
+    
+    const pedidosFiltrados = todosOsPedidosDoPeriodo.filter(p => 
+        (p.nome_cliente || '').toLowerCase().includes(termoBusca) ||
+        (p.id_pedido_publico || '').toLowerCase().includes(termoBusca)
+    );
+
+    renderizarTabelaFiscais(pedidosFiltrados);
+    renderizarPaginacaoFiscal(pedidosFiltrados.length);
 }
 
 function inicializarFiltros() {
@@ -14,6 +30,7 @@ function inicializarFiltros() {
     if (btnHoje) {
         btnHoje.click();
     }
+
     document.getElementById('btn-aplicar-filtros-fiscais')?.addEventListener('click', () => {
         document.querySelectorAll('#filtros-rapidos-fiscais .filtro-btn').forEach(b => b.classList.remove('active'));
         const inicio = document.getElementById('data-inicio-fiscal').value;
@@ -24,6 +41,7 @@ function inicializarFiltros() {
             Swal.fire({icon: 'warning', title: 'Datas incompletas!', text: 'Por favor, selecione as datas de início e fim.', background: '#2c2854', color: '#ffffff'});
         }
     });
+
     document.querySelectorAll('#filtros-rapidos-fiscais .filtro-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('#filtros-rapidos-fiscais .filtro-btn').forEach(b => b.classList.remove('active'));
@@ -33,6 +51,12 @@ function inicializarFiltros() {
             document.getElementById('data-fim-fiscal').value = periodo.fim;
             buscarPedidosParaEmissao(periodo.inicio, periodo.fim);
         });
+    });
+
+    // ✅ Listener para a barra de busca
+    document.getElementById('busca-pedidos-fiscais')?.addEventListener('keyup', () => {
+        paginaAtual = 1; // Reseta para a primeira página a cada busca
+        aplicarFiltrosEExibir();
     });
 }
 
@@ -67,29 +91,43 @@ async function buscarPedidosParaEmissao(dataInicio, dataFim) {
     
     try {
         if (!lojaConfigFiscal) {
-            const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
+            const configs = await fetchDeAPI(API_ENDPOINTS.get_loja_config);
             if (configs && configs.length > 0) lojaConfigFiscal = configs[0];
         }
-        const url = `${window.N8N_CONFIG.get_financial_report}?inicio=${dataInicio}&fim=${dataFim}`;
-        const pedidos = await fetchDeN8N(url);
-        if (!pedidos || pedidos.length === 0) {
-            corpoTabela.innerHTML = `<div class="bg-card rounded-lg p-6 text-center text-texto-muted"><i class="bi bi-check-circle text-4xl mb-3"></i><p>Nenhum pedido encontrado</p><p class="text-sm">Não há pedidos finalizados no período selecionado.</p></div>`;
-            return;
-        }
-        renderizarTabelaFiscais(pedidos);
+        const url = `${API_ENDPOINTS.get_financial_report}?inicio=${dataInicio}&fim=${dataFim}`;
+        const pedidos = await fetchDeAPI(url);
+        
+        todosOsPedidosDoPeriodo = Array.isArray(pedidos) ? pedidos : [];
+        paginaAtual = 1; // Reseta a página
+        document.getElementById('busca-pedidos-fiscais').value = ''; // Limpa a busca
+        aplicarFiltrosEExibir(); // Chama o orquestrador
+
     } catch (error) {
         console.error("Erro ao buscar pedidos finalizados:", error);
         corpoTabela.innerHTML = `<div class="bg-card rounded-lg p-6 text-center text-red-400">Falha ao carregar pedidos. Verifique o console.</div>`;
     }
 }
 
+// Função de renderização agora pagina os resultados
 function renderizarTabelaFiscais(pedidos) {
     const corpoTabela = document.getElementById('tabela-pedidos-fiscais-corpo');
     if(!corpoTabela) return;
     corpoTabela.innerHTML = '';
+    
+    if (!pedidos || pedidos.length === 0) {
+        corpoTabela.innerHTML = `<div class="bg-card rounded-lg p-6 text-center text-texto-muted"><i class="bi bi-search text-4xl mb-3"></i><p>Nenhum pedido encontrado</p><p class="text-sm">Tente ajustar seus filtros de busca ou período.</p></div>`;
+        return;
+    }
+
+    // Fatiamos o array para a página atual
+    const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+    const fim = inicio + ITENS_POR_PAGINA;
+    const pedidosPaginados = pedidos.slice(inicio, fim);
+
     const origemCores = { 'WHATSAPP': 'bg-green-500/20 text-green-300', 'MESA': 'bg-purple-500/20 text-purple-300', 'BALCAO': 'bg-yellow-500/20 text-yellow-300', 'DELIVERY': 'bg-blue-500/20 text-blue-300' };
     
-    pedidos.forEach(pedido => {
+    pedidosPaginados.forEach(pedido => {
+        // ... (o resto da lógica de renderização do item individual continua a mesma)
         const dataHora = new Date(pedido.created_at);
         const dataFormatada = dataHora.toLocaleDateString('pt-BR');
         const horaFormatada = dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -151,7 +189,7 @@ function renderizarTabelaFiscais(pedidos) {
 
     window.hubFunctions = {
         emitirNota: (pedidoId) => { 
-            const pedidoParaEmitir = pedidos.find(p => p.pedido_id == pedidoId); 
+            const pedidoParaEmitir = todosOsPedidosDoPeriodo.find(p => p.pedido_id == pedidoId); 
             if (pedidoParaEmitir) { 
                 enviarParaEmissao(pedidoParaEmitir); 
             } else { Swal.fire('Erro', 'Pedido não encontrado!', 'error'); } 
@@ -159,6 +197,30 @@ function renderizarTabelaFiscais(pedidos) {
         baixarDocumento: (url, tipo, idPublico) => { baixarDocumentoSeguro(url, tipo, idPublico); }
     };
 }
+
+// ✅ NOVA FUNÇÃO PARA RENDERIZAR A PÁGINAÇÃO
+function renderizarPaginacaoFiscal(totalItens) {
+    const pagContainer = document.getElementById('paginacao-fiscais-container');
+    if (!pagContainer) return;
+
+    pagContainer.innerHTML = '';
+    const totalPaginas = Math.ceil(totalItens / ITENS_POR_PAGINA);
+
+    if (totalPaginas <= 1) return;
+
+    for (let i = 1; i <= totalPaginas; i++) {
+        const btn = document.createElement('button');
+        btn.className = `px-4 py-2 rounded-md font-bold ${i === paginaAtual ? 'bg-principal text-white' : 'bg-card hover:bg-sidebar'}`;
+        btn.innerText = i;
+        btn.onclick = () => {
+            paginaAtual = i;
+            aplicarFiltrosEExibir();
+        };
+        pagContainer.appendChild(btn);
+    }
+}
+
+// O resto das funções (enviarParaEmissao, baixarDocumentoSeguro) continuam as mesmas
 
 async function enviarParaEmissao(pedido) {
     if (!lojaConfigFiscal || !lojaConfigFiscal.cnpj_cpf) { Swal.fire('Configuração Incompleta', 'É necessário cadastrar o CNPJ da loja em Configurações para emitir notas.', 'warning'); return; }
@@ -168,7 +230,7 @@ async function enviarParaEmissao(pedido) {
     const totalCalculado = itensMapeados.reduce((acc, item) => acc + item.valor, 0);
     const payloadPlugNotas = { idIntegracao: `PEDIDO-${pedido.id_pedido_publico}`, natureza: "VENDA", emitente: { cpfCnpj: cpfCnpjEmitente }, itens: itensMapeados, pagamentos: [{ aVista: true, meio: "99", valor: parseFloat(totalCalculado.toFixed(2)), valorTroco: 0 }], responsavelTecnico: { cpfCnpj: "48191554000140", nome: "UP Tecnology", email: "contato@uptecnology.com.br", telefone: { ddd: "62", numero: "32985050" } } };
     try {
-        const resultado = await enviarParaN8N(window.N8N_CONFIG.emitir_nfce, [payloadPlugNotas]);
+        const resultado = await enviarParaAPI(API_ENDPOINTS.emitir_nfce, [payloadPlugNotas]);
         if (resultado.success) { Swal.fire('Sucesso!', 'NFC-e enviada para autorização! A tela será atualizada.', 'success'); setTimeout(() => buscarPedidosParaEmissao(document.getElementById('data-inicio-fiscal').value, document.getElementById('data-fim-fiscal').value), 1500); } else { throw new Error(resultado.message || 'Erro retornado pelo servidor de notas.'); }
     } catch (error) { Swal.fire({ icon: 'error', title: 'Falha na Emissão', html: `Não foi possível enviar a nota.<br><br><b class="text-principal">Erro:</b> ${error.message}` }); }
 }
@@ -178,7 +240,7 @@ async function baixarDocumentoSeguro(url, tipo, idPublico) {
     Swal.fire({ title: `Baixando ${tipo.toUpperCase()}...`, text: 'Aguarde, estamos buscando o arquivo.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     
     try {
-        const resultado = await enviarParaN8N(window.N8N_CONFIG.download_documento_fiscal, { url });
+        const resultado = await enviarParaAPI(API_ENDPOINTS.download_documento_fiscal, { url });
         
         if (resultado && resultado.fileData) {
             

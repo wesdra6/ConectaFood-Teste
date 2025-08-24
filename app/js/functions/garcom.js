@@ -1,7 +1,7 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/garcom.js
 
-import { enviarParaN8N, fetchDeN8N } from './api.js';
+import { enviarParaAPI, fetchDeAPI } from './api.js';
 import { abrirModalGerenciamento } from './pedidos.js';
+import { API_ENDPOINTS } from '../config.js';
 
 let todosOsProdutos = [];
 let comandaAtual = [];
@@ -12,7 +12,7 @@ let lojaConfigGarcom = null;
 
 async function carregarLojaConfigGarcom() {
     try {
-        const configs = await fetchDeN8N(window.N8N_CONFIG.get_loja_config);
+        const configs = await fetchDeAPI(API_ENDPOINTS.get_loja_config);
         if (configs && configs.length > 0) {
             lojaConfigGarcom = configs[0];
             const logoContainer = document.getElementById('logo-container-garcom');
@@ -109,7 +109,7 @@ async function handleMesaClick(mesa) {
     } else {
         Swal.fire({ title: `Buscando Pedido...`, allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
         try {
-            const pedidos = await fetchDeN8N(window.N8N_CONFIG.get_all_orders);
+            const pedidos = await fetchDeAPI(API_ENDPOINTS.get_all_orders);
             const pedidoDaMesa = pedidos.find(p => p.id_mesa == mesa.id && p.status !== 'ENTREGUE' && p.status !== 'CANCELADO');
             Swal.close();
 
@@ -141,7 +141,7 @@ function attachModalListeners() {
             observacoes: observacoes
         };
         try {
-            await enviarParaN8N(window.N8N_CONFIG.create_order_internal, dadosPedido);
+            await enviarParaAPI(API_ENDPOINTS.create_order_internal, dadosPedido);
             if (modalLancamentoGarcom) modalLancamentoGarcom.hide();
             Swal.fire('Sucesso!', 'Pedido enviado para a cozinha!', 'success');
             localStorage.setItem('novoPedidoAdmin', 'internal'); 
@@ -179,7 +179,7 @@ export async function initGarcomLoginPage() {
     const form = document.getElementById('form-login-garcom');
     const select = document.getElementById('garcom-select-login');
     try {
-        const garcons = await fetchDeN8N(window.N8N_CONFIG.get_all_garcons);
+        const garcons = await fetchDeAPI(API_ENDPOINTS.get_all_garcons);
         select.innerHTML = '<option value="" disabled selected>Selecione seu nome...</option>';
         garcons.forEach(garcom => { select.innerHTML += `<option value="${garcom.id}">${garcom.nome}</option>`; });
     } catch(e) { select.innerHTML = '<option value="" disabled>Falha ao carregar equipe</option>'; }
@@ -190,7 +190,7 @@ export async function initGarcomLoginPage() {
         if (!garcomId || !pin) { Swal.fire({ icon: 'warning', title: 'Opa!', text: 'Selecione seu nome e digite o PIN.', background: '#2c2854', color: '#ffffff' }); return; }
         Swal.fire({ title: 'Verificando acesso...', background: '#2c2854', color: '#ffffff', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         try {
-            const resultado = await enviarParaN8N(window.N8N_CONFIG.garcom_login, { id: garcomId, pin: pin });
+            const resultado = await enviarParaAPI(API_ENDPOINTS.garcom_login, { id: garcomId, pin: pin });
             if (Array.isArray(resultado) && resultado.length > 0) {
                 const garcom = resultado[0];
                 sessionStorage.setItem('garcom_id', garcom.id);
@@ -219,8 +219,8 @@ export async function initGarcomMesasPage() {
     });
     try {
         const [mesas, produtos] = await Promise.all([
-            fetchDeN8N(window.N8N_CONFIG.get_all_tables),
-            fetchDeN8N(window.N8N_CONFIG.get_all_products_with_type)
+            fetchDeAPI(API_ENDPOINTS.get_all_tables),
+            fetchDeAPI(API_ENDPOINTS.get_all_products_with_type)
         ]);
         todosOsProdutos = produtos;
         const mesasDoGarcom = mesas.filter(mesa => mesa.garcom_id == garcomId);
