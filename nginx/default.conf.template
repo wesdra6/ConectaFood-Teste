@@ -31,7 +31,8 @@ server {
         # O conteúdo dessa resposta é a string que vem a seguir.
         # O NGINX substitui as variáveis $VARIAVEL pelos valores
         # definidos nas "Variáveis de Ambiente" do Easypanel.
-        return 200 "
+        
+       return 200 "
 window.ENVIRONMENT_CONFIG = {
     API_BASE_URL: '$API_BASE_URL',
     API_KEY: '$API_KEY',
