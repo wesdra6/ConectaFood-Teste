@@ -1,4 +1,4 @@
-# Usa a imagem oficial do NGINX como base
+# Usa a imagem oficial do NGINX como base.
 FROM nginx:stable-alpine
 
 # Remove a configuração padrão do NGINX
