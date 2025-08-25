@@ -73,13 +73,18 @@
         <main class="container mx-auto px-4 mt-8" id="cliente-page">
             <div id="vitrine-builder-container" class="space-y-12"></div>
         </main>
-
-        <footer class="text-center py-6 mt-10 text-texto-muted border-t border-borda/20">
-             <a href="acompanhar.html" class="block mb-4 text-principal font-semibold">Acompanhar meu Pedido</a>
-            <p class="mb-1 text-sm">Feito com ❤️ por UP Tecnology.</p>
-            <p class="text-xs">© 2025. Todos os direitos reservados.</p>
-            <p class="text-xs">CNPJ: 48.191.554/0001-40</p>
-        </footer>
+        
+        <footer class="text-center py-6 mt-10 text-texto-muted border-t border-borda/20 text-sm">
+    <a href="acompanhar.html" class="block mb-4 text-principal font-semibold hover:underline">Acompanhar meu Pedido</a>
+    <p class="mb-1">
+        Feito com ❤️ por 
+        <a href="https://uptecnology.com.br" target="_blank" rel="noopener noreferrer" class="font-semibold text-texto-base hover:text-principal transition-colors">
+            UP Tecnology
+        </a>.
+    </p>
+    <p class="text-xs opacity-70">© 2025. Todos os direitos reservados.</p>
+    <p class="text-xs opacity-70">CNPJ: 48.191.554/0001-40</p>
+</footer>
 
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCarrinho" aria-labelledby="offcanvasCarrinhoLabel"><div class="offcanvas-header"><h5 class="offcanvas-title text-2xl font-bold" id="offcanvasCarrinhoLabel">Meu Carrinho <i class="bi bi-cart-check"></i></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button></div><div class="offcanvas-body d-flex flex-column p-4"><div id="carrinho-itens" class="flex-grow-1"></div><div class="border-t border-borda pt-4"><div class="d-flex justify-content-between align-items-center mb-4"><span class="text-xl font-semibold">Total:</span><span class="text-xl font-bold text-principal" id="carrinho-total">R$ 0,00</span></div><button id="btn-finalizar-pedido" class="w-full text-white font-bold py-3 rounded-lg transition-colors" type="button" data-bs-target="#enderecoModal">FECHAR PEDIDO</button></div></div></div>
         
@@ -150,5 +155,6 @@
     <script src="js/config.js"></script>
     <script type="module" src="js/main.js"></script>
     <script type="module" src="js/functions/authVigia.js"></script>
+    
 </body>
 </html>

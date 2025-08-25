@@ -131,7 +131,7 @@ function renderFeedDePedidos(pedidos) {
     
     container.innerHTML = '';
     if (pedidosExternos.length === 0) {
-        container.innerHTML = '<p class="text-center text-texto-muted py-4">Nenhum pedido externo ativo no momento. ✨</p>';
+        container.innerHTML = '<p class="text-center text-texto-muted py-4">Nenhum pedido externo e/ou balcão ativo no momento. ✨</p>';
         return;
     }
 
