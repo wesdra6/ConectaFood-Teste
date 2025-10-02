@@ -271,7 +271,6 @@ function renderizarComandaGerenciamento(contexto) {
         if (!isTaxaIntocavel && contexto !== 'GARCOM') {
             const btnRemover = itemHtml.querySelector('.btn-remover-item');
             if (btnRemover) {
-                // ✅ CORREÇÃO APLICADA AQUI DENTRO DO EVENT LISTENER
                 btnRemover.addEventListener('click', async () => {
                     try {
                         const resultado = await enviarParaAPI(API_ENDPOINTS.remove_item_from_order, { item_id: item.id });
@@ -620,8 +619,6 @@ export function initPedidosPage() {
                 });
             }
             
-            // ✅ A CORREÇÃO ESTÁ AQUI 👇
-            // Removemos o if/else e sempre atualizamos os dados em segundo plano.
             console.log("[Notificação] Novo pedido recebido. Atualizando lista de pedidos em background...");
             buscarPedidosAtivos();
         });
