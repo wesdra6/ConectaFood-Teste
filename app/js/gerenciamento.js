@@ -1,7 +1,5 @@
-// REESCREVA O ARQUIVO COMPLETO: js/gerenciamento.js
-
 import { supabase } from './supabaseClient.js';
-import { fetchDeAPI } from './functions/api.js';
+import { fetchDeAPI, enviarParaAPI } from './functions/api.js';
 import { API_ENDPOINTS } from './config.js';
 
 const contentArea = document.getElementById('content-area');
@@ -13,6 +11,8 @@ const modulos = {
     'hub-integracao.html': () => import('./functions/hub-integracao.js').then(m => m.initHubIntegracaoPage()),
     'precificacao.html': () => import('./precificacao.js').then(m => m.initPrecificacaoPage()),
     'rentabilidade.html': () => import('./rentabilidade.js').then(m => m.initRentabilidadePage()),
+    'estoque.html': () => import('./estoque.js').then(m => m.initEstoquePage()),
+    'custos.html': () => import('./custos.js').then(m => m.initCustosPage()),
 };
 
 async function loadPage(pageUrl) {
@@ -24,8 +24,6 @@ async function loadPage(pageUrl) {
     try {
         contentArea.innerHTML = '<p class="text-center text-xl text-texto-muted animate-pulse p-10">Carregando módulo...</p>';
         
-        // ✅ CORREÇÃO AQUI: O caminho agora aponta para a raiz do servidor
-        // O servidor de desenvolvimento (Live Server) serve a pasta /app/ como raiz
         const response = await fetch(`./${pageUrl}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -78,15 +76,47 @@ function atualizarLogoHub(url, nomeLoja) {
 async function handleLogout() {
     Swal.fire({ title: 'Saindo...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
+        await enviarParaAPI(API_ENDPOINTS.registrar_logout, {});
+        sessionStorage.removeItem('userRole');
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
         window.location.replace('./login.html');
     } catch (error) {
-        Swal.fire({ icon: 'error', title: 'Ops!', text: 'Não foi possível sair.', background: '#2c2854', color: '#ffffff' });
+        console.error("Erro no processo de logout:", error);
+        sessionStorage.clear();
+        window.location.replace('./login.html');
     }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Verificação de sessão básica. A lógica de role foi removida.
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            window.location.replace('login.html');
+            return;
+        }
+        // Apenas para garantir que a role está na sessão para os módulos internos
+        if (!sessionStorage.getItem('userRole')) {
+             const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+
+            if (profileError) throw profileError;
+            if (!profileData) throw new Error('Perfil de usuário não encontrado.');
+            sessionStorage.setItem('userRole', profileData.role);
+        }
+        console.log(`VIGIA do Gerenciamento: Sessão OK. Carregando...`);
+
+    } catch (error) {
+        console.error("Falha na verificação de sessão do Gerenciamento:", error);
+        await handleLogout();
+        return;
+    }
+
+    // O resto da inicialização continua normal
     try {
         const configs = await fetchDeAPI(API_ENDPOINTS.get_loja_config);
         if (configs && configs.length > 0) {

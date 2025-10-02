@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,22 +10,32 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-      tailwind.config = { theme: { extend: { colors: { 'fundo': '#1a163a', 'sidebar': '#2c2854', 'card': '#38326b', 'principal': '#ff6b35', 'texto-base': '#ffffff', 'texto-muted': '#a3a0c2', 'borda': '#4a4480' } } } }
+        tailwind.config = { theme: { extend: { colors: { 'fundo': '#1a163a', 'sidebar': '#2c2854', 'card': '#38326b', 'principal': '#ff6b35', 'texto-base': '#ffffff', 'texto-muted': '#a3a0c2', 'borda': '#4a4480' } } } }
     </script>
     <style>
-        body { font-family: 'Poppins', sans-serif; }
-        select, option { color: #ffffff; }
-        select option[disabled] { color: #a3a0c2; }
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        select,
+        option {
+            color: #ffffff;
+        }
+
+        select option[disabled] {
+            color: #a3a0c2;
+        }
     </style>
-    <script src="env.js"></script>
 </head>
+
 <body class="bg-fundo text-texto-base">
 
     <div class="hidden md:flex fixed inset-0 bg-sidebar z-50 items-center justify-center p-8">
         <div class="text-center bg-card p-10 rounded-lg shadow-2xl max-w-lg">
             <i class="bi bi-phone-vibrate-fill text-7xl text-principal"></i>
             <h2 class="text-3xl font-bold mt-4">Acesso via Celular!</h2>
-            <p class="text-texto-muted mt-2 text-lg">O painel do garçom foi projetado para a agilidade do atendimento no seu smartphone.</p>
+            <p class="text-texto-muted mt-2 text-lg">O painel do garçom foi projetado para a agilidade do atendimento no
+                seu smartphone.</p>
         </div>
     </div>
 
@@ -33,21 +44,35 @@
             <div id="logo-container-garcom" class="mb-8 h-20 flex items-center justify-center"></div>
             <h1 class="text-3xl font-bold text-principal">Acesso da Equipe</h1>
             <p class="text-texto-muted mb-8">Identifique-se para começar.</p>
-            
+
             <form id="form-login-garcom" class="space-y-6">
-                <select id="garcom-select-login" class="w-full bg-sidebar p-4 text-center rounded-lg border-2 border-borda focus:ring-2 focus:ring-principal focus:outline-none text-lg" required>
+                <select id="garcom-select-login"
+                    class="w-full bg-sidebar p-4 text-center rounded-lg border-2 border-borda focus:ring-2 focus:ring-principal focus:outline-none text-lg"
+                    required>
                     <option value="" disabled selected>Carregando equipe...</option>
                 </select>
-                <input type="password" id="pin-input-login" inputmode="numeric" pattern="[0-9]*" class="w-full bg-sidebar p-4 text-center text-4xl tracking-[1em] rounded-lg border-2 border-borda focus:ring-2 focus:ring-principal focus:outline-none" placeholder="••••" maxlength="4" required>
-                <button type="submit" class="w-full bg-principal text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors text-xl">Entrar</button>
+                <input type="password" id="pin-input-login" inputmode="numeric" pattern="[0-9]*"
+                    class="w-full bg-sidebar p-4 text-center text-4xl tracking-[1em] rounded-lg border-2 border-borda focus:ring-2 focus:ring-principal focus:outline-none"
+                    placeholder="••••" maxlength="4" required>
+                <button type="submit"
+                    class="w-full bg-principal text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors text-xl">Entrar</button>
             </form>
         </div>
     </div>
 
-<script type="module" src="js/functions/authVigia.js"></script>    
-<script src="js/config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <!-- Se precisar de supabase, caso contrário remova -->
-<script type="module" src="js/main.js"></script>
+    <!-- ✅ Bloco de Scripts Corrigido e Específico para esta página 👇 -->
+    <script src="env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- O Vigia roda primeiro para bloquear, se necessário -->
+    <script type="module" src="js/functions/authVigia.js"></script>
+
+    <!-- A lógica específica da página só roda DEPOIS que o Vigia liberou -->
+    <script type="module">
+        import { initGarcomLoginPage } from './js/functions/garcom.js';
+        initGarcomLoginPage();
+    </script>
 
 </body>
+
 </html>

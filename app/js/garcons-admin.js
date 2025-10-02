@@ -1,11 +1,165 @@
-
 import { fetchDeAPI, enviarParaAPI } from './functions/api.js';
 import { API_ENDPOINTS } from './config.js';
 
 let todosOsGarcons = [];
 let todasAsMesas = [];
-let resumoAtribuicoes = []; 
+let resumoAtribuicoes = [];
+// ➕ NOVA VARIÁVEL GLOBAL
+let todosOsFuncionarios = [];
 let garcomSelecionadoParaAtribuicao = null;
+
+const formatarData = (dataString) => {
+    if (!dataString) return '<span class="text-texto-muted">Nunca</span>';
+    return new Date(dataString).toLocaleString('pt-BR', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+    });
+};
+
+// ✅ FUNÇÃO ATUALIZADA PARA ADICIONAR O ONCLICK
+function renderFuncionarios(funcionarios) {
+    const container = document.getElementById('container-lista-funcionarios');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (!Array.isArray(funcionarios) || funcionarios.length === 0) {
+        container.innerHTML = `<p class="text-center p-8 text-texto-muted">Nenhum funcionário com acesso ao painel cadastrado.</p>`;
+        return;
+    }
+
+    let desktopHtml = `<div class="hidden md:block overflow-x-auto"><table class="w-full text-left min-w-[700px]"><thead><tr class="border-b border-borda"><th class="p-3">Nome</th><th class="p-3">E-mail</th><th class="p-3 text-center">Cargo</th><th class="p-3 text-center">Último Login</th><th class="p-3 text-center">Ações</th></tr></thead><tbody>`;
+    let mobileHtml = `<div class="md:hidden space-y-4">`;
+
+    funcionarios.forEach(func => {
+        const corRole = func.role === 'admin' ? 'text-principal font-bold' : 'text-texto-base';
+        // ➕ BOTÃO AGORA CHAMA A FUNÇÃO DE DELETAR
+        const deleteButtonHtml = `<button onclick="garconsAdminFunctions.handleDeletarFuncionario('${func.id}', '${func.nome_completo}')" class="text-red-500 hover:text-red-400 p-1" title="Excluir Funcionário"><i class="bi bi-trash-fill"></i></button>`;
+        const deleteButtonMobileHtml = `<button onclick="garconsAdminFunctions.handleDeletarFuncionario('${func.id}', '${func.nome_completo}')" class="text-red-500 hover:text-red-400 p-1" title="Excluir Funcionário"><i class="bi bi-trash-fill text-xl"></i></button>`;
+
+        desktopHtml += `<tr class="hover:bg-sidebar/50"><td class="p-3 font-semibold">${func.nome_completo || 'Não informado'}</td><td class="p-3">${func.email || 'Não informado'}</td><td class="p-3 text-center capitalize ${corRole}">${func.role}</td><td class="p-3 text-center">${formatarData(func.ultimo_login_em)}</td><td class="p-3 text-center">${deleteButtonHtml}</td></tr>`;
+        mobileHtml += `<div class="bg-fundo p-4 rounded-lg space-y-3"><div class="flex justify-between items-start"><div><h3 class="font-bold text-lg">${func.nome_completo || 'Não informado'}</h3><p class="text-sm text-texto-muted">${func.email || 'Não informado'}</p></div>${deleteButtonMobileHtml}</div><div class="text-sm border-t border-borda/50 pt-3 flex justify-between items-center"><p><span class="font-semibold text-texto-muted">Cargo:</span> <span class="capitalize ${corRole}">${func.role}</span></p><p><span class="font-semibold text-texto-muted">Último Login:</span> ${formatarData(func.ultimo_login_em)}</p></div></div>`;
+    });
+
+    desktopHtml += `</tbody></table></div>`;
+    mobileHtml += `</div>`;
+    container.innerHTML = desktopHtml + mobileHtml;
+}
+
+// ➕ NOVA FUNÇÃO PARA DELETAR FUNCIONÁRIO
+// ➕ NOVA FUNÇÃO PARA DELETAR FUNCIONÁRIO
+async function handleDeletarFuncionario(id, nome) {
+    const funcionario = todosOsFuncionarios.find(f => f.id === id);
+    if (!funcionario) return;
+
+    if (funcionario.role === 'admin') {
+        Swal.fire({ icon: 'error', title: 'Ação Bloqueada', text: 'Não é possível excluir um usuário administrador por aqui.', background: '#2c2854', color: '#ffffff' });
+        return;
+    }
+
+    const { isConfirmed } = await Swal.fire({
+        title: 'Tem certeza?',
+        html: `Deseja realmente remover o acesso de "<b>${nome}</b>"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Sim, pode remover!',
+        cancelButtonText: 'Cancelar',
+        background: '#2c2854',
+        color: '#ffffff'
+    });
+
+    if (isConfirmed) {
+        Swal.fire({ title: 'Removendo acesso...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: '#2c2854', color: '#ffffff' });
+        try {
+            const resultado = await enviarParaAPI(API_ENDPOINTS.admin_delete_user, { id });
+            // A verificação de sucesso agora é mais robusta
+            if (resultado && (resultado.success || resultado[0]?.success)) {
+                Swal.fire('Removido!', 'O acesso do funcionário foi removido.', 'success');
+                await fetchDadosIniciais(); // Recarrega a lista
+            } else {
+                 // Deixa o api.js lidar com o erro
+                 throw new Error(resultado.message || "Erro desconhecido do servidor.");
+            }
+        } catch (error) {
+            // Silêncio aqui! O api.js já mostrou o erro.
+            console.error("Erro ao remover acesso, tratado globalmente:", error);
+        }
+    }
+}
+
+function renderResumoAtribuicoes(resumo) {
+    const container = document.getElementById('resumo-atribuicoes-container');
+    if (!container) return;
+    container.innerHTML = '';
+    if (!Array.isArray(resumo) || resumo.length === 0) {
+        container.innerHTML = '<p class="text-texto-muted">Nenhum garçom cadastrado para exibir o resumo.</p>';
+        return;
+    }
+
+    let desktopHtml = `<div class="hidden md:block overflow-x-auto"><table class="w-full text-left min-w-[600px]"><thead><tr class="border-b border-borda"><th class="p-3 text-principal">Garçom</th><th class="p-3 text-principal">Mesas Atribuídas</th><th class="p-3 text-center text-principal">PIN</th></tr></thead><tbody>`;
+    let mobileHtml = `<div class="md:hidden space-y-4">`;
+
+    resumo.forEach(item => {
+        const nomeGarcomHtml = item.mesas_atribuidas ? `<button onclick="garconsAdminFunctions.handleLiberarMesasDoGarcom('${item.id}', '${item.nome}')" class="font-semibold text-left text-texto-base hover:text-red-400 transition-colors" title="Clique para liberar todas as mesas de ${item.nome}">${item.nome} <i class="bi bi-unlock-fill text-xs text-texto-muted"></i></button>` : `<span class="font-semibold text-texto-base">${item.nome}</span>`;
+        desktopHtml += `<tr class="hover:bg-sidebar/50"><td class="p-3">${nomeGarcomHtml}</td><td class="p-3 text-texto-muted">${item.mesas_atribuidas || 'Nenhuma'}</td><td class="p-3 text-center font-mono text-principal">${item.pin}</td></tr>`;
+        mobileHtml += `<div class="bg-fundo p-4 rounded-lg"><div class="flex justify-between items-center mb-2">${nomeGarcomHtml}<p class="text-lg"><span class="font-semibold text-texto-muted">PIN:</span> <span class="font-mono text-principal">${item.pin}</span></p></div><div class="border-t border-borda/50 pt-2"><p><span class="font-semibold text-texto-muted">Mesas:</span> ${item.mesas_atribuidas || 'Nenhuma'}</p></div></div>`;
+    });
+
+    desktopHtml += `</tbody></table></div>`;
+    mobileHtml += `</div>`;
+    container.innerHTML = desktopHtml + mobileHtml;
+}
+
+function setupNovoUsuarioModal() {
+    const modal = document.getElementById('modal-novo-usuario');
+    const btnAbrir = document.getElementById('btn-abrir-modal-novo-usuario');
+    const btnFechar = document.getElementById('btn-fechar-modal-novo-usuario');
+    const form = document.getElementById('form-novo-usuario');
+
+    if (!modal || !btnAbrir || !btnFechar || !form) return;
+
+    btnAbrir.addEventListener('click', () => modal.classList.remove('hidden'));
+    btnFechar.addEventListener('click', () => modal.classList.add('hidden'));
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const payload = {
+            nome: document.getElementById('usuario-nome').value,
+            email: document.getElementById('usuario-email').value,
+            whatsapp: document.getElementById('usuario-whatsapp').value.replace(/\D/g, ''),
+            senha: document.getElementById('usuario-senha').value
+        };
+
+        if (payload.senha.length < 6) {
+            Swal.fire('Senha Fraca!', 'A senha precisa ter no mínimo 6 caracteres.', 'warning');
+            return;
+        }
+
+        Swal.fire({
+            title: 'Criando novo acesso...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        try {
+            const resultado = await enviarParaAPI(API_ENDPOINTS.admin_create_user, payload);
+            
+            if (resultado.success) {
+                Swal.fire('Sucesso!', 'Novo funcionário cadastrado.', 'success');
+                modal.classList.add('hidden');
+                form.reset();
+                fetchDadosIniciais(); // Recarrega tudo
+            } else {
+                throw new Error(resultado.message || "Erro desconhecido retornado pelo servidor.");
+            }
+        } catch (error) {
+            // Silêncio aqui! O api.js já mostrou o erro.
+            console.error("Erro ao criar usuário, tratado globalmente:", error);
+        }
+    });
+}
 
 async function fetchDadosIniciais() {
     try {
@@ -22,8 +176,17 @@ async function fetchDadosIniciais() {
         renderResumoAtribuicoes(resumoAtribuicoes); 
         renderMesasParaAtribuicao(null);
     } catch (error) {
-        console.error("Erro ao buscar dados iniciais:", error);
-        Swal.fire('Ops!', 'Não foi possível carregar os dados do painel.', 'error');
+        console.error("Erro ao buscar dados iniciais (Garçons/Mesas):", error);
+        Swal.fire('Ops!', 'Não foi possível carregar os dados de Garçons e Mesas.', 'error');
+    }
+
+    try {
+        const funcionarios = await fetchDeAPI(API_ENDPOINTS.admin_list_profiles);
+        todosOsFuncionarios = Array.isArray(funcionarios) ? funcionarios : [];
+        renderFuncionarios(todosOsFuncionarios);
+    } catch (error) {
+        console.error("Erro ao buscar dados de funcionários:", error);
+        document.getElementById('container-lista-funcionarios').innerHTML = '<p class="text-center p-8 text-red-400">Falha ao carregar funcionários.</p>';
     }
 }
 
@@ -57,51 +220,6 @@ function renderGarcons(garcons) {
         optionEl.textContent = garcom.nome;
         selectContainer.appendChild(optionEl);
     });
-}
-
-function renderResumoAtribuicoes(resumo) {
-    const container = document.getElementById('resumo-atribuicoes-container');
-    if (!container) return;
-    container.innerHTML = '';
-
-    if (resumo.length === 0) {
-        container.innerHTML = '<p class="text-texto-muted">Nenhum garçom cadastrado para exibir o resumo.</p>';
-        return;
-    }
-
-    const table = document.createElement('table');
-    table.className = 'w-full text-left min-w-[600px] p-4'; 
-    table.innerHTML = `
-        <thead>
-            <tr class="border-b border-borda">
-                <th class="p-3 text-principal">Garçom</th>
-                <th class="p-3 text-principal">Mesas Atribuídas</th>
-                <th class="p-3 text-center text-principal">PIN</th>
-            </tr>
-        </thead>
-    `;
-    const tbody = document.createElement('tbody');
-    resumo.forEach(item => {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-sidebar/50';
-        
-        const nomeGarcomHtml = item.mesas_atribuidas 
-            ? `<button onclick="garconsAdminFunctions.handleLiberarMesasDoGarcom('${item.id}', '${item.nome}')" 
-                       class="font-semibold text-left text-texto-base hover:text-red-400 transition-colors" 
-                       title="Clique para liberar todas as mesas de ${item.nome}">
-                   ${item.nome} <i class="bi bi-unlock-fill text-xs text-texto-muted"></i>
-               </button>`
-            : `<span class="font-semibold text-texto-base">${item.nome}</span>`;
-
-        tr.innerHTML = `
-            <td class="p-3">${nomeGarcomHtml}</td>
-            <td class="p-3 text-texto-muted">${item.mesas_atribuidas || 'Nenhuma'}</td>
-            <td class="p-3 text-center font-mono text-principal">${item.pin}</td>
-        `;
-        tbody.appendChild(tr);
-    });
-    table.appendChild(tbody);
-    container.appendChild(table);
 }
 
 function renderMesasParaAtribuicao(garcomId) {
@@ -172,7 +290,8 @@ async function handleSalvarGarcom(event) {
         limparFormulario();
         fetchDadosIniciais();
     } catch (error) {
-        Swal.fire('Ops!', `Não foi possível salvar o garçom: ${error.message}`, 'error');
+        // Silêncio aqui! O api.js já mostrou o erro.
+        console.error("Erro ao salvar garçom, tratado globalmente:", error);
     }
 }
 
@@ -209,7 +328,8 @@ async function handleDeletarGarcom(id) {
             Swal.fire('Apagado!', 'O garçom foi removido.', 'success');
             fetchDadosIniciais();
         } catch (error) {
-            Swal.fire('Ops!', `Não foi possível apagar o garçom: ${error.message}`, 'error');
+            // Silêncio aqui! O api.js já mostrou o erro.
+            console.error("Erro ao apagar garçom, tratado globalmente:", error);
         }
     }
 }
@@ -234,7 +354,8 @@ async function handleSalvarAtribuicoes() {
         document.getElementById('select-garcom-atribuicao').value = '';
         renderMesasParaAtribuicao(null);
     } catch (error) {
-        Swal.fire('Ops!', `Não foi possível salvar as atribuições: ${error.message}`, 'error');
+        // Silêncio aqui! O api.js já mostrou o erro.
+        console.error("Erro ao salvar atribuições, tratado globalmente:", error);
     }
 }
 
@@ -260,7 +381,8 @@ async function handleLiberarMesasDoGarcom(garcomId, garcomNome) {
             document.getElementById('select-garcom-atribuicao').value = '';
             renderMesasParaAtribuicao(null);
         } catch (error) {
-            Swal.fire('Ops!', `Não foi possível liberar as mesas: ${error.message}`, 'error');
+            // Silêncio aqui! O api.js já mostrou o erro.
+            console.error("Erro ao liberar mesas, tratado globalmente:", error);
         }
     }
 }
@@ -273,15 +395,19 @@ function limparFormulario() {
 export function initGarconsAdminPage() {
     console.log("Maestro: Torre de Controle dos Garçons iniciada! 🚀");
     fetchDadosIniciais();
+    
+    setupNovoUsuarioModal();
 
     document.getElementById('form-garcom').addEventListener('submit', handleSalvarGarcom);
     document.getElementById('btn-limpar-garcom-form').addEventListener('click', limparFormulario);
     document.getElementById('select-garcom-atribuicao').addEventListener('change', (e) => renderMesasParaAtribuicao(e.target.value));
     document.getElementById('btn-salvar-atribuicoes').addEventListener('click', handleSalvarAtribuicoes);
     
+    // ✅ FUNÇÕES EXPOSTAS GLOBALMENTE
     window.garconsAdminFunctions = {
         handleEditarGarcom,
         handleDeletarGarcom,
-        handleLiberarMesasDoGarcom 
+        handleLiberarMesasDoGarcom,
+        handleDeletarFuncionario
     };
 }

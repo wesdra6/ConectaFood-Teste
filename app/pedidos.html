@@ -1,0 +1,50 @@
+<script>
+    if (typeof window.IS_SPA_FRAMEWORK_LOADED === 'undefined') {
+        console.warn('GUARDIÃO: Acesso direto ao CAIXA bloqueado! Redirecionando...');
+        window.location.replace(`index.html?view=caixa`);
+    }
+</script>
+
+<h2 class="text-4xl font-bold mb-4">Pedidos Recebidos</h2>
+<div class="mb-4 border-b border-borda overflow-x-auto">
+    <nav class="flex space-x-4" aria-label="Tabs">
+        <button class="tab-btn active" data-filtro="ativos">Ativos</button>
+        <button class="tab-btn" data-filtro="WHATSAPP">WhatsApp</button>
+        <button class="tab-btn" data-filtro="DELIVERY">Delivery App</button>
+        <button class="tab-btn" data-filtro="MESA">Mesas</button>
+        <button class="tab-btn" data-filtro="finalizados">Finalizados</button>
+    </nav>
+</div>
+<div id="pedidos-ativos-container">
+    <div class="mb-6 bg-card rounded-lg border border-borda flex items-center p-1">
+        <span class="px-3 text-texto-muted"><i class="bi bi-search"></i></span>
+        <input type="text" id="filtro-busca-pedidos" placeholder="Buscar por nome, código ou telefone..."
+            class="w-full bg-transparent p-2 focus:outline-none">
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6" id="lista-pedidos-admin"></div>
+    <div class="flex-grow"></div>
+    <div id="paginacao-container" class="flex justify-center items-center space-x-2 mt-8"></div>
+</div>
+<div id="pedidos-finalizados-container" class="hidden text-center mt-10">
+    <h3 class="text-2xl font-bold text-principal">Consultar Pedidos Finalizados</h3>
+    <p class="text-texto-muted mb-8">Encontre rapidamente o histórico de pedidos para resolver qualquer
+        pendência.</p>
+    <div class="flex flex-col md:flex-row gap-4 justify-center">
+        <button id="btn-buscar-hoje"
+            class="bg-principal text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-orange-600 transition-colors"><i
+                class="bi bi-calendar-check"></i> Ver Pedidos de Hoje</button>
+        <button id="btn-buscar-data"
+            class="bg-sidebar text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-card transition-colors"><i
+                class="bi bi-calendar-event"></i> Escolher Outra Data</button>
+    </div>
+    <p class="mt-8 text-texto-muted">Ou, se preferir, use a busca direta:</p>
+    <div
+        class="mt-4 mx-auto max-w-md bg-card rounded-lg border border-borda flex items-center p-1 focus-within:ring-2 focus-within:ring-principal transition-all">
+        <span class="px-3 text-texto-muted"><i class="bi bi-hash"></i></span>
+        <input type="text" id="filtro-busca-finalizados" placeholder="Digite o código do pedido..."
+            class="w-full bg-transparent p-2 focus:outline-none">
+        <button id="btn-buscar-finalizado-por-codigo"
+            class="bg-principal text-white font-bold h-10 w-12 flex-shrink-0 flex items-center justify-center rounded-md hover:bg-orange-600 transition-colors"><i
+                class="bi bi-search"></i></button>
+    </div>
+</div>

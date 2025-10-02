@@ -1,0 +1,51 @@
+<script>
+    if (typeof window.IS_SPA_FRAMEWORK_LOADED === 'undefined') {
+        console.warn('GUARDIÃO: Acesso direto ao CAIXA bloqueado! Redirecionando...');
+        window.location.replace(`index.html?view=caixa`);
+    }
+</script>
+
+<main class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 pb-12">
+    <div class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold">Controle de Estoque 📋</h1>
+        <p class="text-texto-muted">Monitore e ajuste os níveis de seus insumos.</p>
+    </div>
+
+    <!-- ✅ MUDANÇA AQUI: Adicionamos o wrapper com altura máxima e overflow -->
+    <div id="container-estoque-wrapper" class="bg-card p-4 rounded-lg max-h-[80vh] overflow-y-auto">
+        <h2 class="text-2xl font-bold mb-4 text-principal sticky top-0 bg-card py-2">Insumos em Estoque</h2>
+        <div id="container-estoque-lista">
+            <!-- Conteúdo gerado pelo JS -->
+        </div>
+        <div id="estoque-placeholder" class="text-center p-10 text-texto-muted animate-pulse">
+            Contando os itens na prateleira...
+        </div>
+    </div>
+</main>
+
+<!-- ✅ NOVO BLOCO DE ESTILO PARA A SCROLLBAR 👇 -->
+<style>
+    #container-estoque-wrapper::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #container-estoque-wrapper::-webkit-scrollbar-track {
+        background: #2c2854;
+        border-radius: 10px;
+    }
+
+    #container-estoque-wrapper::-webkit-scrollbar-thumb {
+        background-color: #ff6b35;
+        border-radius: 10px;
+        border: 2px solid #2c2854;
+    }
+
+    #container-estoque-wrapper::-webkit-scrollbar-thumb:hover {
+        background-color: #e65c2e;
+    }
+</style>
+
+<script type="module">
+    import { initEstoquePage } from './js/estoque.js';
+    initEstoquePage();
+</script>

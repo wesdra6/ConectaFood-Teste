@@ -1,31 +1,31 @@
-
 let carrinho = JSON.parse(localStorage.getItem('carrinhoLegalConnect')) || [];
+let tipoPedido = 'ENTREGA'; // Pode ser 'ENTREGA' ou 'RETIRADA'
+let pedidoMinimoDelivery = 0;
+let taxaEntregaFixa = 0;
 
 function salvarCarrinho() {
     localStorage.setItem('carrinhoLegalConnect', JSON.stringify(carrinho));
 }
 
-// Função central que atualiza toda a interface do carrinho
 function atualizarCarrinhoUI() {
     const containerItens = document.getElementById('carrinho-itens');
     const totalEl = document.getElementById('carrinho-total');
     const contadorEl = document.getElementById('contador-carrinho');
     const btnFinalizar = document.getElementById('btn-finalizar-pedido'); 
+    const avisoMinimoEl = document.getElementById('aviso-pedido-minimo');
     
-    if(!containerItens || !totalEl || !contadorEl || !btnFinalizar) return;
+    if(!containerItens || !totalEl || !contadorEl || !btnFinalizar || !avisoMinimoEl) return;
 
     containerItens.innerHTML = '';
     
-    let totalFinal = 0;
-    let totalItensVisiveis = 0;
-
     const produtosNoCarrinho = carrinho.filter(item => item.id !== 99999);
-    const taxaNoCarrinho = carrinho.find(item => item.id === 99999);
+    const subtotalProdutos = produtosNoCarrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+    
+    let totalFinal = subtotalProdutos;
+    let totalItensVisiveis = produtosNoCarrinho.reduce((acc, item) => acc + item.quantidade, 0);
 
     produtosNoCarrinho.forEach((item, index) => {
         const subtotalItem = item.preco * item.quantidade;
-        totalFinal += subtotalItem;
-        totalItensVisiveis += item.quantidade;
         const imagemPrincipal = (item.imagens_urls && item.imagens_urls.length > 0) ? item.imagens_urls[0] : 'https://via.placeholder.com/150';
 
         const itemHtml = `
@@ -49,39 +49,42 @@ function atualizarCarrinhoUI() {
         containerItens.innerHTML += itemHtml;
     });
 
-    if (carrinho.length === 0 || produtosNoCarrinho.length === 0) {
-        containerItens.innerHTML = `
-            <div class="text-center py-10 text-texto-muted">
-                <i class="bi bi-cart-x text-5xl"></i>
-                <p class="mt-2 font-semibold">Seu carrinho está vazio.</p>
-                <p class="text-sm">Adicione delícias do nosso cardápio!</p>
-            </div>`;
-    } else if (taxaNoCarrinho) {
-        totalFinal += taxaNoCarrinho.preco;
-        containerItens.innerHTML += `
-            <div class="border-t border-borda/50 pt-3 mt-4 text-sm">
-                <div class="flex justify-between text-texto-muted">
-                    <span>Subtotal</span>
-                    <span>R$ ${(totalFinal - taxaNoCarrinho.preco).toFixed(2)}</span>
-                </div>
-                <div class="flex justify-between text-texto-muted">
-                    <span>Taxa de Entrega</span>
-                    <span>R$ ${taxaNoCarrinho.preco.toFixed(2)}</span>
-                </div>
-            </div>
-        `;
+    if (produtosNoCarrinho.length === 0) {
+        containerItens.innerHTML = `<div class="text-center py-10 text-texto-muted"><i class="bi bi-cart-x text-5xl"></i><p class="mt-2 font-semibold">Seu carrinho está vazio.</p><p class="text-sm">Adicione delícias do nosso cardápio!</p></div>`;
+    }
+
+    if (tipoPedido === 'ENTREGA' && taxaEntregaFixa > 0) {
+        totalFinal += taxaEntregaFixa;
+        if (produtosNoCarrinho.length > 0) {
+            containerItens.innerHTML += `<div class="border-t border-borda/50 pt-3 mt-4 text-sm"><div class="flex justify-between text-texto-muted"><span>Subtotal</span><span>R$ ${subtotalProdutos.toFixed(2)}</span></div><div class="flex justify-between text-texto-muted"><span>Taxa de Entrega</span><span>R$ ${taxaEntregaFixa.toFixed(2)}</span></div></div>`;
+        }
     }
 
     totalEl.textContent = `R$ ${totalFinal.toFixed(2)}`;
     contadorEl.textContent = totalItensVisiveis;
     contadorEl.style.display = totalItensVisiveis > 0 ? 'flex' : 'none';
 
+    // ✅ A LÓGICA FINAL E CORRETA ESTÁ AQUI 👇
     if (produtosNoCarrinho.length > 0) {
-        btnFinalizar.disabled = false;
-        btnFinalizar.classList.remove('bg-sidebar', 'cursor-not-allowed');
-        btnFinalizar.classList.add('bg-principal', 'hover:bg-orange-600');
-        btnFinalizar.setAttribute('data-bs-toggle', 'modal');
+        // A regra do pedido mínimo só se aplica se for ENTREGA e o valor mínimo for maior que zero.
+        if (tipoPedido === 'ENTREGA' && pedidoMinimoDelivery > 0 && subtotalProdutos < pedidoMinimoDelivery) {
+            const faltante = pedidoMinimoDelivery - subtotalProdutos;
+            avisoMinimoEl.textContent = `Faltam R$ ${faltante.toFixed(2).replace('.',',')} para o pedido mínimo de R$ ${pedidoMinimoDelivery.toFixed(2).replace('.',',')}.`;
+            avisoMinimoEl.classList.remove('hidden');
+            btnFinalizar.disabled = true;
+            btnFinalizar.classList.add('bg-sidebar', 'cursor-not-allowed');
+            btnFinalizar.classList.remove('bg-principal', 'hover:bg-orange-600');
+            btnFinalizar.removeAttribute('data-bs-toggle');
+        } else {
+            // Para RETIRADA ou se o valor mínimo for atingido/inexistente, o botão é liberado.
+            avisoMinimoEl.classList.add('hidden');
+            btnFinalizar.disabled = false;
+            btnFinalizar.classList.remove('bg-sidebar', 'cursor-not-allowed');
+            btnFinalizar.classList.add('bg-principal', 'hover:bg-orange-600');
+            btnFinalizar.setAttribute('data-bs-toggle', 'modal');
+        }
     } else {
+        avisoMinimoEl.classList.add('hidden');
         btnFinalizar.disabled = true;
         btnFinalizar.classList.add('bg-sidebar', 'cursor-not-allowed');
         btnFinalizar.classList.remove('bg-principal', 'hover:bg-orange-600');
@@ -97,7 +100,7 @@ const carrinhoFunctions = {
         } else {
             carrinho.push({ ...produto, quantidade: 1 });
         }
-        salvarCarrinho(); // ✅ Salva a foto
+        salvarCarrinho();
         atualizarCarrinhoUI();
     },
 
@@ -105,7 +108,7 @@ const carrinhoFunctions = {
         const produto = carrinho.filter(item => item.id !== 99999)[index];
         if (produto) {
             produto.quantidade++;
-            salvarCarrinho(); // ✅ Salva a foto
+            salvarCarrinho();
             atualizarCarrinhoUI();
         }
     },
@@ -118,7 +121,7 @@ const carrinhoFunctions = {
             if (produto.quantidade <= 0) {
                 carrinho = carrinho.filter(item => item.id !== produto.id);
             }
-            salvarCarrinho(); // ✅ Salva a foto
+            salvarCarrinho();
             atualizarCarrinhoUI();
         }
     },
@@ -128,53 +131,63 @@ const carrinhoFunctions = {
         const produtoParaRemover = produtosNoCarrinho[index];
         if (produtoParaRemover) {
             carrinho = carrinho.filter(item => item.id !== produtoParaRemover.id);
-            salvarCarrinho(); // ✅ Salva a foto
+            salvarCarrinho();
             atualizarCarrinhoUI();
         }
     },
 
     limpar: () => {
         carrinho = [];
-        salvarCarrinho(); // ✅ Salva a foto (vazia)
+        salvarCarrinho();
+        atualizarCarrinhoUI();
+    },
+    
+    setValoresConfig: (configs) => {
+        pedidoMinimoDelivery = Number(configs.minimo) || 0;
+        taxaEntregaFixa = Number(configs.taxa) || 0;
         atualizarCarrinhoUI();
     },
 
+    setTipoPedido: (tipo) => {
+        if (tipo === tipoPedido) return;
+        tipoPedido = tipo;
+        
+        document.getElementById('btn-tipo-entrega')?.classList.toggle('active', tipo === 'ENTREGA');
+        document.getElementById('btn-tipo-retirada')?.classList.toggle('active', tipo === 'RETIRADA');
+        
+        atualizarCarrinhoUI();
+    },
+
+    getTipoPedido: () => tipoPedido,
+    
     getItens: () => carrinho,
     
-    getTotal: () => carrinho.reduce((acc, item) => acc + item.preco * item.quantidade, 0),
-
-    setTaxaEntrega: (valor) => {
-        const valorTaxa = Number(valor) || 0;
-        const indexTaxa = carrinho.findIndex(item => item.id === 99999);
-
-        if (valorTaxa > 0) {
-            const itemTaxa = {
-                id: 99999, nome: 'Taxa de Entrega', preco: valorTaxa,
-                quantidade: 1, tipo_item: 'TAXA'
-            };
-            if (indexTaxa > -1) {
-                carrinho[indexTaxa] = itemTaxa;
-            } else {
-                carrinho.push(itemTaxa);
-            }
-        } else if (indexTaxa > -1) {
-            carrinho.splice(indexTaxa, 1);
-        }
-        salvarCarrinho(); // ✅ Salva a foto
-        atualizarCarrinhoUI();
+    getTotal: () => {
+        const subtotal = carrinho.filter(item => item.id !== 99999).reduce((acc, item) => acc + item.preco * item.quantidade, 0);
+        return tipoPedido === 'ENTREGA' ? subtotal + taxaEntregaFixa : subtotal;
     },
     
     getItensParaPedido: () => {
-        return carrinho.map(item => ({ 
+        let itensFinais = carrinho.map(item => ({ 
             produto_id: item.id, 
             quantidade: item.quantidade, 
             preco_unitario: item.preco 
         }));
+        
+        if (tipoPedido === 'ENTREGA' && taxaEntregaFixa > 0) {
+            itensFinais.push({
+                produto_id: 99999,
+                quantidade: 1,
+                preco_unitario: taxaEntregaFixa
+            });
+        }
+        return itensFinais;
     }
 };
 
 export function initCarrinho() {
     window.carrinhoFunctions = carrinhoFunctions;
-    // Quando a página carrega, a UI é atualizada com os dados que já foram carregados do localStorage.
+    document.getElementById('btn-tipo-entrega')?.addEventListener('click', () => carrinhoFunctions.setTipoPedido('ENTREGA'));
+    document.getElementById('btn-tipo-retirada')?.addEventListener('click', () => carrinhoFunctions.setTipoPedido('RETIRADA'));
     atualizarCarrinhoUI(); 
 }

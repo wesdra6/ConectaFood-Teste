@@ -1,4 +1,3 @@
-
 import { enviarParaAPI, fetchDeAPI } from './api.js';
 import { abrirModalGerenciamento } from './pedidos.js';
 import { gerarHtmlImpressao, imprimirComprovante } from './impressao.js';
@@ -17,6 +16,7 @@ let isModalListenersAttached = false;
 let tipoPedidoEmLancamento = '';
 let idMesaEmLancamento = null;
 let numeroMesaEmLancamento = null;
+let modalCalculadoraTroco = null;
 
 function toggleTaxaServico() {
     const taxaNome = 'Taxa de Serviço (10%)';
@@ -58,7 +58,6 @@ async function fetchDadosDoCaixa() {
 async function fetchProdutosCaixa() { 
     const listaProdutosContainer = document.getElementById('lista-produtos-caixa'); 
     try { 
-        // Vamos forçar a busca sempre para garantir dados frescos
         console.log("Caixa: Buscando lista de produtos e serviços...");
         const produtosDoBanco = await fetchDeAPI(API_ENDPOINTS.get_all_products_with_type);
         
@@ -179,7 +178,6 @@ async function handleMesaClick(mesa) {
             
             const itensHtml = (pedidoDaMesaAtualizado.itens_pedido || []).map(item => `<div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #4a4480;"><span style="text-align: left;"><b style="color: #ff6b35;">${item.quantidade}x</b> ${item.item || ''}</span><span style="text-align: right;">R$ ${((item.quantidade || 0) * (item.preco_unitario || 0)).toFixed(2)}</span></div>`).join('');
             
-            // ➕ AQUI ESTÁ A CORREÇÃO MATEMÁTICA 👇
             const totalRecalculado = (pedidoDaMesaAtualizado.itens_pedido || []).reduce((acc, item) => {
                 return acc + ( (item.quantidade || 0) * (item.preco_unitario || 0) );
             }, 0);
@@ -232,8 +230,6 @@ function renderizarProdutosCaixa(produtos) {
         fragment.appendChild(h3);
         
         produtosPorCategoria[categoria].forEach(produto => {
-            // ✅ A CHAMADA CRÍTICA ESTÁ AQUI 👇
-            // Garantimos que o contexto 'caixa' está sendo passado corretamente.
             const cardComponent = criaCardProduto(produto, 'caixa');
             if (cardComponent) {
                 fragment.appendChild(cardComponent);
@@ -315,15 +311,12 @@ function renderizarComanda() {
 async function prepararModalPara(modo, dados = {}) {
     console.log(`[CAIXA] Preparando modal para o modo: ${modo}`);
 
-    // ✅ MUDANÇA CRUCIAL AQUI 👇
-    // Em vez de guardar a instância, buscamos o elemento e criamos uma nova instância a cada chamada.
     const modalEl = document.getElementById('modal-lancamento-pedido');
     if (!modalEl) {
         console.error("[CAIXA] Elemento do modal '#modal-lancamento-pedido' NÃO encontrado no DOM.");
         return;
     }
     
-    // Força a criação de uma nova instância do modal para garantir que ele encontre o elemento.
     const modalInstance = new bootstrap.Modal(modalEl);
     console.log("[CAIXA] Nova instância do modal Bootstrap criada.");
 
@@ -438,87 +431,132 @@ async function finalizarLancamento() {
             }).then(() => {
                 if (modalInstance) modalInstance.hide(); 
                 fetchDadosDoCaixa(); 
-                localStorage.setItem('novoPedidoAdmin', 'internal'); 
             });
         } else { 
             throw new Error(resultado.message || "Erro no servidor."); 
         } 
     } catch (error) { 
-        console.error("Erro ao finalizar lançamento:", error); 
-        Swal.fire('Ops!', 'Não foi possível lançar o pedido.', 'error'); 
+        // Silêncio aqui! O api.js já mostrou o erro.
+        console.error("Erro ao finalizar lançamento, tratado globalmente:", error); 
     } 
 }
 
-async function finalizarCheckout() { 
-    const formaPagamento = document.getElementById('caixa-forma-pagamento').value; 
-    if (!formaPagamento) { 
-        Swal.fire('Pagamento Pendente', 'Selecione a forma de pagamento.', 'warning'); 
-        return; 
-    } 
-    
-    const totalFinal = comandaAtual.reduce((acc, item) => acc + (Number(item.preco_unitario || item.preco) * item.quantidade), 0); 
-    const pedidoAtualizado = { 
-        ...pedidoAtualParaCheckout, 
-        total: totalFinal, 
-        itens_pedido: comandaAtual.map(item => ({ 
-            item: item.nome || item.item, 
-            quantidade: item.quantidade, 
-            preco_unitario: item.preco_unitario || item.preco, 
-            tipo_item: item.tipo_item 
-        })) 
-    }; 
-    pedidoAtualizado.forma_pagamento = formaPagamento;
-    
-    const htmlParaImprimir = gerarHtmlImpressao(pedidoAtualizado, lojaConfig); 
-    const impressoComSucesso = imprimirComprovante(htmlParaImprimir); 
-    if (!impressoComSucesso) return; 
-    
-    // ✅ CORREÇÃO AQUI: Buscamos a instância do modal ANTES de mostrar o alerta
-    const modalEl = document.getElementById('modal-lancamento-pedido');
-    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+// ✅ 🔄 FUNÇÃO FINAL COM FEEDBACK VISUAL DE ERRO
+async function finalizarCheckout() {
+    const formaPagamento = document.getElementById('caixa-forma-pagamento').value;
+    if (!formaPagamento) {
+        Swal.fire({ icon: 'warning', title: 'Pagamento Pendente', text: 'Selecione a forma de pagamento.', background: '#2c2854', color: '#ffffff' });
+        return;
+    }
 
-    Swal.fire({ 
-        title: 'Finalizando Pedido...', 
-        text: 'Aguarde...', 
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading() 
-    }); 
-    
-    try { 
-        const payload = { 
-            pedido_id: pedidoAtualizado.id, 
-            id_mesa: pedidoAtualizado.id_mesa || null, 
-            forma_pagamento: formaPagamento, 
-            novos_itens: comandaAtual.filter(item => 
-                !pedidoAtualParaCheckout.itens_pedido.some(original => original.id === item.id)
-            ).map(item => ({ 
-                produto_id: item.produto_id || item.id, 
-                quantidade: item.quantidade, 
-                preco_unitario: item.preco_unitario || item.preco 
-            })), 
-            novo_total: totalFinal 
-        }; 
-        
-        await enviarParaAPI(API_ENDPOINTS.finalize_order_and_table, payload); 
-        
-        // ✅ CORREÇÃO AQUI: O alerta de sucesso agora espera o "OK"
-        Swal.fire({ 
-            icon: 'success', 
-            title: 'Sucesso!', 
-            text: 'Pedido finalizado!',
-            background: '#2c2854',
-            color: '#ffffff',
-            confirmButtonColor: '#ff6b35'
-        }).then(() => { 
-            if (modalInstance) modalInstance.hide(); 
-            fetchDadosDoCaixa(); 
-            window.dispatchEvent(new CustomEvent('pedidoFinalizado')); 
-        }); 
+    const proceedToFinalize = async () => {
+        const totalFinal = comandaAtual.reduce((acc, item) => acc + (Number(item.preco_unitario || item.preco) * item.quantidade), 0);
+        const pedidoAtualizado = {
+            ...pedidoAtualParaCheckout,
+            total: totalFinal,
+            itens_pedido: comandaAtual.map(item => ({
+                item: item.nome || item.item,
+                quantidade: item.quantidade,
+                preco_unitario: item.preco_unitario || item.preco,
+                tipo_item: item.tipo_item
+            }))
+        };
+        pedidoAtualizado.forma_pagamento = formaPagamento;
 
-    } catch (error) { 
-        console.error('Erro ao finalizar o pedido:', error); 
-        Swal.fire('Ops!', 'A conta foi impressa, mas houve um erro ao finalizar o pedido. Verifique o console.', 'error'); 
-    } 
+        const htmlParaImprimir = gerarHtmlImpressao(pedidoAtualizado, lojaConfig);
+        const impressoComSucesso = imprimirComprovante(htmlParaImprimir);
+        if (!impressoComSucesso) return;
+
+        const modalEl = document.getElementById('modal-lancamento-pedido');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+
+        Swal.fire({
+            title: 'Finalizando Pedido...', text: 'Aguarde...',
+            allowOutsideClick: false, didOpen: () => Swal.showLoading()
+        });
+
+        try {
+            const payload = {
+                pedido_id: pedidoAtualizado.id,
+                id_mesa: pedidoAtualizado.id_mesa || null,
+                forma_pagamento: formaPagamento,
+                novos_itens: comandaAtual.filter(item =>
+                    !pedidoAtualParaCheckout.itens_pedido.some(original => original.id === item.id)
+                ).map(item => ({
+                    produto_id: item.produto_id || item.id,
+                    quantidade: item.quantidade,
+                    preco_unitario: item.preco_unitario || item.preco
+                })),
+                novo_total: totalFinal
+            };
+
+            await enviarParaAPI(API_ENDPOINTS.finalize_order_and_table, payload);
+
+            Swal.fire({
+                icon: 'success', title: 'Sucesso!', text: 'Pedido finalizado!',
+                background: '#2c2854', color: '#ffffff', confirmButtonColor: '#ff6b35'
+            }).then(() => {
+                if (modalInstance) modalInstance.hide();
+                fetchDadosDoCaixa();
+                window.dispatchEvent(new CustomEvent('pedidoFinalizado'));
+            });
+
+        } catch (error) {
+            // Silêncio aqui! O api.js já mostrou o erro.
+            console.error('Erro ao finalizar o pedido, tratado globalmente:', error);
+        }
+    };
+
+    if (formaPagamento === 'DINHEIRO') {
+        if (!modalCalculadoraTroco) {
+            const modalEl = document.getElementById('modal-calculadora-troco');
+            if (modalEl) modalCalculadoraTroco = new bootstrap.Modal(modalEl);
+        }
+        
+        const totalFinal = comandaAtual.reduce((acc, item) => acc + (Number(item.preco_unitario || item.preco) * item.quantidade), 0);
+        
+        document.getElementById('troco-total-a-pagar').textContent = `R$ ${totalFinal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        const inputValor = document.getElementById('troco-valor-recebido');
+        const trocoEl = document.getElementById('troco-resultado');
+        const btnConfirmar = document.getElementById('btn-confirmar-troco');
+        const msgErroEl = document.getElementById('troco-mensagem-erro');
+        
+        inputValor.value = '';
+        trocoEl.textContent = 'R$ 0,00';
+        btnConfirmar.disabled = true;
+        msgErroEl.classList.add('hidden');
+
+        const calcularTrocoHandler = () => {
+            const recebidoInput = inputValor.value.replace(',', '.');
+            const recebido = parseFloat(recebidoInput) || 0;
+            const troco = recebido - totalFinal;
+            trocoEl.textContent = `R$ ${(troco >= 0 ? troco : 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+            
+            if (recebido < totalFinal) {
+                btnConfirmar.disabled = true;
+                msgErroEl.classList.remove('hidden');
+            } else {
+                btnConfirmar.disabled = false;
+                msgErroEl.classList.add('hidden');
+            }
+        };
+
+        inputValor.onkeyup = calcularTrocoHandler;
+
+        btnConfirmar.onclick = () => {
+            modalCalculadoraTroco.hide();
+            proceedToFinalize();
+        };
+
+        modalCalculadoraTroco.show();
+        const modalEl = document.getElementById('modal-calculadora-troco');
+        modalEl.addEventListener('shown.bs.modal', () => {
+            inputValor.focus();
+        }, { once: true });
+        
+    } else {
+        await proceedToFinalize();
+    }
 }
 
 let isCaixaInitialized = false;
@@ -546,6 +584,19 @@ export function initCaixaPage() {
                 }
             },
         };
+
+        const selectPagamento = document.getElementById('caixa-forma-pagamento');
+        const btnCheckout = document.getElementById('btn-finalizar-checkout');
+        if (selectPagamento && btnCheckout) {
+            selectPagamento.addEventListener('change', () => {
+                if (selectPagamento.value === 'DINHEIRO') {
+                    btnCheckout.innerHTML = '<i class="bi bi-calculator-fill mr-2"></i> Calcular Troco';
+                } else {
+                    btnCheckout.textContent = 'Finalizar e Imprimir';
+                }
+            });
+        }
+        
         window.addEventListener('recarregarMesas', () => {
             console.log("Caixa: Fui notificado para recarregar as mesas!");
             fetchDadosDoCaixa();

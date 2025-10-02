@@ -1,3 +1,10 @@
+<script>
+    if (typeof window.IS_SPA_FRAMEWORK_LOADED === 'undefined') {
+        console.warn('GUARDIÃO: Acesso direto ao CAIXA bloqueado! Redirecionando...');
+        window.location.replace(`index.html?view=caixa`);
+    }
+</script>
+
 <main class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 pb-12">
     <div class="mb-8">
         <h1 class="text-3xl md:text-4xl font-bold">Almoxarifado Virtual 📦</h1>
@@ -5,7 +12,6 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <!-- Coluna do Formulário -->
         <div class="lg:col-span-1 lg:sticky lg:top-8">
             <div class="bg-card p-6 rounded-lg">
                 <h2 class="text-2xl font-bold mb-4 text-principal">Adicionar / Editar Insumo</h2>
@@ -13,21 +19,28 @@
                     <input type="hidden" id="insumo-id">
                     <div>
                         <label for="insumo-nome" class="block mb-1 font-medium text-texto-muted">Nome do Insumo</label>
-                        <input type="text" id="insumo-nome" placeholder="Ex: Queijo Muçarela" class="w-full bg-fundo p-3 rounded-lg border border-borda" required>
+                        <input type="text" id="insumo-nome" placeholder="Ex: Queijo Muçarela"
+                            class="w-full bg-fundo p-3 rounded-lg border border-borda" required>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="col-span-2 sm:col-span-1">
-                            <label for="insumo-preco-compra" class="block mb-1 font-medium text-texto-muted">Preço Pago (R$)</label>
-                            <input type="number" step="0.01" id="insumo-preco-compra" placeholder="Ex: 45.50" class="w-full bg-fundo p-3 rounded-lg border border-borda" required>
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                        <div>
+                            <label for="insumo-preco-compra" class="block mb-1 font-medium text-texto-muted">Preço Pago
+                                (R$)</label>
+                            <input type="number" step="0.01" id="insumo-preco-compra" placeholder="Ex: 45.50"
+                                class="w-full bg-fundo p-3 rounded-lg border border-borda" required>
                         </div>
-                        <div class="col-span-2 sm:col-span-1">
-                            <label for="insumo-qtd-embalagem" class="block mb-1 font-medium text-texto-muted">Qtd. Embalagem</label>
-                            <input type="number" step="0.01" id="insumo-qtd-embalagem" placeholder="Ex: 5" class="w-full bg-fundo p-3 rounded-lg border border-borda" required>
+                        <div>
+                            <label for="insumo-qtd-embalagem" class="block mb-1 font-medium text-texto-muted">Qtd.
+                                Embalagem</label>
+                            <input type="number" step="0.01" id="insumo-qtd-embalagem" placeholder="Ex: 5"
+                                class="w-full bg-fundo p-3 rounded-lg border border-borda" required>
                         </div>
                     </div>
-                     <div>
-                        <label for="insumo-unidade-compra" class="block mb-1 font-medium text-texto-muted">Unidade de Compra</label>
-                        <select id="insumo-unidade-compra" class="w-full bg-fundo p-3 rounded-lg border border-borda" required>
+                    <div>
+                        <label for="insumo-unidade-compra" class="block mb-1 font-medium text-texto-muted">Unidade de
+                            Compra</label>
+                        <select id="insumo-unidade-compra" class="w-full bg-fundo p-3 rounded-lg border border-borda"
+                            required>
                             <option value="Kg">Kg (Quilograma)</option>
                             <option value="g">g (Grama)</option>
                             <option value="L">L (Litro)</option>
@@ -40,54 +53,66 @@
                         <p class="text-xs text-texto-muted mt-1">Ex: Comprou saco de 5Kg? Qtd = 5, Unid = Kg.</p>
                     </div>
                     <div class="pt-2 flex flex-col sm:flex-row gap-4">
-                        <button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar</button>
-                        <button type="button" id="btn-limpar-form" class="w-full py-3 px-5 rounded-lg bg-gray-500 hover:bg-gray-600 font-bold">Limpar</button>
+                        <button type="submit"
+                            class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar</button>
+                        <button type="button" id="btn-limpar-form"
+                            class="w-full py-3 px-5 rounded-lg bg-gray-500 hover:bg-gray-600 font-bold">Limpar</button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- Coluna da Tabela -->
         <div class="lg:col-span-2">
-            <div class="bg-card p-2 sm:p-4 rounded-lg">
-                <h2 class="text-2xl font-bold mb-4 text-principal">Insumos Cadastrados</h2>
-                <div id="container-tabela-insumos" class="overflow-x-auto">
-                    <table class="w-full text-left min-w-[600px]">
-                        <thead>
-                            <tr class="border-b border-borda">
-                                <th class="p-3">Insumo</th>
-                                <th class="p-3">Embalagem</th>
-                                <th class="p-3 text-right">Custo Mín.</th>
-                                <th class="p-3 text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabela-insumos-corpo">
-                            <!-- Linhas serão inseridas via JS -->
-                        </tbody>
-                    </table>
+            <!-- ✅ MUDANÇA ESTRUTURAL AQUI 👇 -->
+            <div class="bg-card p-4 rounded-lg flex flex-col h-[80vh]">
+                <!-- Header Fixo -->
+                <div class="flex-shrink-0">
+                    <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
+                        <h2 class="text-2xl font-bold text-principal">Insumos Cadastrados</h2>
+                        <label for="toggle-ver-inativos" class="flex items-center cursor-pointer">
+                            <span class="mr-3 text-sm font-medium text-texto-muted">Mostrar inativos</span>
+                            <div class="relative">
+                                <input type="checkbox" id="toggle-ver-inativos" class="sr-only peer">
+                                <div
+                                    class="w-11 h-6 bg-fundo rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-principal">
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Container da Lista com Rolagem -->
+                <div id="container-tabela-wrapper" class="flex-grow overflow-y-auto">
+                    <div id="container-insumos-lista">
+                        <!-- Conteúdo será gerado pelo JS -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </main>
+
 <style>
-    #container-tabela-insumos::-webkit-scrollbar {
-        height: 12px;
+    #container-tabela-wrapper::-webkit-scrollbar {
         width: 8px;
     }
-    #container-tabela-insumos::-webkit-scrollbar-track {
+
+    #container-tabela-wrapper::-webkit-scrollbar-track {
         background: #2c2854;
         border-radius: 10px;
     }
-    #container-tabela-insumos::-webkit-scrollbar-thumb {
+
+    #container-tabela-wrapper::-webkit-scrollbar-thumb {
         background-color: #ff6b35;
         border-radius: 10px;
         border: 2px solid #2c2854;
     }
-    #container-tabela-insumos::-webkit-scrollbar-thumb:hover {
+
+    #container-tabela-wrapper::-webkit-scrollbar-thumb:hover {
         background-color: #e65c2e;
     }
 </style>
+
 <script type="module">
     import { initPrecificacaoPage } from './js/precificacao.js';
     initPrecificacaoPage();

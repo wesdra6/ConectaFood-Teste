@@ -1,0 +1,24 @@
+<script>
+    if (typeof window.IS_SPA_FRAMEWORK_LOADED === 'undefined') {
+        console.warn('GUARDIÃO: Acesso direto ao CAIXA bloqueado! Redirecionando...');
+        window.location.replace(`index.html?view=caixa`);
+    }
+</script>
+
+<h2 class="text-4xl font-bold mb-4">Meus Produtos</h2>
+<div class="mb-8 border-b border-borda">
+    <nav id="abas-categorias-admin" class="flex space-x-2 -mb-px overflow-x-auto" aria-label="Tabs">
+    </nav>
+</div>
+<div class="bg-card border-l-4 border-principal p-4 rounded-lg mb-8 flex items-center justify-between gap-4">
+    <div>
+        <h4 class="font-bold text-lg text-principal">✨ Assistente de Marketing IA</h4>
+        <p class="text-texto-muted text-sm mt-1">
+            Sem criatividade? Use nossos assistentes! Ao criar ou editar um produto, procure pelo ícone
+            ✨ para gerar nomes e descrições vendedoras. Para posts de redes sociais, use o ícone 📣
+            direto no card do produto.
+        </p>
+    </div>
+</div>
+<div id="lista-produtos-admin" class="flex-grow"></div>
+<div id="paginacao-container-admin" class="flex justify-center items-center space-x-2 mt-8"></div>

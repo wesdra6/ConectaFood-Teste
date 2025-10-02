@@ -1,10 +1,22 @@
+<script>
+    if (typeof window.IS_SPA_FRAMEWORK_LOADED === 'undefined') {
+        console.warn('GUARDIÃO: Acesso direto ao CAIXA bloqueado! Redirecionando...');
+        window.location.replace(`index.html?view=caixa`);
+    }
+</script>
 
 <main class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 pb-12">
-    <h1 class="text-4xl font-bold">Torre de Controle dos Garçons 👨‍🍳</h1>
-    <p class="text-texto-muted mb-8">Cadastre sua equipe, defina os PINs e atribua as mesas de cada um.</p>
+    <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-3xl md:text-4xl font-bold">Gerenciamento da Equipe 👨‍🍳</h1>
+            <p class="text-texto-muted">Cadastre sua equipe, defina PINs e atribua mesas.</p>
+        </div>
+    </div>
 
+    <!-- Bloco de Cadastro de Garçons (PIN) -->
     <div class="bg-card p-6 rounded-lg mb-8">
-        <h2 class="text-2xl font-bold mb-4 text-principal">Gerenciamento da Equipe</h2>
+        <h2 class="text-2xl font-bold mb-4 text-principal">Cadastro Rápido de Garçom (PIN)</h2>
+        <p class="text-sm text-texto-muted mb-4 -mt-3">Para uso exclusivo no App de Comandas do Garçom.</p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
                 <h3 class="text-xl font-bold mb-4">Cadastrar / Editar Garçom</h3>
@@ -12,55 +24,109 @@
                     <input type="hidden" id="garcom-id">
                     <div>
                         <label for="garcom-nome" class="block mb-1 font-medium text-texto-muted">Nome do Garçom</label>
-                        <input type="text" id="garcom-nome" placeholder="Ex: Marcelo Antunes" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none" required>
+                        <input type="text" id="garcom-nome" placeholder="Ex: Marcelo Antunes"
+                            class="w-full bg-fundo p-3 rounded-lg border border-borda" required>
                     </div>
                     <div>
-                        <label for="garcom-pin" class="block mb-1 font-medium text-texto-muted">PIN de Acesso (4 dígitos)</label>
-                        <input type="password" id="garcom-pin" placeholder="••••" maxlength="4" inputmode="numeric" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none" required>
+                        <label for="garcom-pin" class="block mb-1 font-medium text-texto-muted">PIN de Acesso (4
+                            dígitos)</label>
+                        <input type="password" id="garcom-pin" placeholder="••••" maxlength="4" inputmode="numeric"
+                            class="w-full bg-fundo p-3 rounded-lg border border-borda" required>
                     </div>
                     <div class="pt-2 flex gap-4">
-                        <button type="submit" class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar</button>
-                        <button type="button" id="btn-limpar-garcom-form" class="w-full py-3 px-5 rounded-lg bg-gray-500 hover:bg-gray-600 font-bold">Limpar</button>
+                        <button type="submit"
+                            class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar
+                            Garçom</button>
+                        <button type="button" id="btn-limpar-garcom-form"
+                            class="w-full py-3 px-5 rounded-lg bg-gray-500 hover:bg-gray-600 font-bold">Limpar</button>
                     </div>
                 </form>
             </div>
             <div>
-                <h3 class="text-xl font-bold mb-4">Equipe Cadastrada</h3>
-                <div id="lista-garcons" class="space-y-2 max-h-72 overflow-y-auto pr-2 no-scrollbar"></div>
+                <h3 class="text-xl font-bold mb-4">Garçons Cadastrados</h3>
+                <div id="lista-garcons" class="space-y-2 max-h-72 overflow-y-auto pr-2 no-scrollbar">
+                    <p class="text-texto-muted animate-pulse">Carregando...</p>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Bloco de Acessos ao Painel -->
+    <div class="bg-card p-6 rounded-lg mb-8">
+        <div class="flex flex-wrap justify-between items-center mb-4 gap-4 border-t-2 border-principal pt-6">
+            <div class="flex-grow">
+                <h2 class="text-2xl font-bold text-principal">Acessos ao Painel (Admin/Funcionários)</h2>
+                <p class="text-sm text-texto-muted">Gerencie quem pode acessar os painéis de gestão.</p>
+            </div>
+            <button id="btn-abrir-modal-novo-usuario"
+                class="bg-principal text-white font-bold py-2 px-5 rounded-lg hover:bg-orange-600 transition-colors">
+                <i class="bi bi-person-plus-fill mr-2"></i> Adicionar Funcionário
+            </button>
+        </div>
+        <!-- ✅ Novo container que receberá o conteúdo responsivo -->
+        <div id="container-lista-funcionarios">
+            <p class="text-texto-muted animate-pulse text-center p-8">Buscando registros de funcionários...</p>
+        </div>
+    </div>
+
+    <!-- Bloco de Atribuição de Mesas -->
     <div class="bg-card p-6 rounded-lg mb-8">
         <h2 class="text-2xl font-bold mb-4 border-t-2 border-principal pt-6 text-principal">Atribuição de Mesas</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="md:col-span-1">
-                <label for="select-garcom-atribuicao" class="block mb-2 font-medium text-texto-muted">1. Selecione o Garçom</label>
-                <select id="select-garcom-atribuicao" class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none">
+                <label for="select-garcom-atribuicao" class="block mb-2 font-medium text-texto-muted">1. Selecione o
+                    Garçom</label>
+                <select id="select-garcom-atribuicao" class="w-full bg-fundo p-3 rounded-lg border border-borda">
                     <option value="">Selecione um garçom...</option>
                 </select>
             </div>
             <div class="md:col-span-2">
                 <label class="block mb-2 font-medium text-texto-muted">2. Marque as mesas dele</label>
-                <div id="lista-mesas-atribuicao" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 bg-fundo p-4 rounded-lg max-h-48 overflow-y-auto no-scrollbar">
-                    <p class="col-span-full text-center text-texto-muted">Selecione um garçom para ver as mesas.</p>
+                <div id="lista-mesas-atribuicao"
+                    class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 bg-fundo p-4 rounded-lg max-h-48 overflow-y-auto no-scrollbar">
                 </div>
             </div>
         </div>
         <div class="flex justify-end mt-6">
-            <button id="btn-salvar-atribuicoes" class="py-3 px-8 rounded-lg bg-principal hover:bg-orange-600 font-bold text-white transition-colors" disabled>Salvar Atribuições</button>
+            <button id="btn-salvar-atribuicoes"
+                class="py-3 px-8 rounded-lg bg-principal hover:bg-orange-600 font-bold text-white" disabled>Salvar
+                Atribuições</button>
         </div>
     </div>
-    
+
+    <!-- Bloco de Resumo das Atribuições -->
     <div class="bg-card p-6 rounded-lg">
-        <h2 class="text-2xl font-bold mb-4 text-principal">Resumo das Atribuições</h2>
-        <div id="resumo-atribuicoes-container" class="space-y-3 overflow-x-auto">
+        <h2 class="text-2xl font-bold mb-4 text-principal">Resumo das Atribuições de Mesas</h2>
+        <div id="resumo-atribuicoes-container">
             <p class="text-texto-muted animate-pulse">Gerando resumo da equipe...</p>
         </div>
     </div>
 </main>
 
-<script type="module">
-    import { initGarconsAdminPage } from './js/garcons-admin.js';
-    initGarconsAdminPage();
-</script>
+<!-- MODAL PARA CRIAR NOVO USUÁRIO/FUNCIONÁRIO -->
+<div id="modal-novo-usuario" class="hidden fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4">
+    <div class="bg-sidebar rounded-lg shadow-xl w-full max-w-md">
+        <div class="p-5 border-b border-borda flex justify-between items-center">
+            <h3 class="text-xl font-bold text-principal">Adicionar Novo Funcionário</h3>
+            <button id="btn-fechar-modal-novo-usuario" class="text-2xl hover:text-red-500">&times;</button>
+        </div>
+        <div class="p-5">
+            <form id="form-novo-usuario" class="space-y-4">
+                <div><label for="usuario-nome" class="block mb-1 font-medium">Nome Completo</label><input type="text"
+                        id="usuario-nome" class="w-full bg-fundo p-3 rounded-lg border border-borda" required></div>
+                <div><label for="usuario-email" class="block mb-1 font-medium">E-mail de Acesso</label><input
+                        type="email" id="usuario-email" class="w-full bg-fundo p-3 rounded-lg border border-borda"
+                        required></div>
+                <div><label for="usuario-whatsapp" class="block mb-1 font-medium">WhatsApp (com 55 + DDD)</label><input
+                        type="tel" id="usuario-whatsapp" class="w-full bg-fundo p-3 rounded-lg border border-borda"
+                        placeholder="5562999998888" required></div>
+                <div><label for="usuario-senha" class="block mb-1 font-medium">Senha Temporária</label><input
+                        type="password" id="usuario-senha" class="w-full bg-fundo p-3 rounded-lg border border-borda"
+                        required></div>
+                <div class="pt-2"><button type="submit"
+                        class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Criar
+                        Acesso</button></div>
+            </form>
+        </div>
+    </div>
+</div>

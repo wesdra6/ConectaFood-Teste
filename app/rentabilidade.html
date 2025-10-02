@@ -1,46 +1,124 @@
+<script>
+    if (typeof window.IS_SPA_FRAMEWORK_LOADED === 'undefined') {
+        console.warn('GUARDIÃO: Acesso direto ao CAIXA bloqueado! Redirecionando...');
+        window.location.replace(`index.html?view=caixa`);
+    }
+</script>
 
 <main class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 pb-12">
     <div class="mb-8">
         <h1 class="text-3xl md:text-4xl font-bold">Relatório de Rentabilidade 📈</h1>
-        <p class="text-texto-muted">Analise o lucro de cada produto e descubra suas estrelas de venda.</p>
+        <p class="text-texto-muted">Analise a saúde financeira do seu negócio e o desempenho de cada produto.</p>
     </div>
 
-    <div class="bg-card p-2 sm:p-4 rounded-lg">
-        <h2 class="text-2xl font-bold mb-4 px-2 text-principal sm:px-0">Análise por Produto</h2>
-
-        <!-- ✅ CONTAINER SÓ PARA MOBILE 👇 -->
-        <div id="container-rentabilidade-mobile" class="space-y-4 md:hidden">
-            <!-- Cards mobile serão inseridos aqui -->
+    <!-- Filtro de Período -->
+    <div class="bg-card p-6 rounded-lg mb-8">
+        <h2 class="text-xl font-bold mb-4 text-principal">Selecione o Período da Análise</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div>
+                <label for="rentabilidade-data-inicio" class="block mb-1 text-sm font-medium">Data de Início</label>
+                <input type="date" id="rentabilidade-data-inicio"
+                    class="w-full bg-fundo p-2.5 rounded-lg border border-borda">
+            </div>
+            <div>
+                <label for="rentabilidade-data-fim" class="block mb-1 text-sm font-medium">Data de Fim</label>
+                <input type="date" id="rentabilidade-data-fim"
+                    class="w-full bg-fundo p-2.5 rounded-lg border border-borda">
+            </div>
+            <button id="btn-gerar-relatorio"
+                class="w-full bg-principal text-white font-bold py-3 rounded-lg text-lg hover:bg-orange-600 transition-colors">
+                <i class="bi bi-bar-chart-line-fill mr-2"></i>Gerar Relatório
+            </button>
         </div>
+    </div>
 
-        <!-- ✅ CONTAINER SÓ PARA DESKTOP 👇 -->
+    <!-- DRE Simplificado -->
+    <div id="dre-container" class="bg-card p-6 rounded-lg mb-8 hidden">
+        <h2 class="text-2xl font-bold mb-6 text-principal">Demonstrativo de Resultados (DRE)</h2>
+        <div class="space-y-4 text-lg">
+            <div class="flex justify-between items-center p-3 rounded-md bg-fundo">
+                <span class="font-semibold text-texto-muted">Receita Bruta Total</span>
+                <span id="dre-receita-bruta" class="font-bold text-blue-400 text-xl">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between items-center p-3 rounded-md bg-fundo">
+                <span class="font-semibold text-texto-muted">(-) Custo da Mercadoria Vendida (CMV)</span>
+                <span id="dre-cmv" class="font-bold text-yellow-500 text-xl">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between items-center p-4 rounded-md bg-sidebar border-l-4 border-principal">
+                <span class="font-bold text-xl">= Lucro Bruto</span>
+                <span id="dre-lucro-bruto" class="font-extrabold text-principal text-2xl">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between items-center p-3 rounded-md bg-fundo">
+                <span class="font-semibold text-texto-muted">(-) Custos Operacionais</span>
+                <span id="dre-custos-operacionais" class="font-bold text-red-500 text-xl">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between items-center p-4 rounded-md bg-sidebar border-l-4 border-green-500">
+                <span class="font-bold text-xl">= Lucro Líquido</span>
+                <span id="dre-lucro-liquido" class="font-extrabold text-green-400 text-2xl">R$ 0,00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ranking de Produtos com Scroll -->
+    <div id="ranking-produtos-container" class="bg-card p-6 rounded-lg mb-8 hidden">
+        <h2 class="text-2xl font-bold mb-4 text-principal">🏆 Ranking de Produtos</h2>
+        <!-- ➕ Container com altura máxima e scroll customizado -->
+        <div class="max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="sticky top-0 bg-card">
+                        <tr class="border-b-2 border-borda">
+                            <th class="p-3 text-center">#</th>
+                            <th class="p-3">Produto</th>
+                            <th class="p-3 text-center">Unidades Vendidas</th>
+                            <th class="p-3 text-right">Faturamento Gerado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-ranking-corpo" class="divide-y divide-borda/50"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Análise por Produto com Paginação -->
+    <div id="analise-produtos-container" class="bg-card p-2 sm:p-6 rounded-lg hidden">
+        <h2 class="text-2xl font-bold mb-4 px-2 text-principal sm:px-0">Análise de Lucratividade por Produto</h2>
+        <div id="container-rentabilidade-mobile" class="space-y-4 md:hidden"></div>
         <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left">
                 <thead>
                     <tr class="border-b-2 border-borda">
-                        <th class="p-3 text-principal">Produto</th>
-                        <th class="p-3 text-principal text-center">Unidades Vendidas</th>
-                        <th class="p-3 text-principal text-right hidden lg:table-cell">Preço Venda</th>
-                        <th class="p-3 text-principal text-right hidden lg:table-cell">CMV Unitário</th>
-                        <th class="p-3 text-principal text-right">Faturamento Total</th>
-                        <th class="p-3 text-principal text-right font-bold text-green-400">Lucro Total</th>
+                        <th class="p-3">Produto</th>
+                        <th class="p-3 text-center">Unid. Vendidas</th>
+                        <th class="p-3 text-right">Faturamento Total</th>
+                        <th class="p-3 text-right font-bold text-green-400">Lucro Total</th>
                     </tr>
                 </thead>
-                <tbody id="tabela-rentabilidade-desktop" class="divide-y divide-borda/50">
-                    <!-- Linhas da tabela serão inseridas aqui -->
-                </tbody>
+                <tbody id="tabela-rentabilidade-desktop" class="divide-y divide-borda/50"></tbody>
             </table>
         </div>
-        
-        <!-- Placeholder de Carregamento (Unificado) -->
-        <div id="container-loading-placeholder" class="text-center p-10 text-texto-muted animate-pulse">
-            Calculando a lucratividade dos seus produtos...
-        </div>
+        <!-- ➕ Container para os botões da paginação -->
+        <div id="paginacao-rentabilidade-container" class="flex justify-center items-center space-x-2 mt-6"></div>
+    </div>
 
+    <div id="rentabilidade-placeholder" class="text-center p-10 text-texto-muted">
+        Selecione um período e clique em "Gerar Relatório" para ver a mágica acontecer.
     </div>
 </main>
 
-<script type="module">
-    import { initRentabilidadePage } from './js/rentabilidade.js';
-    initRentabilidadePage();
-</script>
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #2c2854;
+        border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #ff6b35;
+        border-radius: 10px;
+        border: 2px solid #2c2854;
+    }
+</style>

@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,24 +10,34 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              'fundo': '#1a163a', 'sidebar': '#2c2854', 'card': '#38326b', 'principal': '#ff6b35',
-              'texto-base': '#ffffff', 'texto-muted': '#a3a0c2', 'borda': '#4a4480',
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'fundo': '#1a163a', 'sidebar': '#2c2854', 'card': '#38326b', 'principal': '#ff6b35',
+                        'texto-base': '#ffffff', 'texto-muted': '#a3a0c2', 'borda': '#4a4480',
+                    }
+                }
             }
-          }
         }
-      }
     </script>
     <style>
-        body { font-family: 'Poppins', sans-serif; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
-    <script src="env.js"></script>
+    <!-- ❌ REMOVIDO DAQUI E MOVIDO PARA O FINAL: <script src="env.js"></script> -->
 </head>
+
 <body class="bg-fundo text-texto-base flex flex-col h-screen">
 
     <header class="bg-card p-4 flex justify-between items-center flex-shrink-0 shadow-lg">
@@ -38,7 +48,9 @@
                 <p class="text-xs text-green-400">● Online</p>
             </div>
         </div>
-        <button id="agente-ia-limpar" class="bg-sidebar p-2 rounded-lg text-texto-muted hover:bg-fundo hover:text-white transition-colors" title="Limpar histórico da conversa">
+        <button id="agente-ia-limpar"
+            class="bg-sidebar p-2 rounded-lg text-texto-muted hover:bg-fundo hover:text-white transition-colors"
+            title="Limpar histórico da conversa">
             <i class="bi bi-trash3-fill text-xl"></i>
         </button>
     </header>
@@ -48,18 +60,24 @@
 
     <footer class="p-4 border-t border-borda flex-shrink-0 bg-sidebar">
         <form id="agente-ia-form" class="flex items-center gap-2">
-            <input type="text" id="agente-ia-input" placeholder="Pergunte sobre o sistema..." class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none" autocomplete="off">
-            <button type="submit" class="w-14 h-14 bg-principal text-white rounded-lg flex-shrink-0 flex items-center justify-center text-xl"><i class="bi bi-send-fill"></i></button>
+            <input type="text" id="agente-ia-input" placeholder="Pergunte sobre o sistema..."
+                class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none"
+                autocomplete="off">
+            <button type="submit"
+                class="w-14 h-14 bg-principal text-white rounded-lg flex-shrink-0 flex items-center justify-center text-xl"><i
+                    class="bi bi-send-fill"></i></button>
         </form>
     </footer>
 
-    <!-- ✅ SCRIPTS CARREGADOS COMO MÓDULOS -->
+    <!-- ✅ Bloco de Scripts Corrigido e Centralizado 👇 -->
+    <script src="env.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script type="module" src="js/functions/authVigia.js"></script>
     <script type="module" src="js/config.js"></script>
     <script type="module" src="js/functions/api.js"></script>
     <script type="module">
-        // ✅ IMPORTANDO AS FUNÇÕES QUE PRECISAMOS
         import { API_ENDPOINTS } from './js/config.js';
-        // Importa a função de enviar dados do api.js, mas renomeia para evitar conflito
         import { enviarParaAPI as enviarParaAPI_API } from './js/functions/api.js';
 
         const HISTORICO_CHAT_KEY = 'historicoChatAgenteIA';
@@ -86,7 +104,7 @@
             corpoChat.innerHTML = '';
             adicionarMensagem("Olá! Sou seu assistente virtual. Como posso te ajudar?", 'ia');
         }
-        
+
         function adicionarMensagem(texto, autor, salvar = true) {
             if (!corpoChat) return;
 
@@ -110,9 +128,9 @@
             } else if (autor === 'loading') {
                 conteudoHtml = `<div class="w-8 h-8 bg-card rounded-full flex items-center justify-center flex-shrink-0"><i class="bi bi-robot"></i></div><div class="bg-card p-3 rounded-lg rounded-bl-none"><div class="flex items-center gap-2"><span class="w-2 h-2 bg-texto-muted rounded-full animate-bounce"></span><span class="w-2 h-2 bg-texto-muted rounded-full animate-bounce" style="animation-delay:0.2s"></span><span class="w-2 h-2 bg-texto-muted rounded-full animate-bounce" style="animation-delay:0.4s"></span></div></div>`;
             }
-            
+
             divMensagem.innerHTML = conteudoHtml;
-            
+
             const p = divMensagem.querySelector('p');
             if (p) {
                 if (autor === 'ia') {
@@ -131,7 +149,6 @@
             adicionarMensagem('', 'loading', false);
 
             try {
-                // ✅ CHAMADA SEGURA PARA O PROXY, USANDO NOSSA FUNÇÃO PADRÃO
                 const data = await enviarParaAPI_API(API_ENDPOINTS.call_ia_proxy, { pergunta: pergunta });
 
                 const respostaIA = data[0]?.output || data.resposta || "Não entendi, pode repetir?";
@@ -142,7 +159,7 @@
                 adicionarMensagem("Tive um probleminha de conexão. 😥 Tente de novo, por favor.", 'ia');
             }
         }
-        
+
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const pergunta = input.value.trim();
@@ -153,7 +170,7 @@
         });
 
         btnLimpar.addEventListener('click', limparHistorico);
-        
+
         if (historicoMensagens.length === 0) {
             adicionarMensagem("Olá! Sou seu assistente virtual. Como posso te ajudar?", 'ia');
         } else {
@@ -161,4 +178,5 @@
         }
     </script>
 </body>
+
 </html>

@@ -62,25 +62,22 @@ async function enviarPerguntaParaIA(pergunta) {
     adicionarMensagem('', 'loading'); // Mostra o "digitando..."
 
     try {
-        const response = await fetch(window.API_CONFIG.call_ia_proxy, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pergunta: pergunta })
-        });
+        // ✅ ALTERADO: Agora usa nossa função padrão 'enviarParaAPI'
+        const data = await enviarParaAPI(window.API_CONFIG.call_ia_proxy, { pergunta: pergunta });
 
-        if (!response.ok) {
-            throw new Error('A resposta da rede não foi ok.');
-        }
-
-        const data = await response.json();
         // A resposta do proxy da IA pode vir encapsulada
         const respostaIA = data[0]?.output || data.resposta || "Desculpe, não consegui processar sua pergunta agora.";
 
         adicionarMensagem(respostaIA, 'ia');
 
     } catch (error) {
-        console.error('Erro ao chamar o Agente IA:', error);
-        adicionarMensagem("Tive um probleminha de conexão. 😥 Poderia tentar de novo?", 'ia');
+        // ✅ ALTERADO: Silêncio total aqui! O Mestre dos Erros (api.js) vai mostrar o Swal.
+        console.error('Erro ao chamar o Agente IA, tratado globalmente:', error);
+        // Removemos a mensagem de erro no chat para não ter feedback duplicado (Swal + Chat)
+        const loadingMsg = corpoChat.querySelector('.loading-message');
+        if (loadingMsg) {
+            loadingMsg.remove();
+        }
     }
 }
 

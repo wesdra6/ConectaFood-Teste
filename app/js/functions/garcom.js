@@ -1,4 +1,3 @@
-
 import { enviarParaAPI, fetchDeAPI } from './api.js';
 import { abrirModalGerenciamento } from './pedidos.js';
 import { API_ENDPOINTS } from '../config.js';
@@ -9,6 +8,8 @@ let mesaEmLancamento = null;
 let modalLancamentoGarcom = null;
 let isModalListenersAttached = false;
 let lojaConfigGarcom = null;
+// ➕ VARIÁVEL GLOBAL PARA GUARDAR OS PEDIDOS ATIVOS
+let todosOsPedidosAtivos = [];
 
 async function carregarLojaConfigGarcom() {
     try {
@@ -29,22 +30,44 @@ async function carregarLojaConfigGarcom() {
     } catch (error) { console.error("Erro ao carregar configs da loja:", error); }
 }
 
+// ✅ FUNÇÃO ATUALIZADA COM A NOVA LÓGICA DE STATUS
 function renderizarMesasGarcom(mesas) {
     const gradeMesas = document.getElementById('grade-mesas-garcom');
     if (!gradeMesas) return;
     gradeMesas.innerHTML = '';
+
     mesas.forEach(mesa => {
-        const isOcupada = mesa.status === 'OCUPADA';
-        const corStatus = isOcupada ? 'bg-red-500' : 'bg-green-500';
+        let corStatus, textoStatus;
+
+        if (mesa.status === 'LIVRE') {
+            corStatus = 'bg-green-500';
+            textoStatus = 'LIVRE';
+        } else { // Mesa está OCUPADA, vamos verificar o status do pedido
+            const pedidoDaMesa = todosOsPedidosAtivos.find(p => p.id_mesa === mesa.id);
+            
+            if (pedidoDaMesa && pedidoDaMesa.status === 'PRONTO_PARA_ENTREGA') {
+                corStatus = 'bg-principal animate-pulse'; // Laranja e pulsando pra chamar atenção
+                textoStatus = 'PRONTO';
+            } else {
+                corStatus = 'bg-red-500';
+                textoStatus = 'OCUPADA';
+            }
+        }
+
         const cardMesa = document.createElement('div');
         cardMesa.className = "mesa-card bg-card p-4 rounded-lg text-center cursor-pointer";
         cardMesa.addEventListener('click', () => handleMesaClick(mesa));
-        cardMesa.innerHTML = `<div class="text-4xl font-bold">${mesa.numero_mesa}</div><div class="mt-2 text-sm font-semibold uppercase p-1 rounded-md text-white ${corStatus}">${mesa.status}</div>`;
+        cardMesa.innerHTML = `
+            <div class="text-4xl font-bold">${mesa.numero_mesa}</div>
+            <div class="mt-2 text-sm font-semibold uppercase p-1 rounded-md text-white ${corStatus}">
+                ${textoStatus}
+            </div>
+        `;
         gradeMesas.appendChild(cardMesa);
     });
 }
 
-// ➕ ALTERAÇÃO AQUI 👇 A função foi reescrita para usar delegação de eventos
+
 function renderizarCardapio(containerId, produtos) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -109,8 +132,8 @@ async function handleMesaClick(mesa) {
     } else {
         Swal.fire({ title: `Buscando Pedido...`, allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
         try {
-            const pedidos = await fetchDeAPI(API_ENDPOINTS.get_all_orders);
-            const pedidoDaMesa = pedidos.find(p => p.id_mesa == mesa.id && p.status !== 'ENTREGUE' && p.status !== 'CANCELADO');
+            // Reutilizamos a variável global que já tem os pedidos
+            const pedidoDaMesa = todosOsPedidosAtivos.find(p => p.id_mesa == mesa.id);
             Swal.close();
 
             if (pedidoDaMesa) {
@@ -144,12 +167,13 @@ function attachModalListeners() {
             await enviarParaAPI(API_ENDPOINTS.create_order_internal, dadosPedido);
             if (modalLancamentoGarcom) modalLancamentoGarcom.hide();
             Swal.fire('Sucesso!', 'Pedido enviado para a cozinha!', 'success');
-            localStorage.setItem('novoPedidoAdmin', 'internal'); 
             initGarcomMesasPage(); 
-        } catch (error) { Swal.fire('Ops!', 'Não foi possível lançar o pedido.', 'error'); }
+        } catch (error) {
+            // Silêncio aqui! O api.js já mostrou o erro.
+            console.error("Erro ao lançar pedido pelo garçom, tratado globalmente:", error);
+        }
     });
 
-    // ➕ O ESCUTADOR ÚNICO FICA AQUI 👇
     const containerCardapio = document.getElementById('lista-produtos-garcom');
     if (containerCardapio) {
         containerCardapio.addEventListener('click', (event) => {
@@ -197,10 +221,14 @@ export async function initGarcomLoginPage() {
                 sessionStorage.setItem('garcom_nome', garcom.nome);
                 window.location.href = 'garcom-mesas.html';
             } else { throw new Error('PIN incorreto ou garçom não encontrado.'); }
-        } catch (error) { Swal.fire({ icon: 'error', title: 'Acesso Negado', text: error.message, background: '#2c2854', color: '#ffffff' }); }
+        } catch (error) {
+            // Silêncio aqui! O api.js já mostrou o erro.
+            console.error("Erro no login do garçom, tratado globalmente:", error);
+        }
     });
 }
 
+// ✅ FUNÇÃO PRINCIPAL ATUALIZADA PARA BUSCAR TODOS OS DADOS NECESSÁRIOS
 export async function initGarcomMesasPage() {
     console.log("Maestro: Garçom Mesas - Final. 🍽️");
     const garcomId = sessionStorage.getItem('garcom_id');
@@ -218,13 +246,20 @@ export async function initGarcomMesasPage() {
         window.location.replace('garcom-login.html');
     });
     try {
-        const [mesas, produtos] = await Promise.all([
+        // Agora buscamos mesas, produtos E pedidos ativos
+        const [mesas, produtos, pedidos] = await Promise.all([
             fetchDeAPI(API_ENDPOINTS.get_all_tables),
-            fetchDeAPI(API_ENDPOINTS.get_all_products_with_type)
+            fetchDeAPI(API_ENDPOINTS.get_all_products_with_type),
+            fetchDeAPI(API_ENDPOINTS.get_all_orders)
         ]);
+        
         todosOsProdutos = produtos;
+        todosOsPedidosAtivos = pedidos; // Armazenamos os pedidos na variável global
+        
         const mesasDoGarcom = mesas.filter(mesa => mesa.garcom_id == garcomId);
-        renderizarMesasGarcom(mesasDoGarcom);
+        
+        renderizarMesasGarcom(mesasDoGarcom); // A renderização agora tem a informação que precisa
+        
         if (!modalLancamentoGarcom) {
             modalLancamentoGarcom = new bootstrap.Modal(document.getElementById('modal-lancamento-garcom'));
         }

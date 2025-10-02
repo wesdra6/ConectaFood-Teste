@@ -18,7 +18,7 @@ window.ENVIRONMENT_CONFIG = {
 
   // -- SUPABASE --
   // URL do seu projeto Supabase de desenvolvimento
-  SUPABASE_URL: 'https://ferramentas-supabase-demos.lblzl4.easypanel.host',
+  SUPABASE_URL: 'https://ferramentas-supabase-food.lblzl4.easypanel.host',
   
   // Chave Anônima (pública) do seu projeto Supabase de desenvolvimento
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJyb2xlIjogImFub24iLAogICJpc3MiOiAic3VwYWJhc2UiLAogICJpYXQiOiAxNzM3NDI4NDAwLAogICJleHAiOiAxODk1MTk0ODAwCn0.xSC1u_LpBqMbarBrlsMS_adc9JVzyiHETWOnzopJMDs',
@@ -29,8 +29,7 @@ window.ENVIRONMENT_CONFIG = {
 
   // -- ZIPLINE (Upload de Arquivos) --
   ZIPLINE_UPLOAD_URL: 'https://n8n-webhook.uptecnology.com.br/webhook/enviar-imagem',
+  // ✅ CORREÇÃO AQUI 👇 - Vírgula adicionada!
   ZIPLINE_DELETE_URL: 'https://n8n-webhook.uptecnology.com.br/webhook/deletar-imagem',
 
-
 };
-

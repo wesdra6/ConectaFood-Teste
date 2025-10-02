@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,22 +12,50 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-      tailwind.config = { theme: { extend: { colors: { 'fundo': '#1a163a', 'sidebar': '#2c2854', 'card': '#38326b', 'principal': '#ff6b35', 'texto-base': '#ffffff', 'texto-muted': '#a3a0c2', 'borda': '#4a4480' } } } }
+        tailwind.config = { theme: { extend: { colors: { 'fundo': '#1a163a', 'sidebar': '#2c2854', 'card': '#38326b', 'principal': '#ff6b35', 'texto-base': '#ffffff', 'texto-muted': '#a3a0c2', 'borda': '#4a4480' } } } }
     </script>
-    <style> 
-        body { font-family: 'Poppins', sans-serif; }
-        .modal { z-index: 1060 !important; }
-        .modal-backdrop { z-index: 1059 !important; }
-        .swal2-container { z-index: 99999 !important; }
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .modal {
+            z-index: 1060 !important;
+        }
+
+        .modal-backdrop {
+            z-index: 1059 !important;
+        }
+
+        .swal2-container {
+            z-index: 99999 !important;
+        }
+
         @media print {
-            body * { visibility: hidden; }
-            #print-area-garcom, #print-area-garcom * { visibility: visible; }
-            #print-area-garcom { position: absolute; left: 0; top: 0; width: 100%; }
-            @page { size: 80mm; margin: 2mm; }
+            body * {
+                visibility: hidden;
+            }
+
+            #print-area-garcom,
+            #print-area-garcom * {
+                visibility: visible;
+            }
+
+            #print-area-garcom {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+
+            @page {
+                size: 80mm;
+                margin: 2mm;
+            }
         }
     </style>
-    <script src="env.js"></script>
 </head>
+
 <body class="bg-fundo text-texto-base">
     <div class="hidden md:flex fixed inset-0 bg-sidebar z-50 items-center justify-center p-8">
         <div class="text-center bg-card p-10 rounded-lg shadow-2xl max-w-lg">
@@ -40,26 +69,64 @@
         <header class="bg-sidebar shadow-lg sticky top-0 z-20">
             <div class="container mx-auto px-4 py-3 flex justify-between items-center">
                 <div id="logo-container-garcom" class="h-12 flex items-center"></div>
-                <button id="btn-logout-garcom" class="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg text-sm hover:bg-red-700 transition-colors">
+                <button id="btn-logout-garcom"
+                    class="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg text-sm hover:bg-red-700 transition-colors">
                     <i class="bi bi-box-arrow-left mr-2"></i>Sair
                 </button>
             </div>
         </header>
-    
+
         <main class="container mx-auto px-4 py-8">
             <h1 class="text-3xl font-bold">Mapa de Mesas</h1>
             <p id="garcom-saudacao" class="text-texto-muted mb-6">Carregando...</p>
             <div id="grade-mesas-garcom" class="grid grid-cols-2 sm:grid-cols-3 gap-6"></div>
         </main>
-    
-        <div class="modal fade" id="modal-lancamento-garcom" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-xl modal-dialog-centered"><div class="modal-content" style="background-color: #2c2854; color: #ffffff;"><div class="modal-header border-b border-borda"><h5 class="modal-title text-2xl font-bold" id="modal-lancamento-titulo">Lançar Pedido</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div class="md:col-span-1"><h3 class="font-bold text-lg mb-2">Cardápio</h3><input type="text" id="busca-produto-garcom" placeholder="Buscar produto..." class="w-full bg-fundo p-2 rounded-lg border border-borda mb-4"><div id="lista-produtos-garcom" class="flex-grow overflow-y-auto pr-2" style="max-height: 400px;"></div></div><div class="bg-card p-4 rounded-lg flex flex-col md:col-span-1"><h3 class="font-bold text-lg mb-4">Comanda</h3><div id="comanda-itens-garcom" class="flex-grow space-y-2 min-h-[200px]"></div>
-        
-        <div class="mt-4 pt-4 border-t border-borda/50">
-            <label for="garcom-observacoes" class="block mb-2 font-semibold text-texto-muted">Observações do Pedido</label>
-            <textarea id="garcom-observacoes" placeholder="Ex: Sem cebola, ponto da carne, etc." class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none" rows="3"></textarea>
+
+        <div class="modal fade" id="modal-lancamento-garcom" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content" style="background-color: #2c2854; color: #ffffff;">
+                    <div class="modal-header border-b border-borda">
+                        <h5 class="modal-title text-2xl font-bold" id="modal-lancamento-titulo">Lançar Pedido</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="md:col-span-1">
+                                <h3 class="font-bold text-lg mb-2">Cardápio</h3><input type="text"
+                                    id="busca-produto-garcom" placeholder="Buscar produto..."
+                                    class="w-full bg-fundo p-2 rounded-lg border border-borda mb-4">
+                                <div id="lista-produtos-garcom" class="flex-grow overflow-y-auto pr-2"
+                                    style="max-height: 400px;"></div>
+                            </div>
+                            <div class="bg-card p-4 rounded-lg flex flex-col md:col-span-1">
+                                <h3 class="font-bold text-lg mb-4">Comanda</h3>
+                                <div id="comanda-itens-garcom" class="flex-grow space-y-2 min-h-[200px]"></div>
+
+                                <div class="mt-4 pt-4 border-t border-borda/50">
+                                    <label for="garcom-observacoes"
+                                        class="block mb-2 font-semibold text-texto-muted">Observações do Pedido</label>
+                                    <textarea id="garcom-observacoes" placeholder="Ex: Sem cebola, ponto da carne, etc."
+                                        class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none"
+                                        rows="3"></textarea>
+                                </div>
+
+                                <div class="border-t border-borda mt-4 pt-4">
+                                    <div class="flex justify-between items-center text-xl"><span
+                                            class="font-semibold">Total:</span><span class="font-bold text-principal"
+                                            id="comanda-total-garcom">R$ 0,00</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-t border-borda"><button type="button"
+                            class="py-2 px-4 rounded-lg bg-gray-500 hover:bg-gray-600"
+                            data-bs-dismiss="modal">Cancelar</button><button type="button"
+                            id="btn-finalizar-lancamento-garcom"
+                            class="py-2 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Lançar na
+                            Cozinha</button></div>
+                </div>
+            </div>
         </div>
-        
-        <div class="border-t border-borda mt-4 pt-4"><div class="flex justify-between items-center text-xl"><span class="font-semibold">Total:</span><span class="font-bold text-principal" id="comanda-total-garcom">R$ 0,00</span></div></div></div></div></div><div class="modal-footer border-t border-borda"><button type="button" class="py-2 px-4 rounded-lg bg-gray-500 hover:bg-gray-600" data-bs-dismiss="modal">Cancelar</button><button type="button" id="btn-finalizar-lancamento-garcom" class="py-2 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Lançar na Cozinha</button></div></div></div></div>
 
         <div class="modal fade" id="modal-gerenciamento-pedido" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -72,8 +139,11 @@
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             <div id="coluna-adicionar-itens">
                                 <h3 class="font-bold text-lg mb-2">Adicionar Itens</h3>
-                                <input type="text" id="gerenciamento-busca-produto" placeholder="Buscar produto para adicionar..." class="w-full bg-fundo p-2 rounded-lg border border-borda mb-4">
-                                <div id="gerenciamento-lista-produtos" class="flex-grow overflow-y-auto pr-2" style="max-height: 400px;"></div>
+                                <input type="text" id="gerenciamento-busca-produto"
+                                    placeholder="Buscar produto para adicionar..."
+                                    class="w-full bg-fundo p-2 rounded-lg border border-borda mb-4">
+                                <div id="gerenciamento-lista-produtos" class="flex-grow overflow-y-auto pr-2"
+                                    style="max-height: 400px;"></div>
                             </div>
                             <div class="bg-card p-4 rounded-lg flex flex-col">
                                 <h3 class="font-bold text-lg mb-4">Itens do Pedido</h3>
@@ -81,31 +151,46 @@
                                 <div class="border-t border-borda mt-4 pt-4">
                                     <div class="flex justify-between items-center text-xl">
                                         <span class="font-semibold">Novo Total:</span>
-                                        <span class="font-bold text-principal" id="gerenciamento-comanda-total">R$ 0,00</span>
+                                        <span class="font-bold text-principal" id="gerenciamento-comanda-total">R$
+                                            0,00</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer border-t border-borda justify-between">
-                        <button type="button" id="btn-cancelar-pedido" class="py-2 px-5 rounded-lg bg-red-600 hover:bg-red-700 font-bold hidden">Cancelar Pedido</button>
-                        <button type="button" id="btn-imprimir-preconta" class="py-2 px-5 rounded-lg bg-blue-500 hover:bg-blue-600 font-bold hidden"><i class="bi bi-printer-fill mr-2"></i>Imprimir Pré-Conta</button>
-                        
+                        <button type="button" id="btn-cancelar-pedido"
+                            class="py-2 px-5 rounded-lg bg-red-600 hover:bg-red-700 font-bold hidden">Cancelar
+                            Pedido</button>
+                        <button type="button" id="btn-imprimir-preconta"
+                            class="py-2 px-5 rounded-lg bg-blue-500 hover:bg-blue-600 font-bold hidden"><i
+                                class="bi bi-printer-fill mr-2"></i>Imprimir Pré-Conta</button>
+
                         <div class="flex items-center gap-4">
-                            <button type="button" class="py-2 px-4 rounded-lg bg-gray-500 hover:bg-gray-600" data-bs-dismiss="modal">Fechar</button>
+                            <button type="button" class="py-2 px-4 rounded-lg bg-gray-500 hover:bg-gray-600"
+                                data-bs-dismiss="modal">Fechar</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <div id="print-area-garcom" class="hidden"></div>
 
-    <script type="module" src="js/functions/authVigia.js"></script>
+    <!-- ✅ Bloco de Scripts Corrigido e Centralizado 👇 -->
+    <script src="env.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="module" src="js/main.js"></script>
+
+    <!-- O Vigia roda primeiro para bloquear, se necessário -->
+    <script type="module" src="js/functions/authVigia.js"></script>
+
+    <!-- A lógica específica da página só roda DEPOIS que o Vigia liberou -->
+    <script type="module">
+        import { initGarcomMesasPage } from './js/functions/garcom.js';
+        initGarcomMesasPage();
+    </script>
 </body>
+
 </html>

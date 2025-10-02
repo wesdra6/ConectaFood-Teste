@@ -1,4 +1,4 @@
-import { fetchDeAPI } from './functions/api.js';
+import { fetchDeAPI, buscarComPOST } from './functions/api.js';
 import { API_ENDPOINTS } from './config.js';
 
 let todosOsPedidosDoPeriodo = [];
@@ -10,6 +10,91 @@ let paginaAtual = 1;
 const ITENS_POR_PAGINA = 10;
 
 const formatarMoeda = (valor) => (valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+function mostrarItensDoPedido(pedidoId) {
+    const pedido = pedidosFiltrados.find(p => p.pedido_id === pedidoId);
+    if (!pedido || !pedido.itens_pedido) {
+        Swal.fire('Ops!', 'Não foi possível encontrar os itens deste pedido.', 'info');
+        return;
+    }
+
+    const itensHtml = pedido.itens_pedido.map(item => `
+        <div class="flex justify-between items-center py-2 border-b border-borda/50 text-left">
+            <span><span class="font-bold text-principal">${item.quantidade}x</span> ${item.item}</span>
+            <span class="font-semibold">
+                ${formatarMoeda(item.quantidade * item.preco_unitario)}
+            </span>
+        </div>
+    `).join('');
+
+    Swal.fire({
+        title: `Itens do Pedido #${pedido.id_pedido_publico}`,
+        html: `<div class="max-h-80 overflow-y-auto custom-scrollbar pr-2">${itensHtml}</div>`,
+        background: '#2c2854',
+        color: '#ffffff',
+        confirmButtonText: 'Fechar',
+        confirmButtonColor: '#ff6b35'
+    });
+}
+
+function renderizarResumoProdutosVendidos(produtos) {
+    const container = document.getElementById('produtos-vendidos-lista');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    if (!produtos || produtos.length === 0) {
+        container.innerHTML = '<p class="text-texto-muted text-center p-4">Nenhum produto vendido no período selecionado.</p>';
+        return;
+    }
+    
+    // ➕ Ordena os produtos por quantidade vendida para mostrar os mais populares primeiro
+    const produtosOrdenados = produtos.sort((a, b) => b.quantidade_total - a.quantidade_total);
+
+    const produtosHtml = produtosOrdenados.map(p => `
+        <div class="flex justify-between items-center py-2 border-b border-borda/50 text-base">
+            <div>
+                <span class="inline-block bg-sidebar text-principal font-bold rounded-full px-3 py-1 text-sm mr-3">${p.quantidade_total}x</span>
+                <span class="font-semibold">${p.produto_nome}</span>
+            </div>
+            <span class="font-bold text-green-400">${formatarMoeda(p.faturamento_total)}</span>
+        </div>
+    `).join('');
+
+    container.innerHTML = produtosHtml;
+}
+
+// ➕ NOVA FUNÇÃO PARA CALCULAR O RESUMO NO FRONT-END
+function calcularResumoProdutos(pedidos) {
+    const resumo = new Map();
+
+    pedidos.forEach(pedido => {
+        if (pedido.itens_pedido && Array.isArray(pedido.itens_pedido)) {
+            pedido.itens_pedido.forEach(item => {
+                // Ignora taxas e serviços que não são produtos
+                if (item.produto_id === 99999 || item.item?.toLowerCase().includes('taxa')) {
+                    return;
+                }
+                
+                const faturamentoItem = (item.quantidade || 0) * (item.preco_unitario || 0);
+                
+                if (resumo.has(item.item)) {
+                    const existente = resumo.get(item.item);
+                    existente.quantidade_total += item.quantidade;
+                    existente.faturamento_total += faturamentoItem;
+                } else {
+                    resumo.set(item.item, {
+                        produto_nome: item.item,
+                        quantidade_total: item.quantidade,
+                        faturamento_total: faturamentoItem
+                    });
+                }
+            });
+        }
+    });
+
+    return Array.from(resumo.values());
+}
+
 
 function obterPeriodo(periodo) {
     const hoje = new Date();
@@ -43,42 +128,61 @@ async function carregarConfigDaLoja() {
     }
 }
 
+// ➖ REMOVEMOS O Promise.all E A CHAMADA POST
 async function buscarDadosFinanceiros(dataInicio, dataFim) {
     document.getElementById('kpi-container').innerHTML = `<div class="bg-card p-6 rounded-lg text-center animate-pulse col-span-full"><p>Carregando dados...</p></div>`;
-    document.getElementById('tabela-pedidos-corpo').innerHTML = `<tr><td colspan="5" class="text-center p-8 text-texto-muted animate-pulse">Buscando dados no servidor... 🚀</td></tr>`;
+    document.getElementById('tabela-pedidos-corpo').innerHTML = `<tr><td colspan="6" class="text-center p-8 text-texto-muted animate-pulse">Buscando dados no servidor... 🚀</td></tr>`;
+    document.getElementById('produtos-vendidos-lista').innerHTML = `<p class="text-texto-muted text-center p-4 animate-pulse">Analisando vendas de produtos...</p>`;
+    
     try {
-        const url = `${API_ENDPOINTS.get_financial_report}?inicio=${dataInicio}&fim=${dataFim}`;
-        const resposta = await fetchDeAPI(url);
-        todosOsPedidosDoPeriodo = Array.isArray(resposta) ? resposta : [];
-        aplicarFiltrosLocais();
+        // ➖ AGORA SÓ TEMOS UMA CHAMADA
+        const pedidos = await fetchDeAPI(`${API_ENDPOINTS.get_financial_report}?inicio=${dataInicio}&fim=${dataFim}`);
+
+        todosOsPedidosDoPeriodo = Array.isArray(pedidos) ? pedidos : [];
+        
+        // ➕ CALCULAMOS E RENDERIZAMOS O RESUMO A PARTIR DOS DADOS JÁ OBTIDOS
+        const produtosVendidos = calcularResumoProdutos(todosOsPedidosDoPeriodo);
+        renderizarResumoProdutosVendidos(produtosVendidos);
+
+        await aplicarFiltrosLocais(); 
+
     } catch (error) {
         console.error("Erro ao buscar dados financeiros:", error);
-        document.getElementById('tabela-pedidos-corpo').innerHTML = `<tr><td colspan="5" class="text-center p-8 text-red-400">Falha ao carregar os dados.</td></tr>`;
+        document.getElementById('tabela-pedidos-corpo').innerHTML = `<tr><td colspan="6" class="text-center p-8 text-red-400">Falha ao carregar os dados.</td></tr>`;
+        document.getElementById('produtos-vendidos-lista').innerHTML = `<p class="text-red-400 text-center p-4">Falha ao carregar resumo de produtos.</p>`;
     }
 }
 
-function aplicarFiltrosLocais() {
-    paginaAtual = 1; // ✅ Reseta para a primeira página sempre que um filtro é aplicado
+
+async function aplicarFiltrosLocais() {
+    paginaAtual = 1;
     const origem = document.getElementById('filtro-origem').value;
     const pagamento = document.getElementById('filtro-pagamento').value;
     const termoBusca = document.getElementById('busca-tabela').value.toLowerCase();
     pedidosFiltrados = todosOsPedidosDoPeriodo.filter(p => (origem === 'todos' || p.origem === origem) && (pagamento === 'todos' || p.forma_pagamento === pagamento) && (termoBusca === '' || (p.id_pedido_publico?.toLowerCase().includes(termoBusca)) || (p.nome_cliente?.toLowerCase().includes(termoBusca))));
     
     renderizarKPIs();
-    renderizarTabela(); // Já renderiza a primeira página
+    renderizarTabela();
     renderizarGraficoLinha();
     renderizarGraficoPizza();
-    renderizarFechamentoCaixa(pedidosFiltrados);
-    renderizarPaginacaoFinanceiro(); // ✅ Chama a nova função de paginação
+    await renderizarFechamentoCaixa(pedidosFiltrados);
+    renderizarPaginacaoFinanceiro();
 }
 
-function gerarHtmlImpressaoFechamento(dados, datas) {
+async function gerarHtmlImpressaoFechamento(dados, datas) {
     const dataHora = new Date().toLocaleString('pt-BR');
     const { totaisPorOrigem, totalCouvert, totaisPorGarcom, acertoEntregadores } = dados;
     const faturamentoBruto = Object.values(totaisPorOrigem).reduce((acc, val) => acc + val, 0);
+
+    const rankingProdutos = await fetchDeAPI(`${API_ENDPOINTS.get_ranking_produtos}?inicio=${datas.inicio.split('/').reverse().join('-')}&fim=${datas.fim.split('/').reverse().join('-')}`);
+    const todosProdutosVendidos = Array.isArray(rankingProdutos) ? rankingProdutos : [];
+    
     const origemHtml = Object.entries(totaisPorOrigem).map(([origem, total]) => `<tr><td style="padding: 2px 0;">${origem}</td><td style="text-align: right;">${formatarMoeda(total)}</td></tr>`).join('');
     const garcomHtml = Object.entries(totaisPorGarcom).map(([garcom, total]) => `<tr><td style="padding: 2px 0;">${garcom}</td><td style="text-align: right;">${formatarMoeda(total * 0.10)}</td></tr>`).join('');
     const entregadorHtml = Object.entries(acertoEntregadores).map(([id, dados]) => `<tr><td style="padding: 2px 0;">${id.substring(0, 15)}... (${dados.count}x)</td><td style="text-align: right;">${formatarMoeda(dados.totalAPagar)}</td></tr>`).join('');
+    
+    const produtosVendidosHtml = todosProdutosVendidos.map(p => `<tr><td style="padding: 2px 0;">(${p.total_vendido}x) ${p.produto_nome}</td><td style="text-align: right;">${formatarMoeda(p.faturamento_gerado)}</td></tr>`).join('');
+
     return `
         <div style="width: 280px; font-size: 11px; font-family: 'Courier New', monospace; color: #000;">
             <h2 style="text-align: center; margin: 0; font-size: 14px;">Fechamento de Caixa</h2>
@@ -88,6 +192,9 @@ function gerarHtmlImpressaoFechamento(dados, datas) {
             <h3 style="font-size: 12px; margin: 8px 0 2px;">Vendas por Origem</h3>
             <table style="width: 100%; font-size: 10px;"><tbody>${origemHtml}</tbody></table>
             <div style="text-align: right; font-weight: bold; margin-top: 5px;">Total Bruto: ${formatarMoeda(faturamentoBruto)}</div>
+            <hr style="border: 0; border-top: 1px dashed #000; margin-top: 8px;">
+            <h3 style="font-size: 12px; margin: 8px 0 2px;">Itens Vendidos no Período</h3>
+            <table style="width: 100%; font-size: 10px;"><tbody>${produtosVendidosHtml || '<tr><td>Nenhuma venda registrada.</td></tr>'}</tbody></table>
             <hr style="border: 0; border-top: 1px dashed #000; margin-top: 8px;">
             <h3 style="font-size: 12px; margin: 8px 0 2px;">Repasses e Comissões</h3>
             <table style="width: 100%; font-size: 10px;"><tbody>
@@ -99,7 +206,7 @@ function gerarHtmlImpressaoFechamento(dados, datas) {
         </div>`;
 }
 
-function renderizarFechamentoCaixa(pedidos) {
+async function renderizarFechamentoCaixa(pedidos) {
     const container = document.getElementById('fechamento-caixa-container');
     if (!container || !pedidos || !lojaConfig) { container.innerHTML = ''; return; }
     if (pedidos.length === 0) { container.innerHTML = ''; return; }
@@ -136,10 +243,10 @@ function renderizarFechamentoCaixa(pedidos) {
              <div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="border-b border-borda"><th class="p-3">ID Entregador</th><th class="p-3 text-center">Nº Entregas</th><th class="p-3 text-right">Total a Pagar</th></tr></thead><tbody>${entregadorHtml}</tbody></table></div>
         </div>
     `;
-    document.getElementById('btn-imprimir-fechamento')?.addEventListener('click', () => {
+    document.getElementById('btn-imprimir-fechamento')?.addEventListener('click', async () => {
         const dadosParaImpressao = { totaisPorOrigem, totalCouvert, totaisPorGarcom, acertoEntregadores };
         const datas = { inicio: document.getElementById('data-inicio').value.split('-').reverse().join('/'), fim: document.getElementById('data-fim').value.split('-').reverse().join('/') };
-        const html = gerarHtmlImpressaoFechamento(dadosParaImpressao, datas);
+        const html = await gerarHtmlImpressaoFechamento(dadosParaImpressao, datas);
         const printDiv = document.getElementById('print-fechamento-diario');
         printDiv.innerHTML = html;
         const printWindow = window.open('', '_blank');
@@ -164,11 +271,11 @@ function renderizarGraficoPizza() {
     const data = Object.values(vendasPorOrigem);
 
     const coresHex = {
-        'DELIVERY': '#3b82f6', // blue-500
-        'WHATSAPP': '#22c55e', // green-500
-        'IFOOD': '#ef4444',    // red-500
-        'MESA': '#a855f7',     // purple-500
-        'BALCAO': '#eab308'    // yellow-500
+        'DELIVERY': '#3b82f6', 
+        'WHATSAPP': '#22c55e',
+        'IFOOD': '#ef4444',
+        'MESA': '#a855f7',
+        'BALCAO': '#eab308'
     };
     
     const backgroundColors = labels.map(label => coresHex[label] || '#6b7280'); 
@@ -229,7 +336,6 @@ function renderizarKPIs() {
         <div class="bg-card p-6 rounded-lg"><p class="text-texto-muted font-semibold mb-2">Vendas por Pagamento</p><div class="space-y-1">${pagamentosHtml || '<p class="text-texto-muted text-sm">N/A</p>'}</div></div>`;
 }
 
-// ✅ FUNÇÃO renderizarTabela MODIFICADA
 function renderizarTabela() {
     const corpoTabela = document.getElementById('tabela-pedidos-corpo');
     if (!corpoTabela) return;
@@ -237,7 +343,7 @@ function renderizarTabela() {
     corpoTabela.innerHTML = '';
     
     if (pedidosFiltrados.length === 0) { 
-        corpoTabela.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-texto-muted">Nenhum pedido encontrado.</td></tr>`; 
+        corpoTabela.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-texto-muted">Nenhum pedido encontrado.</td></tr>`;
         return; 
     }
 
@@ -248,11 +354,27 @@ function renderizarTabela() {
     pedidosPaginados.forEach(pedido => {
         const dataHora = new Date(pedido.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
         const corOrigem = { 'DELIVERY': 'bg-blue-500/20 text-blue-300', 'WHATSAPP': 'bg-green-500/20 text-green-300', 'MESA': 'bg-purple-500/20 text-purple-300', 'BALCAO': 'bg-yellow-500/20 text-yellow-300' }[pedido.origem] || 'bg-gray-500/20 text-gray-300';
-        corpoTabela.innerHTML += `<tr class="hover:bg-sidebar/50"><td class="p-3 font-mono">#${pedido.id_pedido_publico}</td><td class="p-3">${dataHora}</td><td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${corOrigem}">${pedido.origem}</span></td><td class="p-3">${pedido.forma_pagamento || 'N/A'}</td><td class="p-3 text-right font-bold text-principal">${formatarMoeda(pedido.total)}</td></tr>`;
+        
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-sidebar/50';
+        tr.innerHTML = `
+            <td class="p-3 font-mono">#${pedido.id_pedido_publico}</td>
+            <td class="p-3">${dataHora}</td>
+            <td class="p-3"><span class="px-2 py-1 text-xs font-semibold rounded-full ${corOrigem}">${pedido.origem}</span></td>
+            <td class="p-3">${pedido.forma_pagamento || 'N/A'}</td>
+            <td class="p-3 text-right font-bold text-principal">${formatarMoeda(pedido.total)}</td>
+            <td class="p-3 text-center">
+                <button class="btn-ver-itens text-blue-400 hover:text-blue-300" title="Ver itens do pedido">
+                    <i class="bi bi-eye-fill text-lg"></i>
+                </button>
+            </td>
+        `;
+        
+        tr.querySelector('.btn-ver-itens').addEventListener('click', () => mostrarItensDoPedido(pedido.pedido_id));
+        corpoTabela.appendChild(tr);
     });
 }
 
-// ✅ NOVA FUNÇÃO DE PAGINAÇÃO
 function renderizarPaginacaoFinanceiro() {
     const pagContainer = document.getElementById('paginacao-financeiro-container');
     if (!pagContainer) return;
@@ -268,8 +390,8 @@ function renderizarPaginacaoFinanceiro() {
         btn.innerText = i;
         btn.onclick = () => {
             paginaAtual = i;
-            renderizarTabela(); // Apenas renderiza a tabela de novo
-            renderizarPaginacaoFinanceiro(); // Re-renderiza a paginação para atualizar o botão ativo
+            renderizarTabela(); 
+            renderizarPaginacaoFinanceiro();
         };
         pagContainer.appendChild(btn);
     }

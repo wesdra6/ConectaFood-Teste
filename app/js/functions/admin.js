@@ -1,3 +1,4 @@
+import { supabase } from '../supabaseClient.js';
 import { enviarParaAPI, fetchDeAPI, enviarArquivoParaAPI } from './api.js';
 import { criaCardProduto } from './components.js';
 import { API_ENDPOINTS, APP_CONFIG, ZIPLINE_CONFIG } from '../config.js';
@@ -11,21 +12,37 @@ const itensPorPagina = 8;
 const desktopMediaQuery = window.matchMedia('(min-width: 768px)');
 let uploadedImageUrls = [];
 let modalProduto = null;
-// ➕ NOVAS VARIÁVEIS DE ESTADO
 let modalFichaTecnica = null;
 let todosOsInsumos = [];
 let fichaTecnicaAtual = [];
 
-
-// ===================================================================
-// FUNÇÕES DO DASHBOARD
-// ===================================================================
+async function exibirInfoUsuarioLogado() {
+    const container = document.getElementById('info-usuario-logado');
+    if (!container) return;
+    let nomeUsuario = 'Visitante';
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+        const { data: profile } = await supabase.from('profiles').select('nome_completo').eq('id', user.id).single();
+        if (profile && profile.nome_completo) {
+            nomeUsuario = profile.nome_completo.split(' ')[0];
+        } else if (user.email && !user.email.startsWith('demo-')) {
+            nomeUsuario = user.email.split('@')[0];
+        }
+    }
+    const atualizarHora = () => {
+        const agora = new Date();
+        const dataFormatada = agora.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' });
+        const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        container.innerHTML = `<span>${dataFormatada} | ${horaFormatada}</span><span class="mx-2">●</span><span>Usuário: <strong class="text-principal">${nomeUsuario}</strong></span>`;
+    };
+    atualizarHora();
+    setInterval(atualizarHora, 15000);
+}
 
 function renderizarToggleLoja(status) {
     const toggle = document.getElementById('toggle-loja-aberta');
     const textoStatus = document.getElementById('status-loja-texto');
     if (!toggle || !textoStatus) return;
-
     toggle.checked = status;
     if (status) {
         textoStatus.textContent = 'ABERTA';
@@ -41,19 +58,7 @@ async function handleToggleLoja() {
     const novoStatus = toggle.checked;
     const acao = novoStatus ? 'ABRIR' : 'FECHAR';
     const corConfirmacao = novoStatus ? '#28a745' : '#d33';
-
-    const resultado = await Swal.fire({
-        title: `Deseja ${acao} a loja?`,
-        text: novoStatus ? 'Sua loja ficará visível e poderá receber pedidos.' : 'Sua loja ficará indisponível para novos pedidos.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: `Sim, ${acao}!`,
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: corConfirmacao,
-        background: '#2c2854',
-        color: '#ffffff'
-    });
-
+    const resultado = await Swal.fire({ title: `Deseja ${acao} a loja?`, text: novoStatus ? 'Sua loja ficará visível e poderá receber pedidos.' : 'Sua loja ficará indisponível para novos pedidos.', icon: 'warning', showCancelButton: true, confirmButtonText: `Sim, ${acao}!`, cancelButtonText: 'Cancelar', confirmButtonColor: corConfirmacao, background: '#2c2854', color: '#ffffff' });
     if (resultado.isConfirmed) {
         Swal.fire({ title: `${acao}NDO a loja...`, allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
         try {
@@ -61,7 +66,7 @@ async function handleToggleLoja() {
             renderizarToggleLoja(novoStatus);
             Swal.fire({ icon: 'success', title: 'Sucesso!', text: `Loja ${novoStatus ? 'aberta' : 'fechada'}.`, background: '#2c2854', color: '#ffffff' });
         } catch (error) {
-            Swal.fire({ icon: 'error', title: 'Ops!', text: 'Não foi possível alterar o status da loja.', background: '#2c2854', color: '#ffffff' });
+            console.error("Erro ao alterar status da loja, tratado globalmente:", error);
             toggle.checked = !novoStatus;
         }
     } else {
@@ -84,7 +89,6 @@ function renderizarDashboardStats(stats) {
     const totalPedidosEl = document.getElementById('dashboard-total-pedidos');
     const faturamentoDiaEl = document.getElementById('dashboard-faturamento-dia');
     const ticketMedioEl = document.getElementById('dashboard-ticket-medio');
-
     if (totalPedidosEl) totalPedidosEl.textContent = stats.totalPedidos;
     if (faturamentoDiaEl) faturamentoDiaEl.textContent = `R$ ${stats.faturamento.toFixed(2).replace('.', ',')}`;
     if (ticketMedioEl) ticketMedioEl.textContent = `R$ ${stats.ticketMedio.toFixed(2).replace('.', ',')}`;
@@ -93,31 +97,25 @@ function renderizarDashboardStats(stats) {
 function renderMapaDeMesas(mesas, pedidos) {
     const container = document.getElementById('dashboard-mapa-mesas');
     if (!container) return;
-
     container.innerHTML = '';
-    if (!mesas || mesas.length === 0) {
-        container.innerHTML = '<p class="col-span-full text-center text-texto-muted">Nenhuma mesa cadastrada.</p>';
+    const mesasOcupadas = mesas.filter(m => m.status === 'OCUPADA').length;
+    if (mesas.length === 0) {
+        container.innerHTML = `<p class="col-span-full text-center text-texto-muted py-4">Nenhuma mesa cadastrada. <br> Vá em <a href="?view=configuracoes" class="text-principal font-semibold hover:underline">Configurações</a> para adicioná-las.</p>`;
         return;
     }
-
+    if (mesasOcupadas === 0) {
+         container.innerHTML = `<p class="col-span-full text-center text-texto-muted py-4">Tudo tranquilo por aqui, nenhuma mesa ocupada no momento. ✨</p>`;
+    }
     mesas.sort((a, b) => a.numero_mesa - b.numero_mesa).forEach(mesa => {
         const isOcupada = mesa.status === 'OCUPADA';
         const pedidoDaMesa = isOcupada ? pedidos.find(p => p.id_mesa === mesa.id) : null;
-        
         const corBorda = isOcupada ? 'border-red-500' : 'border-green-500';
         const corPonto = isOcupada ? 'bg-red-500' : 'bg-green-500';
         const textoTitle = isOcupada ? `OCUPADA\nCliente: ${pedidoDaMesa?.nome_cliente}\nTotal: R$ ${pedidoDaMesa?.total.toFixed(2)}` : 'LIVRE';
-
         const cardMesa = document.createElement('div');
         cardMesa.className = `mesa-card flex flex-col justify-between bg-fundo p-3 rounded-lg text-center cursor-pointer border-2 ${corBorda}`;
         cardMesa.title = textoTitle;
-        
-        cardMesa.innerHTML = `
-            <div class="text-3xl md:text-4xl font-bold">${mesa.numero_mesa}</div>
-            <div class="flex justify-center items-center mt-2">
-                <span class="w-4 h-4 rounded-full ${corPonto}"></span>
-            </div>
-        `;
+        cardMesa.innerHTML = `<div class="text-3xl md:text-4xl font-bold">${mesa.numero_mesa}</div><div class="flex justify-center items-center mt-2"><span class="w-4 h-4 rounded-full ${corPonto}"></span></div>`;
         cardMesa.onclick = () => window.location.href = '?view=caixa';
         container.appendChild(cardMesa);
     });
@@ -126,34 +124,19 @@ function renderMapaDeMesas(mesas, pedidos) {
 function renderFeedDePedidos(pedidos) {
     const container = document.getElementById('dashboard-feed-pedidos');
     if (!container) return;
-    
     const pedidosExternos = pedidos.filter(p => p.origem === 'DELIVERY' || p.origem === 'WHATSAPP' || p.origem === 'BALCAO');
-    
     container.innerHTML = '';
     if (pedidosExternos.length === 0) {
-        container.innerHTML = '<p class="text-center text-texto-muted py-4">Nenhum pedido externo e/ou balcão ativo no momento. ✨</p>';
+        container.innerHTML = '<p class="text-center text-texto-muted py-4">Aguardando novos pedidos de delivery ou balcão. Fique de olho! 👀</p>';
         return;
     }
-
     pedidosExternos.slice(0, 5).forEach(pedido => {
         const corOrigem = APP_CONFIG.origemCores[pedido.origem] || 'bg-gray-500';
         const hora = new Date(pedido.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        
         const itemHtml = document.createElement('a');
         itemHtml.href = `?view=pedidos`;
         itemHtml.className = 'block bg-fundo p-3 rounded-lg hover:bg-sidebar transition-colors';
-        itemHtml.innerHTML = `
-            <div class="flex justify-between items-start">
-                <div>
-                    <span class="px-2 py-1 text-xs font-bold rounded-full text-white ${corOrigem}">${pedido.origem}</span>
-                    <p class="font-bold mt-1 truncate">${pedido.nome_cliente}</p>
-                </div>
-                <div class="text-right flex-shrink-0">
-                    <p class="font-bold text-principal text-lg">R$ ${pedido.total.toFixed(2)}</p>
-                    <p class="text-sm text-texto-muted">${hora}</p>
-                </div>
-            </div>
-        `;
+        itemHtml.innerHTML = `<div class="flex justify-between items-start"><div><span class="px-2 py-1 text-xs font-bold rounded-full text-white ${corOrigem}">${pedido.origem}</span><p class="font-bold mt-1 truncate">${pedido.nome_cliente}</p></div><div class="text-right flex-shrink-0"><p class="font-bold text-principal text-lg">R$ ${pedido.total.toFixed(2)}</p><p class="text-sm text-texto-muted">${hora}</p></div></div>`;
         container.appendChild(itemHtml);
     });
 }
@@ -161,33 +144,37 @@ function renderFeedDePedidos(pedidos) {
 function initDashboardSliders() {
     const swiperAtalhos = document.querySelector('.swiper-atalhos');
     if (swiperAtalhos && !swiperAtalhos.swiper) {
-        new Swiper(swiperAtalhos, {
-            slidesPerView: 'auto',
-            spaceBetween: 16,
-            freeMode: true,
-        });
+        new Swiper(swiperAtalhos, { slidesPerView: 'auto', spaceBetween: 16, freeMode: true });
+    }
+}
+
+function verificarAcessoAtalhos() {
+    const userRole = sessionStorage.getItem('userRole');
+    const atalhoGerenciamento = document.getElementById('atalho-gerenciamento');
+    if (atalhoGerenciamento) {
+        if (userRole === 'funcionario') {
+            console.log("VIGIA de Atalhos: Usuário é 'funcionario'. Escondendo atalho de gerenciamento.");
+            atalhoGerenciamento.style.display = 'none';
+        } else {
+            console.log(`VIGIA de Atalhos: Role '${userRole}' detectada. Exibindo atalho.`);
+            atalhoGerenciamento.style.display = 'block';
+        }
     }
 }
 
 async function initDashboard() {
     try {
-        const [statsData, mesas, pedidosAtivos] = await Promise.all([
-            fetchDeAPI(API_ENDPOINTS.get_dashboard_stats),
-            fetchDeAPI(API_ENDPOINTS.get_all_tables),
-            fetchDeAPI(API_ENDPOINTS.get_all_orders)
-        ]);
-
+        exibirInfoUsuarioLogado();
+        verificarAcessoAtalhos();
+        const [statsData, mesas, pedidosAtivos] = await Promise.all([ fetchDeAPI(API_ENDPOINTS.get_dashboard_stats), fetchDeAPI(API_ENDPOINTS.get_all_tables), fetchDeAPI(API_ENDPOINTS.get_all_orders) ]);
         if (!Array.isArray(statsData)) { throw new Error("Dados de estatísticas inválidos."); }
-        
         const faturamento = statsData.reduce((acc, p) => acc + Number(p.total || 0), 0);
         const totalPedidos = statsData.length;
         const ticketMedio = totalPedidos > 0 ? faturamento / totalPedidos : 0;
-        
         renderizarDashboardStats({ totalPedidos, faturamento, ticketMedio });
         renderMapaDeMesas(mesas, pedidosAtivos);
         renderFeedDePedidos(pedidosAtivos);
         initDashboardSliders();
-
     } catch (error) {
         console.error("Erro ao montar o dashboard operacional:", error);
         const dashboardPage = document.getElementById('dashboard-page');
@@ -195,15 +182,6 @@ async function initDashboard() {
     }
 }
 
-
-// ===================================================================
-// ➕ NOVAS FUNÇÕES PARA FICHA TÉCNICA E CMV
-// ===================================================================
-
-/**
- * Abre o modal da ficha técnica, busca os dados necessários e prepara a interface.
- * @param {number} produtoId - O ID do produto a ser editado.
- */
 async function abrirModalFichaTecnica(produtoId) {
     const produto = produtosLocais.find(p => p.id === produtoId);
     if (!produto) {
@@ -223,12 +201,11 @@ async function abrirModalFichaTecnica(produtoId) {
     Swal.fire({ title: 'Carregando dados da ficha...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
 
     try {
-        // ✅ A MUDANÇA FINAL ESTÁ AQUI: Usando query param
         const urlFicha = `${API_ENDPOINTS.get_ficha_produto}?produto_id=${produtoId}`;
 
         const [insumos, ficha] = await Promise.all([
             fetchDeAPI(API_ENDPOINTS.get_all_insumos),
-            fetchDeAPI(urlFicha) // Usa a nova URL com ?produto_id=123
+            fetchDeAPI(urlFicha)
         ]);
         
         todosOsInsumos = Array.isArray(insumos) ? insumos : [];
@@ -245,30 +222,27 @@ async function abrirModalFichaTecnica(produtoId) {
     }
 }
 
-/**
- * Calcula o preço de venda sugerido com base no CMV e no Markup.
- */
 function calcularPrecoSugerido() {
     const cmvTotalEl = document.getElementById('cmv-total');
     const markupEl = document.getElementById('markup-percentual');
+    const markupValorEl = document.getElementById('markup-valor'); 
     const precoSugeridoEl = document.getElementById('preco-sugerido');
 
-    if (!cmvTotalEl || !markupEl || !precoSugeridoEl) return;
+    if (!cmvTotalEl || !markupEl || !precoSugeridoEl || !markupValorEl) return;
 
-    // Extrai o valor numérico do CMV (Ex: "R$ 5,50" -> 5.50)
     const cmvValor = parseFloat(cmvTotalEl.textContent.replace('R$', '').replace(',', '.').trim());
-    const markupValor = parseFloat(markupEl.value) || 0;
+    const markupPercent = parseFloat(markupEl.value) || 0;
+
+    markupValorEl.textContent = `${markupPercent}%`; 
 
     if (isNaN(cmvValor)) return;
 
-    const precoSugerido = cmvValor * (1 + (markupValor / 100));
+    const precoSugerido = cmvValor * (1 + (markupPercent / 100));
 
     precoSugeridoEl.textContent = `R$ ${precoSugerido.toFixed(2)}`;
 }
 
-/**
- * Popula o <select> de insumos no modal da ficha técnica.
- */
+
 function renderizarSelectInsumos() {
     const select = document.getElementById('select-insumo');
     select.innerHTML = '<option value="" disabled selected>Selecione um insumo...</option>';
@@ -280,9 +254,6 @@ function renderizarSelectInsumos() {
     });
 }
 
-/**
- * Renderiza a lista de insumos da ficha técnica atual e calcula o CMV total.
- */
 function renderizarFichaTecnica() {
     const container = document.getElementById('lista-insumos-ficha');
     const cmvTotalEl = document.getElementById('cmv-total');
@@ -313,7 +284,6 @@ function renderizarFichaTecnica() {
         custoItem = quantidadeConvertida * custoPorUnidadeCompra;
         cmvTotal += custoItem;
         
-        // ✅ CORREÇÕES AQUI 👇
         const itemHtml = `
             <div class="flex items-center justify-between bg-fundo p-2 rounded-md">
                 <div class="flex-grow">
@@ -334,9 +304,7 @@ function renderizarFichaTecnica() {
     cmvTotalEl.textContent = `R$ ${cmvTotal.toFixed(2)}`;
     calcularPrecoSugerido();
 }
-/**
- * Lida com o submit do formulário para adicionar um novo insumo à ficha.
- */
+
 async function handleAdicionarInsumo(event) {
     event.preventDefault();
     const payload = {
@@ -363,7 +331,8 @@ async function handleAdicionarInsumo(event) {
         document.getElementById('select-insumo').focus();
 
     } catch (error) {
-        Swal.fire('Ops!', `Não foi possível adicionar o insumo: ${error.message}`, 'error');
+        // Silêncio aqui! O api.js já mostrou o erro.
+        console.error("Erro ao adicionar insumo, tratado globalmente:", error);
     }
 }
 
@@ -373,11 +342,10 @@ async function removerInsumoDaFicha(produtoInsumoId) {
         fichaTecnicaAtual = fichaTecnicaAtual.filter(item => item.id !== produtoInsumoId);
         renderizarFichaTecnica();
     } catch (error) {
-        Swal.fire('Ops!', `Não foi possível remover o insumo: ${error.message}`, 'error');
+        // Silêncio aqui! O api.js já mostrou o erro.
+        console.error("Erro ao remover insumo, tratado globalmente:", error);
     }
 }
-
-// SUBSTITUA A FUNÇÃO 'chamarAgenteDeMarketing' INTEIRA PELA VERSÃO ABAIXO
 
 async function chamarAgenteDeMarketing(tipo, contexto = {}) {
     const nomeProduto = contexto.nome || document.getElementById('produtoNome').value;
@@ -413,7 +381,6 @@ async function chamarAgenteDeMarketing(tipo, contexto = {}) {
     });
 
     try {
-        // ✅ CÓDIGO CORRIGIDO E LIMPO 👇
         const data = await enviarParaAPI(API_ENDPOINTS.call_ia_proxy, { pergunta: prompt });
         
         const textoGerado = data[0]?.output || data.resposta || "Não consegui gerar uma resposta criativa agora.";
@@ -454,8 +421,8 @@ async function chamarAgenteDeMarketing(tipo, contexto = {}) {
         });
 
     } catch (error) {
-        console.error('Erro ao chamar Agente de Marketing:', error);
-        Swal.fire({ icon: 'error', title: 'Ops! IA offline', text: 'Não foi possível contatar o assistente de marketing.', background: '#2c2854', color: '#ffffff' });
+        // Silêncio aqui! O api.js já mostrou o erro.
+        console.error('Erro ao chamar Agente de Marketing, tratado globalmente:', error);
     }
 }
 
@@ -485,7 +452,6 @@ async function fetchProdutosAdmin() {
     if (!container) return;
     container.innerHTML = '<p class="text-texto-muted col-span-full text-center py-10 animate-pulse">Buscando delícias, serviços e calculando lucros...</p>';
     try {
-        // ✅ MUDANÇA AQUI: Trocamos o endpoint para o que traz o CMV
         const produtosDoServidor = await fetchDeAPI(API_ENDPOINTS.get_all_products_with_cmv);
         
         if (produtosDoServidor && produtosDoServidor.length > 0) {
@@ -558,7 +524,6 @@ function renderizarProdutosAdmin() {
     
     const verInativos = verInativosToggle.checked;
     
-    // ✅ AQUI ESTÁ O GATO! Adicionamos um filtro para a view "Todos"
     const listaInicial = categoriaAtiva === 'todos'
         ? produtosLocais.filter(p => p.tipo_item === 'PRODUTO')
         : produtosPorCategoria[categoriaAtiva] || [];
@@ -696,21 +661,63 @@ async function toggleProdutoStatus(id) {
         renderizarProdutosAdmin();
 
     } catch (error) {
-        const acao = novoStatus ? 'Ativar' : 'Desativar';
-        Swal.fire({
-            icon: 'error', title: 'Ops!',
-            text: `Não foi possível ${acao.toLowerCase()} o produto.`,
-            background: '#2c2854', color: '#ffffff'
-        });
+        // Silêncio aqui! O api.js já mostrou o erro.
+        console.error("Erro ao alternar status do produto, tratado globalmente:", error);
     }
 }
 
 function renderizarPreviews() { const previewsContainer = document.getElementById('previews-container'); previewsContainer.innerHTML = ''; uploadedImageUrls.forEach((url, index) => { const previewWrapper = document.createElement('div'); previewWrapper.className = 'relative w-24 h-24'; previewWrapper.innerHTML = `<img src="${url}" class="w-full h-full object-cover rounded-md"><button type="button" onclick="adminFunctions.removerImagem(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">×</button>`; previewsContainer.appendChild(previewWrapper); }); }
 function removerImagem(index) { uploadedImageUrls.splice(index, 1); renderizarPreviews(); }
-async function handleFileUpload(files) { if (files.length === 0) return; Swal.fire({ title: 'Enviando imagens...', html: `Carregando <b>${files.length}</b> arquivo(s). Aguarde! 🚀`, allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => { Swal.showLoading(); } }); 
-const uploadPromises = Array.from(files).map(file => 
-    { return enviarArquivoParaAPI(ZIPLINE_CONFIG.upload, file, 'produto').catch(err => ({ error: true, message: err.message, fileName: file.name })); }); 
-    const resultados = await Promise.all(uploadPromises); const sucessoUploads = resultados.filter(r => !r.error); const erroUploads = resultados.filter(r => r.error); if (sucessoUploads.length > 0) { const newUrls = sucessoUploads.map(r => { if (r && Array.isArray(r) && r.length > 0 && r[0]) { return r[0].urlParaCopiarComId || r[0].imageUrlToCopy; } return null; }).filter(Boolean); uploadedImageUrls.push(...newUrls); renderizarPreviews(); } if (erroUploads.length > 0) { const errorMessages = erroUploads.map(e => `<li>${e.fileName}: ${e.message}</li>`).join(''); Swal.fire({ icon: 'error', title: 'Ops! Alguns uploads falharam', html: `<ul class="text-left">${errorMessages}</ul>`, background: '#2c2854', color: '#ffffff', }); } else { Swal.close(); } }
+
+async function handleFileUpload(files) { 
+    if (files.length === 0) return; 
+
+    Swal.fire({
+        title: 'Enviando imagens...',
+        html: `
+            <p class="mb-2">Carregando <b>${files.length}</b> arquivo(s). Aguarde! 🚀</p>
+            <div class="w-full bg-fundo rounded-full h-2.5">
+                <div class="bg-principal h-2.5 rounded-full animate-pulse" style="width: 100%"></div>
+            </div>
+        `,
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        background: '#2c2854',
+        color: '#ffffff'
+    });
+
+    const uploadPromises = Array.from(files).map(file => 
+        { return enviarArquivoParaAPI(ZIPLINE_CONFIG.upload, file, 'produto').catch(err => ({ error: true, message: err.message, fileName: file.name })); }); 
+    
+    const resultados = await Promise.all(uploadPromises); 
+    const sucessoUploads = resultados.filter(r => !r.error); 
+    const erroUploads = resultados.filter(r => r.error); 
+
+    if (sucessoUploads.length > 0) { 
+        const newUrls = sucessoUploads.map(r => { 
+            if (r && Array.isArray(r) && r.length > 0 && r[0]) { 
+                return r[0].urlParaCopiarComId || r[0].imageUrlToCopy; 
+            } 
+            return null; 
+        }).filter(Boolean); 
+        uploadedImageUrls.push(...newUrls); 
+        renderizarPreviews(); 
+    } 
+
+    if (erroUploads.length > 0) { 
+        const errorMessages = erroUploads.map(e => `<li>${e.fileName}: ${e.message}</li>`).join(''); 
+        Swal.fire({ 
+            icon: 'error', 
+            title: 'Ops! Alguns uploads falharam', 
+            html: `<ul class="text-left">${errorMessages}</ul>`, 
+            background: '#2c2854', 
+            color: '#ffffff', 
+        }); 
+    } else { 
+        Swal.close(); 
+    } 
+}
+
 async function handleFormSubmit(e) {
     e.preventDefault();
     const id = document.getElementById('produtoId').value;
@@ -723,15 +730,25 @@ async function handleFormSubmit(e) {
         ingredientes: document.getElementById('produtoIngredientes').value.split(',').map(item => item.trim()).filter(Boolean) 
     };
     const acao = id ? 'Atualizando' : 'Criando';
-    Swal.fire({ title: `${acao} item...`, allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => { Swal.showLoading() } });
+    Swal.fire({ title: `${acao} item...`, allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     const endpoint = id ? API_ENDPOINTS.update_product : API_ENDPOINTS.create_product;
     const payload = id ? { ...produtoData, id: parseInt(id) } : produtoData;
+    
     try {
-        await enviarParaAPI(endpoint, payload);
+        const resultado = await enviarParaAPI(endpoint, payload);
+        
+        if (resultado && resultado.success === false) {
+             Swal.close(); 
+             return;
+        }
+
         Swal.fire({ icon: 'success', title: `Item ${id ? 'atualizado' : 'criado'}!`, timer: 1500, showConfirmButton: false, background: '#2c2854', color: '#ffffff' });
         if (modalProduto) modalProduto.hide();
         fetchProdutosAdmin();
-    } catch (error) { Swal.fire({ icon: 'error', title: 'Ops! Algo deu errado.', text: `Não foi possível salvar: ${error.message}`, background: '#2c2854', color: '#ffffff' }); }
+    } catch (error) {
+        // Silêncio aqui! O api.js já mostrou o erro.
+        console.error("Erro ao salvar produto, tratado globalmente:", error);
+    }
 }
 
 let isInitialized = false;
@@ -750,6 +767,7 @@ function criarPostParaRedeSocial(produtoId) {
 
 export function initAdminPage(params) {
     const { view } = params;
+    const userRole = sessionStorage.getItem('userRole');
 
     if (!isInitialized) {
         const modalEl = document.getElementById('modal-produto');
@@ -757,8 +775,10 @@ export function initAdminPage(params) {
         
         desktopMediaQuery.addEventListener('change', renderizarProdutosAdmin);
 
-        document.getElementById('form-produto').addEventListener('submit', handleFormSubmit);
-        document.getElementById('form-adicionar-insumo').addEventListener('submit', handleAdicionarInsumo);
+        if (userRole !== 'visitante') {
+            document.getElementById('form-produto').addEventListener('submit', handleFormSubmit);
+            document.getElementById('form-adicionar-insumo').addEventListener('submit', handleAdicionarInsumo);
+        }
         
         const markupInput = document.getElementById('markup-percentual');
         if (markupInput) {
@@ -786,18 +806,17 @@ export function initAdminPage(params) {
 
         const uploadArea = document.getElementById('upload-area');
         const fileInput = document.getElementById('file-input');
-        if(uploadArea) uploadArea.addEventListener('click', () => fileInput.click());
-        if(fileInput) fileInput.addEventListener('change', () => handleFileUpload(fileInput.files));
-        if(uploadArea) {
-          ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => { uploadArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false); });
-          uploadArea.addEventListener('drop', (e) => { handleFileUpload(e.dataTransfer.files); });
+        if (userRole !== 'visitante') {
+            if(uploadArea) uploadArea.addEventListener('click', () => fileInput.click());
+            if(fileInput) fileInput.addEventListener('change', () => handleFileUpload(fileInput.files));
+            if(uploadArea) {
+              ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => { uploadArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false); });
+              uploadArea.addEventListener('drop', (e) => { handleFileUpload(e.dataTransfer.files); });
+            }
+        } else {
+            if(uploadArea) uploadArea.classList.add('opacity-50', 'cursor-not-allowed');
         }
         
-        const toggleLoja = document.getElementById('toggle-loja-aberta');
-        if (toggleLoja) {
-            toggleLoja.addEventListener('change', handleToggleLoja);
-        }
-
         window.addEventListener('categoriasAtualizadas', () => {
             console.log("Admin ouviu: 'categoriasAtualizadas'. Recarregando o select.");
             fetchCategoriasParaAdmin();
@@ -812,7 +831,21 @@ export function initAdminPage(params) {
 
     if (view === 'dashboard') {
         verificarStatusLoja();
-        initDashboard();
+        initDashboard(); 
+        const toggleLoja = document.getElementById('toggle-loja-aberta');
+        if (toggleLoja) {
+            if (userRole === 'visitante' || userRole === 'funcionario') {
+                toggleLoja.disabled = true;
+                toggleLoja.parentElement.classList.add('cursor-not-allowed', 'opacity-60');
+                toggleLoja.parentElement.title = 'Ação bloqueada para seu nível de acesso';
+            } else {
+                toggleLoja.disabled = false;
+                toggleLoja.parentElement.classList.remove('cursor-not-allowed', 'opacity-60');
+                toggleLoja.parentElement.title = '';
+                toggleLoja.removeEventListener('change', handleToggleLoja); 
+                toggleLoja.addEventListener('change', handleToggleLoja);
+            }
+        }
     } else if (view === 'meus-produtos') {
         fetchProdutosAdmin();
     }
@@ -827,3 +860,5 @@ export function initAdminPage(params) {
         removerInsumoDaFicha
     };
 }
+
+//voltar

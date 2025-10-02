@@ -1,6 +1,4 @@
-
 import { enviarParaAPI, fetchDeAPI, enviarArquivoParaAPI } from './api.js';
-// ✅ CORREÇÃO AQUI: Adicionamos ZIPLINE_CONFIG na importação
 import { API_ENDPOINTS, ZIPLINE_CONFIG } from '../config.js';
 
 let logoUrlAtual = '';
@@ -11,7 +9,6 @@ let iconeCategoriaUrlAtual = '';
 let bannersExistentes = [];
 let bannerImagemUrlAtual = '';
 
-// --- FUNÇÕES DE CONFIGURAÇÕES DA LOJA ---
 function preencherFormulario(config) {
     if (!config) return;
     document.getElementById('config-nome-loja').value = config.nome_loja || '';
@@ -21,6 +18,10 @@ function preencherFormulario(config) {
     document.getElementById('config-msg-rodape').value = config.mensagem_rodape || '';
     document.getElementById('config-taxa-entrega').value = config.taxa_entrega_fixa || '';
     document.getElementById('config-custo-entrega').value = config.custo_entrega_freela || '';
+    document.getElementById('pedido_minimo_delivery').value = config.pedido_minimo_delivery || 0.00;
+    
+    document.getElementById('habilitar_retirada').checked = config.habilitar_retirada === true;
+
     logoUrlAtual = config.logo_url || '';
     document.getElementById('logo-preview').src = logoUrlAtual || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiMzODMyNmIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9InNlcmlmIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYTNhMGMyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj5Mb2dvPC90ZXh0Pjwvc3ZnPg==';
     logoVitrineUrlAtual = config.logo_vitrine_url || '';
@@ -39,7 +40,6 @@ async function handleLogoNotaFiscalUpload(file) {
     const logoAntigaUrl = logoUrlAtual;
     Swal.fire({ title: 'Enviando logo de impressão...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
-        // ✅ CORREÇÃO AQUI
         const resultado = await enviarArquivoParaAPI(ZIPLINE_CONFIG.upload, file, 'logo_nota');
         const novaUrl = resultado[0]?.urlParaCopiarComId || resultado[0]?.imageUrlToCopy;
         if (novaUrl) {
@@ -57,7 +57,9 @@ async function handleLogoNotaFiscalUpload(file) {
                 }
             }
         } else { throw new Error('URL da imagem não recebida do servidor.'); }
-    } catch (error) { console.error("Erro no upload da logo da nota:", error); Swal.fire('Erro no Upload', `Não foi possível enviar e salvar a logo: ${error.message}`, 'error'); }
+    } catch (error) {
+        console.error("Erro no upload da logo da nota, tratado globalmente:", error);
+    }
 }
 
 async function handleLogoVitrineUpload(file) {
@@ -65,7 +67,6 @@ async function handleLogoVitrineUpload(file) {
     const logoAntigaUrl = logoVitrineUrlAtual;
     Swal.fire({ title: 'Enviando nova logo...', allowOutsideClick: false, background: '#2c2854', color: '#ffffff', didOpen: () => Swal.showLoading() });
     try {
-        // ✅ CORREÇÃO AQUI
         const resultado = await enviarArquivoParaAPI(ZIPLINE_CONFIG.upload, file, 'logo_vitrine');
         const novaUrl = resultado[0]?.urlParaCopiarComId || resultado[0]?.imageUrlToCopy;
         if (novaUrl) {
@@ -90,7 +91,9 @@ async function handleLogoVitrineUpload(file) {
                 }
             }
         } else { throw new Error('URL da imagem não recebida do servidor.'); }
-    } catch (error) { console.error("Erro no upload da logo:", error); Swal.fire('Erro no Upload', `Não foi possível enviar e salvar a logo: ${error.message}`, 'error'); }
+    } catch (error) {
+        console.error("Erro no upload da logo, tratado globalmente:", error);
+    }
 }
 
 async function salvarConfiguracoes(event) {
@@ -105,6 +108,8 @@ async function salvarConfiguracoes(event) {
         mensagem_rodape: document.getElementById('config-msg-rodape').value,
         taxa_entrega_fixa: parseFloat(document.getElementById('config-taxa-entrega').value) || 0,
         custo_entrega_freela: parseFloat(document.getElementById('config-custo-entrega').value) || 0,
+        pedido_minimo_delivery: parseFloat(document.getElementById('pedido_minimo_delivery').value) || 0,
+        habilitar_retirada: document.getElementById('habilitar_retirada').checked,
         logo_url: logoUrlAtual,
         logo_vitrine_url: logoVitrineUrlAtual
     };
@@ -112,7 +117,9 @@ async function salvarConfiguracoes(event) {
     try {
         await enviarParaAPI(API_ENDPOINTS.update_loja_config, configData);
         Swal.fire('Sucesso!', 'Configurações da loja salvas!', 'success');
-    } catch (error) { console.error("Erro ao salvar configurações:", error); Swal.fire('Ops!', `Não foi possível salvar as configurações: ${error.message}`, 'error'); }
+    } catch (error) {
+        console.error("Erro ao salvar configurações, tratado globalmente:", error);
+    }
 }
 
 function renderMesas() {
@@ -139,6 +146,7 @@ async function fetchMesas() {
     }
 }
 
+// ✅ ESTA É A VERSÃO CORRETA E ÚNICA DA FUNÇÃO
 async function handleCriarMesa(event) {
     event.preventDefault();
     const numeroInput = document.getElementById('mesa-numero');
@@ -150,7 +158,9 @@ async function handleCriarMesa(event) {
         Swal.fire('Sucesso!', 'Mesa criada!', 'success');
         numeroInput.value = '';
         fetchMesas(); 
-    } catch (error) { console.error("Erro ao criar mesa:", error); Swal.fire('Erro!', `Não foi possível criar a mesa: ${error.message}`, 'error'); }
+    } catch (error) {
+        console.error("Erro ao criar mesa, tratado globalmente:", error);
+    }
 }
 
 async function handleDeletarMesa(id) {
@@ -167,7 +177,9 @@ async function handleDeletarMesa(id) {
             await enviarParaAPI(API_ENDPOINTS.delete_table, { id: id });
             Swal.fire('Apagada!', 'A mesa foi removida.', 'success');
             fetchMesas();
-        } catch (error) { Swal.fire('Erro!', `Não foi possível apagar a mesa: ${error.message}`, 'error'); }
+        } catch (error) { 
+            console.error("Erro ao apagar mesa, tratado globalmente:", error);
+        }
     }
 }
 
@@ -239,7 +251,6 @@ async function handleIconeCategoriaUpload(file) {
     if (!file) return;
     Swal.fire({ title: 'Enviando ícone...', didOpen: () => Swal.showLoading() });
     try {
-        // ✅ CORREÇÃO AQUI
         const resultado = await enviarArquivoParaAPI(ZIPLINE_CONFIG.upload, file, 'icone_categoria');
         const novaUrl = resultado[0]?.urlParaCopiarComId || resultado[0]?.imageUrlToCopy;
         if (novaUrl) {
@@ -249,7 +260,9 @@ async function handleIconeCategoriaUpload(file) {
             document.getElementById('categoria-icone-placeholder').classList.add('hidden');
             Swal.close();
         } else { throw new Error('URL do ícone não foi recebida.'); }
-    } catch (error) { Swal.fire('Erro no Upload', `Não foi possível enviar o ícone: ${error.message}`, 'error'); }
+    } catch (error) {
+        console.error("Erro ao enviar ícone, tratado globalmente:", error);
+    }
 }
 
 async function handleSalvarCategoria(event) {
@@ -269,7 +282,9 @@ async function handleSalvarCategoria(event) {
         limparFormularioCategoria();
         fetchCategorias();
         window.dispatchEvent(new CustomEvent('categoriasAtualizadas'));
-    } catch (error) { Swal.fire('Erro!', `Não foi possível salvar a categoria: ${error.message}`, 'error'); }
+    } catch (error) {
+        console.error("Erro ao salvar categoria, tratado globalmente:", error);
+    }
 }
 
 function handleEditarCategoria(id) {
@@ -302,7 +317,9 @@ async function handleDeletarCategoria(id) {
             Swal.fire('Apagada!', 'A categoria foi removida.', 'success');
             fetchCategorias();
             window.dispatchEvent(new CustomEvent('categoriasAtualizadas'));
-        } catch (error) { Swal.fire('Erro!', `Não foi possível apagar: ${error.message}`, 'error'); }
+        } catch (error) {
+            console.error("Erro ao apagar categoria, tratado globalmente:", error);
+        }
     }
 }
 
@@ -394,7 +411,7 @@ async function handleBannerImagemUpload(file) {
             throw new Error('URL da imagem não recebida.'); 
         }
     } catch (error) { 
-        Swal.fire('Erro no Upload', `Não foi possível enviar a imagem: ${error.message}`, 'error'); 
+        console.error("Erro ao enviar imagem do banner, tratado globalmente:", error);
     }
 }
 
@@ -428,7 +445,7 @@ async function handleSalvarBanner(event) {
         resetarVisualFormularioBanner(); 
         fetchBanners();
     } catch (error) { 
-        Swal.fire('Erro!', `Não foi possível salvar o banner: ${error.message}`, 'error'); 
+        console.error("Erro ao salvar banner, tratado globalmente:", error);
     }
 }
 
@@ -493,8 +510,7 @@ async function handleDeletarBanner(id) {
             await fetchBanners();
 
         } catch (error) {
-            console.error("Erro ao deletar banner:", error);
-            Swal.fire({ icon: 'error', title: 'Erro!', text: `Não foi possível apagar o banner: ${error.message}`, background: '#2c2854', color: '#ffffff' });
+            console.error("Erro ao deletar banner, tratado globalmente:", error);
             fetchBanners();
         }
     }
@@ -504,7 +520,9 @@ async function handleToggleBannerStatus(id, statusAtual) {
     try {
         await enviarParaAPI(API_ENDPOINTS.toggle_banner_status, { id: id, status: !statusAtual });
         fetchBanners();
-    } catch (error) { Swal.fire('Ops!', 'Não foi possível alterar o status do banner.', 'error'); }
+    } catch (error) {
+        console.error("Erro ao alternar status do banner, tratado globalmente:", error);
+    }
 }
 
 function resetarVisualFormularioBanner() {
@@ -547,6 +565,8 @@ async function limparFormularioBanner() {
 let isConfigInitialized = false;
 
 export function initConfiguracoesPage() {
+    if (!document.getElementById('form-configuracoes')) return;
+
     if (!isConfigInitialized) {
         document.getElementById('form-configuracoes').addEventListener('submit', salvarConfiguracoes);
         document.getElementById('form-nova-mesa').addEventListener('submit', handleCriarMesa);
@@ -557,23 +577,23 @@ export function initConfiguracoesPage() {
 
         const logoUploadArea = document.getElementById('logo-upload-area');
         const logoFileInput = document.getElementById('logo-file-input');
-        logoUploadArea.addEventListener('click', () => logoFileInput.click());
-        logoFileInput.addEventListener('change', () => { if (logoFileInput.files.length > 0) handleLogoNotaFiscalUpload(logoFileInput.files[0]); });
+        if(logoUploadArea) logoUploadArea.addEventListener('click', () => logoFileInput.click());
+        if(logoFileInput) logoFileInput.addEventListener('change', () => { if (logoFileInput.files.length > 0) handleLogoNotaFiscalUpload(logoFileInput.files[0]); });
 
         const vitrineUploadArea = document.getElementById('logo-vitrine-upload-area');
         const vitrineFileInput = document.getElementById('logo-vitrine-file-input');
-        vitrineUploadArea.addEventListener('click', () => vitrineFileInput.click());
-        vitrineFileInput.addEventListener('change', () => { if (vitrineFileInput.files.length > 0) handleLogoVitrineUpload(vitrineFileInput.files[0]); });
+        if(vitrineUploadArea) vitrineUploadArea.addEventListener('click', () => vitrineFileInput.click());
+        if(vitrineFileInput) vitrineFileInput.addEventListener('change', () => { if (vitrineFileInput.files.length > 0) handleLogoVitrineUpload(vitrineFileInput.files[0]); });
 
         const iconeUploadArea = document.getElementById('categoria-icone-upload-area');
         const iconeFileInput = document.getElementById('categoria-icone-file-input');
-        iconeUploadArea.addEventListener('click', () => iconeFileInput.click());
-        iconeFileInput.addEventListener('change', () => { if (iconeFileInput.files.length > 0) handleIconeCategoriaUpload(iconeFileInput.files[0]); });
+        if(iconeUploadArea) iconeUploadArea.addEventListener('click', () => iconeFileInput.click());
+        if(iconeFileInput) iconeFileInput.addEventListener('change', () => { if (iconeFileInput.files.length > 0) handleIconeCategoriaUpload(iconeFileInput.files[0]); });
 
         const bannerUploadArea = document.getElementById('banner-imagem-upload-area');
         const bannerFileInput = document.getElementById('banner-imagem-file-input');
-        bannerUploadArea.addEventListener('click', () => bannerFileInput.click());
-        bannerFileInput.addEventListener('change', () => { if (bannerFileInput.files.length > 0) handleBannerImagemUpload(bannerFileInput.files[0]); });
+        if(bannerUploadArea) bannerUploadArea.addEventListener('click', () => bannerFileInput.click());
+        if(bannerFileInput) bannerFileInput.addEventListener('change', () => { if (bannerFileInput.files.length > 0) handleBannerImagemUpload(bannerFileInput.files[0]); });
 
         window.configFunctions = { 
             handleDeletarMesa,

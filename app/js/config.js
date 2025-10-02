@@ -1,8 +1,13 @@
-
 const API_BASE_URL = window.ENVIRONMENT_CONFIG?.API_BASE_URL;
 
 
 export const API_ENDPOINTS = {
+    admin_create_user: API_BASE_URL + 'admin/criar-usuario',
+    admin_list_profiles: API_BASE_URL + 'admin/listar-perfis',
+    registrar_logout: API_BASE_URL + 'usuario/registrar-logout',
+    recover_password_whatsapp: API_BASE_URL + 'auth/recuperar-via-whatsapp',
+    admin_delete_user: API_BASE_URL + 'admin/deletar-usuario',
+
     get_financial_report: API_BASE_URL + 'financeiro/relatorio',
     get_dashboard_stats: API_BASE_URL + 'dashboard/stats',
     
@@ -12,7 +17,6 @@ export const API_ENDPOINTS = {
     toggle_product_status: API_BASE_URL + 'produto/alternar-status',
     get_all_products_with_type: API_BASE_URL + 'produtos/listar-com-tipo',
     
-
     get_all_categories:    API_BASE_URL + 'categorias/listar',
     create_category:       API_BASE_URL + 'categoria/criar',
     update_category:       API_BASE_URL + 'categoria/atualizar',
@@ -42,7 +46,8 @@ export const API_ENDPOINTS = {
     add_item_to_order:     API_BASE_URL + 'pedido/adicionar-item',
     remove_item_from_order: API_BASE_URL + 'pedido/remover-item',
     finalize_order_with_services: API_BASE_URL + 'pedido/finalizar-com-servicos',
-    
+    get_new_orders_and_mark: API_BASE_URL + 'rpc/obter_e_marcar_pedidos_novos', 
+
     emitir_nfce:           API_BASE_URL + 'fiscal/emitir-nfce',
     retorno_status_fiscal: API_BASE_URL + 'fiscal/retorno-status',
     download_documento_fiscal: API_BASE_URL + 'fiscal/download',
@@ -69,8 +74,21 @@ export const API_ENDPOINTS = {
     add_insumo_ficha:      API_BASE_URL + 'produto/ficha/adicionar',
     remove_insumo_ficha:   API_BASE_URL + 'produto/ficha/remover',
     get_all_products_with_cmv: API_BASE_URL + 'produtos/listar-com-cmv',
-    get_rentabilidade_produtos: API_BASE_URL + 'relatorios/rentabilidade',
     
+    get_rentabilidade_produtos: API_BASE_URL + 'relatorios/rentabilidade',
+    get_dre_report:             API_BASE_URL + 'relatorios/dre',
+    get_ranking_produtos:       API_BASE_URL + 'relatorios/ranking-produtos',
+    get_sold_products_report:   API_BASE_URL + 'relatorios/produtos-vendidos',
+
+    add_stock_entry:       API_BASE_URL + 'estoque/entrada',
+    add_stock_exit:        API_BASE_URL + 'estoque/saida-manual',
+    reverse_stock_movement: API_BASE_URL + 'estoque/estornar',
+    get_stock_history:     API_BASE_URL + 'estoque/historico',
+    
+    get_operational_costs:    API_BASE_URL + 'custos/listar',
+    create_operational_cost:  API_BASE_URL + 'custos/criar',
+    delete_operational_cost:  API_BASE_URL + 'custos/deletar',
+
     get_loja_config:       API_BASE_URL + 'loja/config/obter',
     update_loja_config:    API_BASE_URL + 'loja/config/atualizar',
     update_loja_status:    API_BASE_URL + 'loja/status/atualizar',
@@ -88,7 +106,8 @@ export const APP_CONFIG = {
         'WHATSAPP': 'bg-green-500', 
         'IFOOD': 'bg-red-500', 
         'MESA': 'bg-purple-500', 
-        'BALCAO': 'bg-yellow-500' 
+        'BALCAO': 'bg-yellow-500',
+        'RETIRADA': 'bg-pink-500'
     },
     statusFlowPadrao: [ 
         { text: 'ACEITAR', textCompleted: 'ACEITO', nextStatus: 'EM_PREPARO', requiredStatus: 'CONFIRMADO' }, 
@@ -105,7 +124,12 @@ export const APP_CONFIG = {
         { text: 'ACEITAR', textCompleted: 'ACEITO', nextStatus: 'EM_PREPARO', requiredStatus: 'CONFIRMADO' }, 
         { text: 'PRONTO P/ SERVIR', textCompleted: 'SERVIDO', nextStatus: 'PRONTO_PARA_ENTREGA', requiredStatus: 'EM_PREPARO' }
     ],
-    flowOrder: ['CONFIRMADO', 'EM_PREPARO', 'PRONTO_PARA_ENTREGA', 'A_CAMINHO', 'ENTREGUE', 'CANCELADO']
+    statusFlowRetirada: [ 
+        { text: 'ACEITAR', textCompleted: 'ACEITO', nextStatus: 'EM_PREPARO', requiredStatus: 'CONFIRMADO' },
+        { text: 'EM PREPARO', textCompleted: 'PRONTO P/ RETIRADA', nextStatus: 'PRONTO_PARA_RETIRADA', requiredStatus: 'EM_PREPARO' },
+        { text: 'FINALIZAR', isFinalAction: true, nextStatus: 'ENTREGUE', requiredStatus: 'PRONTO_PARA_RETIRADA' }
+    ],
+    flowOrder: ['CONFIRMADO', 'EM_PREPARO', 'PRONTO_PARA_ENTREGA', 'PRONTO_PARA_RETIRADA', 'A_CAMINHO', 'ENTREGUE', 'CANCELADO']
 };
 
 if (typeof window !== 'undefined') {

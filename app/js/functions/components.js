@@ -1,5 +1,3 @@
-// REESCREVA O ARQUIVO COMPLETO: app/js/functions/components.js
-
 export function criaCardProduto(produto, contexto = 'cliente', onClickAction = null) {
     const card = document.createElement('div');
     const imagem = (produto.imagens_urls && produto.imagens_urls.length > 0) 
@@ -32,10 +30,26 @@ export function criaCardProduto(produto, contexto = 'cliente', onClickAction = n
             });
             const btnAdicionar = card.querySelector('.btn-add-carrinho');
             if (btnAdicionar) {
+                // ✅ ALTERAÇÃO AQUI 👇
+                // Adicionamos o 'event' para poder pegar o botão que foi clicado
                 btnAdicionar.addEventListener('click', (event) => {
-                    event.stopPropagation();
+                    event.stopPropagation(); // Impede que o clique no botão também abra o modal
                     if (window.clientFunctions && typeof window.clientFunctions.handleAdicionarAoCarrinho === 'function') {
                         window.clientFunctions.handleAdicionarAoCarrinho(produto.id);
+
+                        // ➕ LÓGICA DE FEEDBACK VISUAL APLICADA AQUI
+                        const clickedButton = event.currentTarget;
+                        clickedButton.disabled = true;
+                        clickedButton.classList.remove('bg-principal', 'hover:bg-orange-600');
+                        clickedButton.classList.add('bg-green-500');
+                        clickedButton.innerHTML = 'Adicionado ✅';
+
+                        setTimeout(() => {
+                            clickedButton.disabled = false;
+                            clickedButton.classList.remove('bg-green-500');
+                            clickedButton.classList.add('bg-principal', 'hover:bg-orange-600');
+                            clickedButton.innerHTML = 'ADICIONAR';
+                        }, 2000); // Volta ao normal depois de 2 segundos
                     }
                 });
             }
@@ -67,7 +81,6 @@ export function criaCardProduto(produto, contexto = 'cliente', onClickAction = n
                     <div class="flex-grow">
                         <h3 class="text-xl font-bold">${produto.nome}</h3>
                         <p class="text-sm text-texto-muted mb-2">${produto.nome_categoria || 'Serviço'}</p>
-                        <!-- ✅ MUDANÇA AQUI: de line-clamp-3 para line-clamp-2 -->
                         <p class="text-texto-muted text-sm line-clamp-2 transition-all duration-300">${produto.descricao || ''}</p>
                     </div>
                     <div class="mt-4 pt-3 border-t border-borda/50 flex flex-wrap justify-between items-end gap-x-4 gap-y-2">
@@ -84,8 +97,6 @@ export function criaCardProduto(produto, contexto = 'cliente', onClickAction = n
                     </div>
                 </div>`;
             
-            // ✅ LÓGICA DO "LEIA MAIS" ATUALIZADA
-            // Usamos um setTimeout para garantir que o DOM foi renderizado antes da verificação
             setTimeout(() => {
                 const descricaoEl = card.querySelector('.line-clamp-2');
                 if (descricaoEl && descricaoEl.scrollHeight > descricaoEl.clientHeight) {
@@ -102,7 +113,7 @@ export function criaCardProduto(produto, contexto = 'cliente', onClickAction = n
                         leiaMaisBtn.textContent = descricaoEl.classList.contains('line-clamp-2') ? 'Ver mais...' : 'Ver menos';
                     });
                 }
-            }, 0); // O timeout de 0ms é um truque para empurrar a execução para o final da fila de tarefas do navegador
+            }, 0); 
 
             card.querySelector('.btn-editar').addEventListener('click', () => window.adminFunctions.editarProduto(produto.id));
             if (!isServico) {

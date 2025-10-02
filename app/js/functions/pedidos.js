@@ -1,4 +1,3 @@
-
 import { enviarParaAPI, fetchDeAPI } from './api.js';
 import { gerarHtmlImpressao, imprimirComprovante } from './impressao.js';
 import { criaCardProduto } from './components.js';
@@ -45,23 +44,10 @@ async function adicionarItemAoPedido(produtoId) {
                 buscarPedidosAtivos();
             }
         } else { throw new Error(resultado.message || 'Erro ao adicionar item.'); }
-    } catch (error) { Swal.fire('Ops!', `Não foi possível adicionar o item: ${error.message}`, 'error'); }
-}
-
-export async function removerItemDoPedido(itemId) {
-    if (!pedidoEmGerenciamento) return;
-    try {
-        const resultado = await enviarParaAPI(API_ENDPOINTS.remove_item_from_order, { item_id: itemId });
-        if (resultado.success) {
-            const url = `${API_ENDPOINTS.get_order_status}?id=${pedidoEmGerenciamento.id}`;
-            const resposta = await fetchDeAPI(url);
-            if (resposta && resposta[0]) {
-                pedidoEmGerenciamento = resposta[0];
-                renderizarComandaGerenciamento(pedidoEmGerenciamento.contexto);
-                buscarPedidosAtivos();
-            }
-        } else { throw new Error(resultado.message || 'Erro ao remover item.'); }
-    } catch (error) { Swal.fire('Ops!', `Não foi possível remover o item: ${error.message}`, 'error'); }
+    } catch (error) {
+        // Silêncio aqui! O api.js já mostrou o erro.
+        console.error("Erro ao adicionar item, tratado globalmente:", error);
+    }
 }
 
 export async function abrirModalGerenciamento(pedidoId, contexto = 'CAIXA') {
@@ -83,11 +69,9 @@ export async function abrirModalGerenciamento(pedidoId, contexto = 'CAIXA') {
 
         document.getElementById('gerenciamento-modal-titulo').innerHTML = `Gerenciar Pedido <span class="text-principal">#${pedidoEmGerenciamento.id_pedido_publico}</span>`;
         
-        // ✅ LÓGICA DA BUSCA É ADICIONADA AQUI DENTRO 👇
         const inputBusca = document.getElementById('gerenciamento-busca-produto');
         if (inputBusca) {
-            inputBusca.value = ''; // Limpa a busca anterior
-            // Remove listener antigo para evitar duplicação
+            inputBusca.value = ''; 
             inputBusca.onkeyup = null; 
             inputBusca.onkeyup = (e) => {
                 const termo = e.target.value.toLowerCase();
@@ -141,15 +125,40 @@ export async function buscarPedidosAtivos() {
 
 async function solicitarDadosEntregador(pedido) {
     const { value: telefone } = await Swal.fire({ title: 'Despachar Pedido', html: `Despachando pedido <strong>#${pedido.id_pedido_publico}</strong>.<br>Digite o WhatsApp do entregador no formato internacional.`, input: 'tel', inputPlaceholder: 'Ex: 5562912345678', inputAttributes: { oninput: "this.value = this.value.replace(/[^0-9]/g, '')" }, showCancelButton: true, confirmButtonText: 'Enviar & Despachar →', background: '#2c2854', color: '#ffffff', inputValidator: (value) => { if (!value) { return 'Você precisa digitar um número!'; } if (!/^55[1-9]{2}9?[0-9]{8}$/.test(value)) { return 'Formato inválido! Use 55 + DDD + Número.'; } } });
-    if (telefone) { Swal.fire({ title: 'Despachando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() }); try { await enviarParaAPI(API_ENDPOINTS.send_delivery_details, { whatsapp_entregador: telefone, pedido: pedido }); await enviarParaAPI(API_ENDPOINTS.update_order_status, { id: pedido.id, status: 'A_CAMINHO' }); dispararNotificacaoStatus(pedido, 'A_CAMINHO'); await buscarPedidosAtivos(); Swal.fire('Despachado!', 'O entregador foi notificado e o status foi atualizado.', 'success'); } catch (error) { console.error("Erro na cadeia de despacho:", error); Swal.fire('Erro!', 'Não foi possível completar o despacho.', 'error'); } }
+    if (telefone) {
+        Swal.fire({ title: 'Despachando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        try {
+            await enviarParaAPI(API_ENDPOINTS.send_delivery_details, { whatsapp_entregador: telefone, pedido: pedido });
+            await enviarParaAPI(API_ENDPOINTS.update_order_status, { id: pedido.id, status: 'A_CAMINHO' });
+            dispararNotificacaoStatus(pedido, 'A_CAMINHO');
+            await buscarPedidosAtivos();
+            Swal.fire('Despachado!', 'O entregador foi notificado e o status foi atualizado.', 'success');
+        } catch (error) {
+            // Silêncio aqui! O api.js já mostrou o erro.
+            console.error("Erro na cadeia de despacho, tratado globalmente:", error);
+        }
+    }
 }
 
 function dispararNotificacaoStatus(pedido, status) {
     const isWhatsAppValido = pedido.whatsapp_cliente && pedido.whatsapp_cliente !== 'PED-INTERNO';
-    const statusRelevantes = ['EM_PREPARO', 'PRONTO_PARA_ENTREGA', 'A_CAMINHO'];
-    if (!isWhatsAppValido || !statusRelevantes.includes(status)) { return; }
-    const payload = { whatsapp_cliente: pedido.whatsapp_cliente, nome_cliente: pedido.nome_cliente, id_pedido_publico: pedido.id_pedido_publico, status: status };
-    enviarParaAPI(API_ENDPOINTS.send_whatsapp_status, payload).catch(err => console.error("Falha ao notificar cliente via WhatsApp:", err));
+    
+    const statusRelevantes = ['EM_PREPARO', 'PRONTO_PARA_ENTREGA', 'PRONTO_PARA_RETIRADA', 'A_CAMINHO'];
+    
+    if (!isWhatsAppValido || !statusRelevantes.includes(status)) { 
+        return; 
+    }
+    
+    const payload = { 
+        whatsapp_cliente: pedido.whatsapp_cliente, 
+        nome_cliente: pedido.nome_cliente, 
+        id_pedido_publico: pedido.id_pedido_publico, 
+        status: status,
+        origem: pedido.origem 
+    };
+
+    enviarParaAPI(API_ENDPOINTS.send_whatsapp_status, payload)
+        .catch(err => console.error("Falha ao notificar cliente via WhatsApp:", err));
 }
 
 async function cancelarPedido() {
@@ -177,8 +186,8 @@ async function cancelarPedido() {
             await buscarPedidosAtivos();
             window.dispatchEvent(new CustomEvent('recarregarMesas'));
         } catch (error) {
-            console.error("Erro ao cancelar pedido:", error);
-            Swal.fire('Ops!', 'Não foi possível cancelar o pedido.', 'error');
+            // Silêncio aqui! O api.js já mostrou o erro.
+            console.error("Erro ao cancelar pedido, tratado globalmente:", error);
         }
     }
 }
@@ -261,7 +270,28 @@ function renderizarComandaGerenciamento(contexto) {
 
         if (!isTaxaIntocavel && contexto !== 'GARCOM') {
             const btnRemover = itemHtml.querySelector('.btn-remover-item');
-            if (btnRemover) btnRemover.addEventListener('click', () => removerItemDoPedido(item.id));
+            if (btnRemover) {
+                // ✅ CORREÇÃO APLICADA AQUI DENTRO DO EVENT LISTENER
+                btnRemover.addEventListener('click', async () => {
+                    try {
+                        const resultado = await enviarParaAPI(API_ENDPOINTS.remove_item_from_order, { item_id: item.id });
+                        if (resultado.success) {
+                            const url = `${API_ENDPOINTS.get_order_status}?id=${pedidoEmGerenciamento.id}`;
+                            const resposta = await fetchDeAPI(url);
+                            if (resposta && resposta[0]) {
+                                pedidoEmGerenciamento = resposta[0];
+                                renderizarComandaGerenciamento(pedidoEmGerenciamento.contexto);
+                                buscarPedidosAtivos();
+                            }
+                        } else {
+                            throw new Error(resultado.message || 'Erro ao remover item.');
+                        }
+                    } catch (error) {
+                        // Silêncio aqui! O api.js já mostrou o erro.
+                        console.error("Erro ao remover item, tratado globalmente:", error);
+                    }
+                });
+            }
         }
         comandaContainer.appendChild(itemHtml);
     });
@@ -280,9 +310,10 @@ function gerarBotoesDeAcao(pedido) {
 
     let statusFlow;
     switch (pedido.origem) {
-        case 'BALCAO': statusFlow = APP_CONFIG.statusFlowBalcao; break;
-        case 'MESA': statusFlow = APP_CONFIG.statusFlowMesa; break;
-        default: statusFlow = APP_CONFIG.statusFlowPadrao; break;
+        case 'BALCAO':   statusFlow = APP_CONFIG.statusFlowBalcao; break;
+        case 'MESA':     statusFlow = APP_CONFIG.statusFlowMesa; break;
+        case 'RETIRADA': statusFlow = APP_CONFIG.statusFlowRetirada; break;
+        default:         statusFlow = APP_CONFIG.statusFlowPadrao; break;
     }
 
     const flowOrder = APP_CONFIG.flowOrder;
@@ -294,7 +325,6 @@ function gerarBotoesDeAcao(pedido) {
         
         const dataAttributes = `data-action="${step.nextStatus || (step.isPrintOnly ? 'print' : 'finalize')}" data-pedido-id="${pedido.id}"`;
 
-        // ✅ A MÁGICA ESTÁ AQUI: `flex-1` força todos os botões a terem a mesma largura
         let btnClass, icone = '', textoBotao = step.text, title, disabled = false;
 
         if (isEtapaAtiva) {
@@ -315,7 +345,6 @@ function gerarBotoesDeAcao(pedido) {
             disabled = true;
         }
 
-        // Adiciona a classe de texto em uma nova linha para melhor legibilidade
         btnClass += ' transition-all';
 
         container.innerHTML += `<button class="${btnClass}" ${dataAttributes} title="${title}" ${disabled ? 'disabled' : ''}>${icone}${textoBotao}</button>`;
@@ -324,20 +353,6 @@ function gerarBotoesDeAcao(pedido) {
     return container;
 }
 
-function renderizarPaginacao(totalItens) {
-    const pagContainer = document.getElementById('paginacao-container');
-    if (!pagContainer) return;
-    pagContainer.innerHTML = '';
-    const totalPaginas = Math.ceil(totalItens / itensPorPagina);
-    if (totalPaginas <= 1) return;
-    for (let i = 1; i <= totalPaginas; i++) {
-        const btn = document.createElement('button');
-        btn.className = `px-4 py-2 rounded-md font-bold ${i === paginaAtual ? 'bg-principal text-white' : 'bg-card hover:bg-sidebar'}`;
-        btn.innerText = i;
-        btn.onclick = () => mudarPagina(i);
-        pagContainer.appendChild(btn);
-    }
-}
 
 function renderizarPedidosAtivos() {
     if (!containerAtivos) return;
@@ -352,47 +367,27 @@ function renderizarPedidosAtivos() {
     });
 
     const piscinas = {
-        'NOVOS': {
-            titulo: 'Novos Pedidos',
-            status: ['CONFIRMADO'],
-            pedidos: [],
-            cor: 'bg-blue-500' 
-        },
-        'PREPARANDO': {
-            titulo: 'Em Preparo',
-            status: ['EM_PREPARO'],
-            pedidos: [],
-            cor: 'bg-yellow-500'
-        },
-        'PRONTOS': {
-            titulo: 'Prontos para Retirada',
-            status: ['PRONTO_PARA_ENTREGA'],
-            pedidos: [],
-            cor: 'bg-purple-500'
-        },
-        'AGUARDANDO_PAGAMENTO': {
-            titulo: 'Aguardando Pagamento',
-            status: ['A_CAMINHO'], 
-            pedidos: [],
-            cor: 'bg-green-500'
-        }
+        'NOVOS': { titulo: 'Novos Pedidos', status: ['CONFIRMADO'], pedidos: [], cor: 'bg-blue-500' },
+        'PREPARANDO': { titulo: 'Em Preparo', status: ['EM_PREPARO'], pedidos: [], cor: 'bg-yellow-500' },
+        'PRONTOS_ENTREGA': { titulo: 'Prontos para Entrega', status: ['PRONTO_PARA_ENTREGA'], origens: ['DELIVERY', 'WHATSAPP', 'IFOOD'], pedidos: [], cor: 'bg-purple-500' },
+        'PRONTOS_RETIRADA': { titulo: 'Prontos para Retirada', status: ['PRONTO_PARA_RETIRADA'], origens: ['RETIRADA', 'BALCAO', 'MESA'], pedidos: [], cor: 'bg-pink-500' },
+        'SAIU_PARA_ENTREGA': { titulo: 'Saiu para Entrega', status: ['A_CAMINHO'], pedidos: [], cor: 'bg-green-500' }
     };
 
     pedidosFiltrados.forEach(pedido => {
         const status = (pedido.status || '').toUpperCase();
+        const origem = (pedido.origem || '').toUpperCase();
 
         if (piscinas.NOVOS.status.includes(status)) {
             piscinas.NOVOS.pedidos.push(pedido);
         } else if (piscinas.PREPARANDO.status.includes(status)) {
             piscinas.PREPARANDO.pedidos.push(pedido);
-        } else if (status === 'PRONTO_PARA_ENTREGA') {
-            if(pedido.origem === 'MESA' || pedido.origem === 'BALCAO') {
-                piscinas.AGUARDANDO_PAGAMENTO.pedidos.push(pedido); 
-            } else {
-                piscinas.PRONTOS.pedidos.push(pedido); 
-            }
-        } else if (piscinas.AGUARDANDO_PAGAMENTO.status.includes(status)) {
-            piscinas.AGUARDANDO_PAGAMENTO.pedidos.push(pedido);
+        } else if (piscinas.PRONTOS_ENTREGA.status.includes(status) && piscinas.PRONTOS_ENTREGA.origens.includes(origem)) {
+            piscinas.PRONTOS_ENTREGA.pedidos.push(pedido);
+        } else if (piscinas.PRONTOS_RETIRADA.status.includes(status) && piscinas.PRONTOS_RETIRADA.origens.includes(origem)) {
+            piscinas.PRONTOS_RETIRADA.pedidos.push(pedido);
+        } else if (piscinas.SAIU_PARA_ENTREGA.status.includes(status)) {
+            piscinas.SAIU_PARA_ENTREGA.pedidos.push(pedido);
         }
     });
 
@@ -419,21 +414,22 @@ function renderizarPedidosAtivos() {
             const horaEntrada = pedido.created_at ? new Date(pedido.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '--:--';
             
             card.className = "swiper-slide !w-[380px] !h-auto"; 
+            
             card.innerHTML = `
                 <div class="bg-card rounded-lg p-4 relative flex flex-col h-full">
                     <div class="absolute top-0 left-0 h-full w-2 ${corOrigem}"></div>
                     <div class="pl-4 flex flex-col flex-grow">
-                        <div class="flex justify-between items-start gap-2">
+                        <div class="flex justify-between items-start gap-2 min-h-[60px]">
                             <div class="flex-grow min-w-0">
                                 <div class="flex items-center gap-2 mb-1">
                                     <span class="px-2 py-1 text-xs semi-bold rounded-full text-white ${corOrigem} flex-shrink-0">${pedido.origem}</span>
-                                    <h4 class="semi-bold text-lg leading-tight truncate">${(pedido.nome_cliente || 'Cliente Indefinido').toUpperCase()}</h4>
+                                    <h4 class="semi-bold text-lg leading-tight break-words">${(pedido.nome_cliente || 'Cliente Indefinido').toUpperCase()}</h4>
                                 </div>
                                 <span class="text-sm text-texto-muted">#${pedido.id_pedido_publico || ''}</span>
                             </div>
                             <div class="flex items-center gap-2 flex-shrink-0">
                                 <span class="font-bold text-xl text-principal">R$ ${Number(pedido.total || 0).toFixed(2)}</span>
-                                <button onclick="window.pedidosGlobal.abrirGerenciamento(${pedido.id})" class="p-2 rounded-md hover:bg-sidebar transition-colors"><i class="bi bi-gear-fill text-lg text-blue-400"></i></button>
+                                <button data-action="gerenciar" data-pedido-id="${pedido.id}" class="p-2 rounded-md hover:bg-sidebar transition-colors"><i class="bi bi-gear-fill text-lg text-blue-400"></i></button>
                             </div>
                         </div>
                         <div class="text-lg semi-bold text-principal mb-2"><i class="bi bi-clock-fill"></i> Chegou às: ${horaEntrada}</div>
@@ -441,7 +437,7 @@ function renderizarPedidosAtivos() {
                         <div class="space-y-1 mb-3 text-sm flex-grow">${itensHtml}</div>
                         <div class="text-xs space-y-1 mt-auto pt-2 pl-4">
                             ${pedido.forma_pagamento ? `<div class="text-sm font-semibold text-principal mb-2"><i class="bi bi-credit-card-fill"></i> Pagamento: ${pedido.forma_pagamento}</div>` : ''}
-                            ${(pedido.origem !== 'BALCAO' && pedido.origem !== 'MESA' && pedido.rua) ? `<p class="text-texto-muted text-xs"><i class="bi bi-geo-alt-fill"></i> ${pedido.bairro ? `${pedido.bairro} - ` : ''}${pedido.rua || ''}, Q ${pedido.quadra || ''}, L ${pedido.lote || ''}</p>` : ''}
+                            ${(pedido.origem !== 'BALCAO' && pedido.origem !== 'MESA' && pedido.rua && pedido.origem !== 'RETIRADA') ? `<p class="text-texto-muted text-xs"><i class="bi bi-geo-alt-fill"></i> ${pedido.bairro ? `${pedido.bairro} - ` : ''}${pedido.rua || ''}, Q ${pedido.quadra || ''}, L ${pedido.lote || ''}</p>` : ''}
                             ${(pedido.whatsapp_cliente && pedido.whatsapp_cliente !== 'PED-INTERNO') ? `<p class="text-texto-muted text-xs"><i class="bi bi-whatsapp"></i> ${pedido.whatsapp_cliente}</p>` : ''}
                             ${(pedido.origem === 'MESA' && pedido.garcom_responsavel) ? `<p class="text-texto-muted text-base"><i class="bi bi-person-fill"></i> Garçom: ${pedido.garcom_responsavel}</p>` : ''}
                             ${pedido.observacoes ? `<div class="mt-2 pt-2 border-t border-borda/30"><p class="text-yellow-400 font-semibold text-sm flex items-center gap-2"><i class="bi bi-chat-left-dots-fill"></i><span>Observação:</span></p><p class="text-texto-muted text-sm pl-2 italic">"${pedido.observacoes}"</p></div>` : ''}
@@ -454,7 +450,6 @@ function renderizarPedidosAtivos() {
             return card.outerHTML;
         }).join('');
 
-        // ✅ REFINAMENTO FINAL DO TÍTULO
         const piscinaHtml = `
             <div>
                 <div class="p-3 rounded-t-lg ${piscina.cor} flex items-center justify-between">
@@ -476,12 +471,6 @@ function renderizarPedidosAtivos() {
         spaceBetween: 16,
         freeMode: true,
     });
-    
-    window.pedidosGlobal = {
-        atualizarStatus: atualizarStatusPedido,
-        abrirGerenciamento: abrirModalGerenciamentoNaView,
-        imprimirNota: imprimirNotaParaEntrega
-    };
 }
 
 async function mostrarDetalhesPedidoFinalizado(pedido) { 
@@ -522,11 +511,9 @@ async function renderizarListaFinalizados(pedidos, titulo) {
     const cellStyle = `padding: 10px; border-top: 1px solid #4a4480;`;
 
     pedidos.forEach(p => {
-        // ✅ CORREÇÃO AQUI: Usando a classe do config.js diretamente
         const corClasse = APP_CONFIG.origemCores[p.origem] || 'bg-gray-500';
-        // A classe já vem pronta, ex: "bg-blue-500". Adicionamos opacidade e removemos o "bg-" para a cor do texto.
         const corTexto = corClasse.replace('bg-', 'text-')
-                                  .replace('500', '300'); // Deixamos o texto um pouco mais claro
+                                  .replace('500', '300'); 
 
         const origemTag = `<span class="${corClasse} bg-opacity-20 ${corTexto}" style="font-size: 0.75rem; font-weight: bold; padding: 4px 8px; border-radius: 9999px;">${p.origem}</span>`;
         
@@ -571,12 +558,10 @@ async function buscarFinalizadosPorData(data) {
         const dataHojeFormatada = hoje.toISOString().split('T')[0];
         const titulo = data === dataHojeFormatada ? 'Pedidos Finalizados de Hoje' : `Pedidos de ${new Date(data + 'T03:00:00Z').toLocaleDateString('pt-BR')}`;
         
-        // Passa a responsabilidade de fechar o loading e mostrar o resultado para a próxima função
         renderizarListaFinalizados(pedidos, titulo);
 
     } catch (error) {
         console.error("Erro ao buscar pedidos por data:", error);
-        // Garante que o loading feche mesmo em caso de erro de rede
         Swal.fire({
             icon: 'error',
             title: 'Ops!',
@@ -617,35 +602,51 @@ export function initPedidosPage() {
             if (tipoDeAlerta === 'external') {
                 const sound = document.getElementById('notification-sound');
                 if(sound) sound.play().catch(e => console.error("Erro ao tocar som:", e));
+                
                 Swal.fire({
-                    toast: true, position: 'top-end', icon: 'info', title: 'Novo pedido na área!',
-                    showConfirmButton: false, timer: 4000, background: '#38326b', color: '#ffffff'
+                    title: '<strong>NOVO PEDIDO NA ÁREA! 🔥</strong>',
+                    icon: 'success',
+                    html: 'Um novo pedido acabou de chegar pela vitrine. Corra para o painel!',
+                    showCloseButton: true,
+                    focusConfirm: false,
+                    confirmButtonText: '<i class="bi bi-eye-fill"></i> Ver Pedidos!',
+                    confirmButtonAriaLabel: 'Ver Pedidos!',
+                    confirmButtonColor: '#ff6b35',
+                    background: '#2c2854',
+                    color: '#ffffff'
+                }).then(() => {
+                    const navPedidos = document.getElementById('nav-pedidos');
+                    if(navPedidos) navPedidos.click();
                 });
             }
-
-            const pedidosPage = document.getElementById('pedidos-page');
-            if (pedidosPage && !pedidosPage.classList.contains('hidden')) {
-                buscarPedidosAtivos();
-            }
+            
+            // ✅ A CORREÇÃO ESTÁ AQUI 👇
+            // Removemos o if/else e sempre atualizamos os dados em segundo plano.
+            console.log("[Notificação] Novo pedido recebido. Atualizando lista de pedidos em background...");
+            buscarPedidosAtivos();
         });
 
-        // ✅ O SUPER LISTENER ENTRA EM AÇÃO AQUI 👇
-        containerAtivos.addEventListener('click', (event) => {
-            const target = event.target.closest('button[data-action]');
-            if (!target) return; // Se não clicou num botão de ação, ignora
-
-            const pedidoId = parseInt(target.dataset.pedidoId);
-            const acao = target.dataset.action;
-            const pedido = todosOsPedidosAtivos.find(p => p.id === pedidoId);
-
-            if (!pedido) return;
-
-            if (acao === 'print') {
-                imprimirNotaParaEntrega(pedido);
-            } else if (acao) {
-                atualizarStatusPedido(pedidoId, acao);
-            }
-        });
+        const containerPedidosAtivos = document.getElementById('pedidos-ativos-container');
+        if (containerPedidosAtivos) {
+            containerPedidosAtivos.addEventListener('click', (event) => {
+                const target = event.target.closest('button[data-action]');
+                if (!target) return;
+    
+                const pedidoId = parseInt(target.dataset.pedidoId);
+                const acao = target.dataset.action;
+                const pedido = todosOsPedidosAtivos.find(p => p.id === pedidoId);
+    
+                if (!pedido) return;
+    
+                if (acao === 'gerenciar') {
+                    abrirModalGerenciamentoNaView(pedidoId);
+                } else if (acao === 'print') {
+                    imprimirNotaParaEntrega(pedido);
+                } else if (acao) {
+                    atualizarStatusPedido(pedidoId, acao);
+                }
+            });
+        }
 
         window.listenersPedidosOk = true;
     }

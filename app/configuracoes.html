@@ -1,0 +1,202 @@
+<script>
+    if (typeof window.IS_SPA_FRAMEWORK_LOADED === 'undefined') {
+        console.warn('GUARDIÃO: Acesso direto ao CAIXA bloqueado! Redirecionando...');
+        window.location.replace(`index.html?view=caixa`);
+    }
+</script>
+
+<h2 class="text-4xl font-bold mb-2">Configurações Gerais</h2>
+<p class="text-texto-muted mb-8">Personalize as informações e aparência da sua loja.</p>
+<div class="space-y-12">
+    <div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto">
+        <div class="mb-8">
+            <h3 class="text-xl font-bold text-principal mb-2">Identidade Visual</h3>
+            <div class="space-y-6">
+                <div><label class="block mb-2 font-medium text-texto-muted">Logo do Painel e Vitrine</label>
+                    <div class="flex items-center gap-6"><img id="logo-vitrine-preview"
+                            src="data:image/svg+xml;base64,..." alt="Pré-visualização da logo da vitrine"
+                            class="w-24 h-24 rounded-md object-contain bg-fundo p-1">
+                        <div id="logo-vitrine-upload-area"
+                            class="flex-grow p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors">
+                            <i class="bi bi-cloud-arrow-up-fill text-3xl"></i><span
+                                class="block mt-2 font-semibold">Buscar logo da vitrine</span>
+                        </div>
+                        <input type="file" id="logo-vitrine-file-input" accept="image/png, image/jpeg, image/webp"
+                            class="hidden">
+                    </div>
+                </div>
+                <div><label class="block mb-2 font-medium text-texto-muted">Logo para Impressão</label>
+                    <div class="flex items-center gap-6"><img id="logo-preview" src="data:image/svg+xml;base64,..."
+                            alt="Pré-visualização da logo" class="w-24 h-24 rounded-md object-contain bg-fundo p-1">
+                        <div id="logo-upload-area"
+                            class="flex-grow p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors">
+                            <i class="bi bi-cloud-arrow-up-fill text-3xl"></i><span
+                                class="block mt-2 font-semibold">Buscar nova logo</span>
+                        </div><input type="file" id="logo-file-input" accept="image/png, image/jpeg" class="hidden">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <form id="form-configuracoes" class="space-y-4">
+            <h3 class="text-xl font-bold text-principal mb-2 border-t border-borda pt-8">Informações da
+                Empresa</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label for="config-nome-loja" class="block mb-1 font-medium text-texto-muted">Nome
+                        da Loja</label><input type="text" id="config-nome-loja" placeholder="O nome do seu negócio"
+                        class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none">
+                </div>
+                <div><label for="config-cnpj-cpf" class="block mb-1 font-medium text-texto-muted">CNPJ
+                        ou CPF</label><input type="text" id="config-cnpj-cpf" placeholder="Seu documento"
+                        class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none">
+                </div>
+                <div><label for="config-endereco" class="block mb-1 font-medium text-texto-muted">Endereço
+                        Completo</label><input type="text" id="config-endereco"
+                        placeholder="Rua, Número, Bairro, Cidade - Estado"
+                        class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none">
+                </div>
+                <div><label for="config-telefone"
+                        class="block mb-1 font-medium text-texto-muted">Telefone/WhatsApp</label><input type="tel"
+                        id="config-telefone" placeholder="Seu número de contato principal"
+                        class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none">
+                </div>
+                <div><label for="config-taxa-entrega" class="block mb-1 font-medium text-texto-muted">Taxa de
+                        Entrega Fixa
+                        (R$)</label><input type="number" step="0.01" id="config-taxa-entrega" placeholder="Ex: 5.00"
+                        class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none">
+                </div>
+                <div><label for="config-custo-entrega" class="block mb-1 font-medium text-texto-muted">Custo por
+                        Entrega (Freela
+                        R$)</label><input type="number" step="0.01" id="config-custo-entrega" placeholder="Ex: 4.00"
+                        class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none">
+                </div>
+                <!-- ➕ NOVOS CAMPOS AQUI 👇 -->
+                <div>
+                    <label for="pedido_minimo_delivery" class="block mb-1 font-medium text-texto-muted">Pedido Mínimo
+                        Delivery (R$)</label>
+                    <input type="number" step="0.01" id="pedido_minimo_delivery" placeholder="Ex: 15.00"
+                        class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none">
+                </div>
+                <div>
+                    <label class="block mb-1 font-medium text-texto-muted">Permitir Retirada na Loja</label>
+                    <label for="habilitar_retirada"
+                        class="flex items-center cursor-pointer bg-fundo p-3 rounded-lg border border-borda">
+                        <div class="relative">
+                            <input type="checkbox" id="habilitar_retirada" class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-borda rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-principal">
+                            </div>
+                        </div>
+                        <span class="ml-3 font-medium text-texto-base">Habilitar opção de retirada</span>
+                    </label>
+                </div>
+                <!-- ➕ FIM DOS NOVOS CAMPOS -->
+            </div>
+            <div><label for="config-msg-rodape" class="block mb-1 font-medium text-texto-muted">Mensagem
+                    no Rodapé da Nota</label><textarea id="config-msg-rodape" rows="3"
+                    placeholder="Ex: Agradecemos a preferência! Wi-fi: senha123"
+                    class="w-full bg-fundo p-3 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none"></textarea>
+            </div>
+            <div class="flex justify-end pt-4"><button type="submit"
+                    class="w-full py-3 px-8 rounded-lg bg-principal hover:bg-orange-600 font-bold text-white transition-colors">Salvar
+                    Configurações</button></div>
+        </form>
+    </div>
+    <div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto">
+        <h2 class="text-3xl font-bold mb-2">Gerenciamento de Mesas</h2>
+        <p class="text-texto-muted mb-8">Adicione ou remova as mesas do seu estabelecimento.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4 text-principal">Adicionar Nova Mesa</h3>
+                <form id="form-nova-mesa" class="space-y-4">
+                    <div><label for="mesa-numero" class="block mb-1 font-medium text-texto-muted">Número
+                            da Mesa</label><input type="number" id="mesa-numero"
+                            class="w-full bg-fundo p-3 rounded-lg border border-borda" required></div>
+                    <div class="pt-2"><button type="submit"
+                            class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold"><i
+                                class="bi bi-plus-circle-fill"></i> Criar Mesa</button></div>
+                </form>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold mb-4 text-principal">Mesas Existentes</h3>
+                <div id="lista-mesas-existentes" class="space-y-2 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
+                    <p class="text-texto-muted animate-pulse">Buscando mesas...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto" id="gerenciamento-categorias">
+        <h2 class="text-3xl font-bold mb-2">Gerenciamento de Categorias</h2>
+        <p class="text-texto-muted mb-8">Crie e organize as categorias que aparecerão na vitrine.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4 text-principal">Adicionar / Editar Categoria</h3>
+                <form id="form-nova-categoria" class="space-y-4"><input type="hidden" id="categoria-id">
+                    <div><label for="categoria-nome" class="block mb-1 font-medium text-texto-muted">Nome da
+                            Categoria</label><input type="text" id="categoria-nome"
+                            class="w-full bg-fundo p-3 rounded-lg border border-borda" required></div>
+                    <div><label for="categoria-cor" class="block mb-1 font-medium text-texto-muted">Cor
+                            do Card</label><input type="color" id="categoria-cor"
+                            class="w-full h-12 bg-fundo p-1 rounded-lg border border-borda cursor-pointer"
+                            value="#38326b"></div>
+                    <div><label class="block mb-1 font-medium text-texto-muted">Ícone da Categoria (PNG
+                            ou SVG)</label>
+                        <div id="categoria-icone-upload-area"
+                            class="w-full p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors">
+                            <img id="categoria-icone-preview" src="" alt="Pré-visualização do Ícone"
+                                class="w-16 h-16 mx-auto mb-2 hidden object-contain"><i id="categoria-icone-placeholder"
+                                class="bi bi-cloud-arrow-up-fill text-3xl"></i><span
+                                class="block mt-2 font-semibold">Buscar ícone</span>
+                        </div><input type="file" id="categoria-icone-file-input" accept="image/png, image/svg+xml"
+                            class="hidden"><input type="hidden" id="categoria-icone-url">
+                    </div>
+                    <div class="pt-2 flex flex-col md:flex-row gap-4"><button type="submit"
+                            class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar
+                            Categoria</button><button type="button" id="btn-limpar-form-categoria"
+                            class="w-full py-3 px-5 rounded-lg bg-gray-500 hover:bg-gray-600 font-bold">Limpar</button>
+                    </div>
+                </form>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold mb-4 text-principal">Categorias Existentes</h3>
+                <p class="text-sm text-texto-muted mb-2">Arraste para reordenar.</p>
+                <div id="lista-categorias-existentes" class="space-y-2 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg-card p-6 sm:p-8 rounded-lg max-w-4xl mx-auto" id="gerenciamento-banners">
+        <h2 class="text-3xl font-bold mb-2">Banners Promocionais</h2>
+        <p class="text-texto-muted mb-8">Adicione e organize os banners da página inicial da sua
+            vitrine.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-xl font-bold mb-4 text-principal">Adicionar / Editar Banner</h3>
+                <form id="form-novo-banner" class="space-y-4"><input type="hidden" id="banner-id">
+                    <div><label class="block mb-1 font-medium text-texto-muted">Imagem do Banner</label>
+                        <div id="banner-imagem-upload-area"
+                            class="w-full p-6 rounded-lg border-2 border-dashed border-borda text-center text-texto-muted cursor-pointer hover:border-principal transition-colors">
+                            <img id="banner-imagem-preview" src="" alt="Pré-visualização do Banner"
+                                class="w-full h-auto mx-auto mb-2 hidden object-contain rounded-md"><i
+                                id="banner-imagem-placeholder" class="bi bi-cloud-arrow-up-fill text-3xl"></i><span
+                                class="block mt-2 font-semibold">Buscar a imagem</span>
+                        </div><input type="file" id="banner-imagem-file-input"
+                            accept="image/png, image/jpeg, image/webp" class="hidden"><input type="hidden"
+                            id="banner-imagem-url">
+                    </div>
+                    <div class="pt-2 flex flex-col md:flex-row gap-4"><button type="submit"
+                            class="w-full py-3 px-5 rounded-lg bg-principal hover:bg-orange-600 font-bold">Salvar
+                            Banner</button><button type="button" id="btn-limpar-form-banner"
+                            class="w-full py-3 px-5 rounded-lg bg-gray-500 hover:bg-gray-600 font-bold">Limpar</button>
+                    </div>
+                </form>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold mb-4 text-principal">Banners Atuais</h3>
+                <p class="text-sm text-texto-muted mb-2">Arraste para reordenar.</p>
+                <div id="lista-banners-existentes" class="space-y-2 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                    <p class="text-texto-muted animate-pulse">Buscando banners...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
