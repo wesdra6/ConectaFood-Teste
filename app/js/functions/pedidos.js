@@ -45,7 +45,6 @@ async function adicionarItemAoPedido(produtoId) {
             }
         } else { throw new Error(resultado.message || 'Erro ao adicionar item.'); }
     } catch (error) {
-        // Silêncio aqui! O api.js já mostrou o erro.
         console.error("Erro ao adicionar item, tratado globalmente:", error);
     }
 }
@@ -134,7 +133,6 @@ async function solicitarDadosEntregador(pedido) {
             await buscarPedidosAtivos();
             Swal.fire('Despachado!', 'O entregador foi notificado e o status foi atualizado.', 'success');
         } catch (error) {
-            // Silêncio aqui! O api.js já mostrou o erro.
             console.error("Erro na cadeia de despacho, tratado globalmente:", error);
         }
     }
@@ -142,13 +140,8 @@ async function solicitarDadosEntregador(pedido) {
 
 function dispararNotificacaoStatus(pedido, status) {
     const isWhatsAppValido = pedido.whatsapp_cliente && pedido.whatsapp_cliente !== 'PED-INTERNO';
-    
     const statusRelevantes = ['EM_PREPARO', 'PRONTO_PARA_ENTREGA', 'PRONTO_PARA_RETIRADA', 'A_CAMINHO'];
-    
-    if (!isWhatsAppValido || !statusRelevantes.includes(status)) { 
-        return; 
-    }
-    
+    if (!isWhatsAppValido || !statusRelevantes.includes(status)) { return; }
     const payload = { 
         whatsapp_cliente: pedido.whatsapp_cliente, 
         nome_cliente: pedido.nome_cliente, 
@@ -156,7 +149,6 @@ function dispararNotificacaoStatus(pedido, status) {
         status: status,
         origem: pedido.origem 
     };
-
     enviarParaAPI(API_ENDPOINTS.send_whatsapp_status, payload)
         .catch(err => console.error("Falha ao notificar cliente via WhatsApp:", err));
 }
@@ -186,7 +178,6 @@ async function cancelarPedido() {
             await buscarPedidosAtivos();
             window.dispatchEvent(new CustomEvent('recarregarMesas'));
         } catch (error) {
-            // Silêncio aqui! O api.js já mostrou o erro.
             console.error("Erro ao cancelar pedido, tratado globalmente:", error);
         }
     }
@@ -248,11 +239,8 @@ function renderizarComandaGerenciamento(contexto) {
         const itemHtml = document.createElement('div');
         itemHtml.className = "flex justify-between items-center text-sm mb-2 p-2 rounded-md bg-fundo";
         const nomeItem = item.item || item.nome;
-        
         const isTaxaIntocavel = item.produto_id === 99999 || nomeItem.toLowerCase() === 'taxa de entrega';
-        
         let botaoAcaoHtml;
-
         if (isTaxaIntocavel) {
             botaoAcaoHtml = `<button class="text-gray-500 cursor-not-allowed" disabled title="A taxa de entrega não pode ser removida."><i class="bi bi-lock-fill text-lg"></i></button>`;
         } else if (contexto === 'GARCOM') {
@@ -260,14 +248,12 @@ function renderizarComandaGerenciamento(contexto) {
         } else {
             botaoAcaoHtml = `<button class="btn-remover-item text-red-500 hover:text-red-400" aria-label="Remover ${nomeItem}"><i class="bi bi-trash-fill text-lg"></i></button>`;
         }
-        
         itemHtml.innerHTML = `
             <div class="flex-grow"><span class="font-bold">${item.quantidade}x</span> ${nomeItem}</div>
             <div class="flex items-center gap-4">
                 <span class="font-semibold text-principal w-24 text-right">R$ ${subtotal.toFixed(2)}</span>
                 ${botaoAcaoHtml}
             </div>`;
-
         if (!isTaxaIntocavel && contexto !== 'GARCOM') {
             const btnRemover = itemHtml.querySelector('.btn-remover-item');
             if (btnRemover) {
@@ -286,7 +272,6 @@ function renderizarComandaGerenciamento(contexto) {
                             throw new Error(resultado.message || 'Erro ao remover item.');
                         }
                     } catch (error) {
-                        // Silêncio aqui! O api.js já mostrou o erro.
                         console.error("Erro ao remover item, tratado globalmente:", error);
                     }
                 });
@@ -301,12 +286,10 @@ function gerarBotoesDeAcao(pedido) {
     const container = document.createElement('div');
     container.className = "mt-2 pt-3 border-t border-borda/50 flex flex-wrap gap-2";
     const statusAtualPedido = (pedido.status || '').toUpperCase();
-
     if (statusAtualPedido === 'ENTREGUE' || statusAtualPedido === 'CANCELADO') {
         container.innerHTML = `<div class="w-full text-center py-2 px-3 text-sm rounded-md ${statusAtualPedido === 'CANCELADO' ? 'bg-red-800' : 'bg-card text-green-400'} font-semibold">PEDIDO ${statusAtualPedido}</div>`;
         return container;
     }
-
     let statusFlow;
     switch (pedido.origem) {
         case 'BALCAO':   statusFlow = APP_CONFIG.statusFlowBalcao; break;
@@ -314,18 +297,13 @@ function gerarBotoesDeAcao(pedido) {
         case 'RETIRADA': statusFlow = APP_CONFIG.statusFlowRetirada; break;
         default:         statusFlow = APP_CONFIG.statusFlowPadrao; break;
     }
-
     const flowOrder = APP_CONFIG.flowOrder;
     const indiceStatusAtual = flowOrder.indexOf(statusAtualPedido);
-
     statusFlow.forEach(step => {
         const indiceStep = flowOrder.indexOf(step.requiredStatus);
         const isEtapaAtiva = indiceStep === indiceStatusAtual;
-        
         const dataAttributes = `data-action="${step.nextStatus || (step.isPrintOnly ? 'print' : 'finalize')}" data-pedido-id="${pedido.id}"`;
-
         let btnClass, icone = '', textoBotao = step.text, title, disabled = false;
-
         if (isEtapaAtiva) {
             title = 'Clique para executar esta ação';
             btnClass = step.isFinalAction 
@@ -343,15 +321,13 @@ function gerarBotoesDeAcao(pedido) {
             title = 'Aguardando etapa anterior';
             disabled = true;
         }
-
-        btnClass += ' transition-all';
-
+        // ✅ ALTERAÇÃO CIRÚRGICA AQUI 👇
+        // Adicionamos a classe 'swiper-no-swiping' para avisar ao Swiper para não interferir.
+        btnClass += ' transition-all swiper-no-swiping';
         container.innerHTML += `<button class="${btnClass}" ${dataAttributes} title="${title}" ${disabled ? 'disabled' : ''}>${icone}${textoBotao}</button>`;
     });
-
     return container;
 }
-
 
 function renderizarPedidosAtivos() {
     if (!containerAtivos) return;
@@ -414,6 +390,8 @@ function renderizarPedidosAtivos() {
             
             card.className = "swiper-slide !w-[380px] !h-auto"; 
             
+            // ✅ ALTERAÇÃO CIRÚRGICA AQUI 👇
+            // Adicionamos a classe 'swiper-no-swiping' no botão de gerenciar.
             card.innerHTML = `
                 <div class="bg-card rounded-lg p-4 relative flex flex-col h-full">
                     <div class="absolute top-0 left-0 h-full w-2 ${corOrigem}"></div>
@@ -428,7 +406,7 @@ function renderizarPedidosAtivos() {
                             </div>
                             <div class="flex items-center gap-2 flex-shrink-0">
                                 <span class="font-bold text-xl text-principal">R$ ${Number(pedido.total || 0).toFixed(2)}</span>
-                                <button data-action="gerenciar" data-pedido-id="${pedido.id}" class="p-2 rounded-md hover:bg-sidebar transition-colors"><i class="bi bi-gear-fill text-lg text-blue-400"></i></button>
+                                <button data-action="gerenciar" data-pedido-id="${pedido.id}" class="p-2 rounded-md hover:bg-sidebar transition-colors swiper-no-swiping"><i class="bi bi-gear-fill text-lg text-blue-400"></i></button>
                             </div>
                         </div>
                         <div class="text-lg semi-bold text-principal mb-2"><i class="bi bi-clock-fill"></i> Chegou às: ${horaEntrada}</div>
@@ -595,6 +573,8 @@ export function initPedidosPage() {
     if (!containerAtivos) return;
 
     if (!window.listenersPedidosOk) {
+        console.log("Maestro dos Pedidos: Anexando 'snipers' de eventos... 🎯");
+
         window.addEventListener('novoPedidoRecebido', (event) => {
             const tipoDeAlerta = event.detail.tipo;
             
@@ -623,9 +603,10 @@ export function initPedidosPage() {
             buscarPedidosAtivos();
         });
 
-        const containerPedidosAtivos = document.getElementById('pedidos-ativos-container');
-        if (containerPedidosAtivos) {
-            containerPedidosAtivos.addEventListener('click', (event) => {
+        // ✅ CORREÇÃO: O 'sniper' agora mira no alvo certo: 'lista-pedidos-admin' (containerAtivos)
+        // Isso garante que ele vigie a área exata onde os cards são re-renderizados.
+        if (containerAtivos) {
+            containerAtivos.addEventListener('click', (event) => {
                 const target = event.target.closest('button[data-action]');
                 if (!target) return;
     
@@ -633,8 +614,13 @@ export function initPedidosPage() {
                 const acao = target.dataset.action;
                 const pedido = todosOsPedidosAtivos.find(p => p.id === pedidoId);
     
-                if (!pedido) return;
+                if (!pedido) {
+                    console.error(`Ação '${acao}' para um pedido ID '${pedidoId}' não encontrado.`);
+                    return;
+                }
     
+                console.log(`Ação detectada: '${acao}' no pedido #${pedido.id_pedido_publico}`);
+
                 if (acao === 'gerenciar') {
                     abrirModalGerenciamentoNaView(pedidoId);
                 } else if (acao === 'print') {
