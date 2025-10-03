@@ -8,8 +8,6 @@ const VIGIA_RATE_MS = 5000;
 let audioContextDesbloqueado = false;
 let vigiaInterval = null;
 
-// ✅ OBJETO DE MÓDULOS REFINADO
-// Mapeia a view (da URL) para seu HTML, JS e função de inicialização.
 const viewModules = {
     'dashboard':     { html: './dashboard.html',      js: './functions/admin.js',          initFunc: 'initAdminPage' },
     'meus-produtos': { html: './meus-produtos.html',  js: './functions/admin.js',          initFunc: 'initAdminPage' },
@@ -17,6 +15,84 @@ const viewModules = {
     'caixa':         { html: './caixa.html',          js: './functions/caixa.js',          initFunc: 'initCaixaPage' },
     'configuracoes': { html: './configuracoes.html',  js: './functions/configuracoes.js',  initFunc: 'initConfiguracoesPage' },
 };
+
+function initSidebar() {
+    const body = document.body;
+    const toggleButton = document.getElementById('btn-toggle-sidebar');
+
+    if (!toggleButton) return;
+
+    const toggleSidebar = () => {
+        body.classList.toggle('sidebar-collapsed');
+        body.classList.toggle('sidebar-expanded');
+        const state = body.classList.contains('sidebar-collapsed') ? 'collapsed' : 'expanded';
+        localStorage.setItem('sidebarState', state);
+        
+        const tooltipText = body.classList.contains('sidebar-collapsed') ? 'Expandir Menu' : 'Encolher Menu';
+        toggleButton.setAttribute('data-tooltip', tooltipText);
+    };
+
+    toggleButton.addEventListener('click', toggleSidebar);
+
+    const savedState = localStorage.getItem('sidebarState');
+    if (savedState === 'collapsed') {
+        body.classList.add('sidebar-collapsed');
+        body.classList.remove('sidebar-expanded');
+    } else {
+        body.classList.add('sidebar-expanded');
+        body.classList.remove('sidebar-collapsed');
+    }
+    
+    const initialTooltipText = body.classList.contains('sidebar-collapsed') ? 'Expandir Menu' : 'Encolher Menu';
+    toggleButton.setAttribute('data-tooltip', initialTooltipText);
+}
+
+function initSidebarTooltips() {
+    let tooltipElement = null;
+    let hideTimeout;
+
+    document.querySelectorAll('#admin-sidebar [data-tooltip]').forEach(element => {
+        
+        const showTooltip = () => {
+            if (!document.body.classList.contains('sidebar-collapsed')) return;
+            
+            clearTimeout(hideTimeout);
+
+            const tooltipText = element.getAttribute('data-tooltip');
+            if (!tooltipText) return;
+
+            if (!tooltipElement) {
+                tooltipElement = document.createElement('div');
+                tooltipElement.className = 'sidebar-tooltip';
+                document.body.appendChild(tooltipElement);
+            }
+
+            tooltipElement.textContent = tooltipText;
+            const rect = element.getBoundingClientRect();
+            const topPos = rect.top + (rect.height / 2) - (tooltipElement.offsetHeight / 2);
+            const leftPos = rect.right + 10;
+
+            tooltipElement.style.top = `${topPos}px`;
+            tooltipElement.style.left = `${leftPos}px`;
+
+            if (!tooltipElement.classList.contains('show')) {
+                 setTimeout(() => tooltipElement?.classList.add('show'), 10);
+            }
+        };
+
+        const hideTooltip = () => {
+            hideTimeout = setTimeout(() => {
+                if (tooltipElement) {
+                    tooltipElement.classList.remove('show');
+                }
+            }, 100);
+        };
+
+        element.addEventListener('mouseenter', showTooltip);
+        element.addEventListener('mouseleave', hideTooltip);
+    });
+}
+
 
 async function handleDemoAccess() {
     const params = new URLSearchParams(window.location.search);
@@ -42,19 +118,30 @@ async function handleDemoAccess() {
     return null;
 }
 
-// ✅ FUNÇÃO navigateTo ATUALIZADA PARA UMA ARQUITETURA MAIS ROBUSTA
 async function navigateTo(view, params = {}) { 
-    // Esconde todos os containers de view e limpa o conteúdo deles
+    const body = document.body;
+    if (view === 'pedidos') {
+        body.classList.add('sidebar-collapsed');
+        body.classList.remove('sidebar-expanded');
+    } else {
+        const userPreference = localStorage.getItem('sidebarState');
+        if (userPreference === 'collapsed') {
+            body.classList.add('sidebar-collapsed');
+            body.classList.remove('sidebar-expanded');
+        } else {
+            body.classList.remove('sidebar-collapsed');
+            body.classList.add('sidebar-expanded');
+        }
+    }
+
     document.querySelectorAll('.view-container').forEach(v => {
         v.classList.add('hidden');
         v.innerHTML = ''; 
     });
     
-    // Define o ID do container alvo
     const containerId = `${view}-page`;
     let container = document.getElementById(containerId);
     
-    // Fallback para o dashboard se o container não for encontrado
     if (!container) {
         console.warn(`Container #${containerId} não encontrado. Usando o de dashboard como fallback.`);
         container = document.getElementById('dashboard-page');
@@ -67,7 +154,6 @@ async function navigateTo(view, params = {}) {
         const moduleInfo = viewModules[view];
         if (!moduleInfo || !moduleInfo.html) throw new Error(`Configuração de módulo não encontrada para a view '${view}'.`);
 
-        // Busca o HTML da página
         const response = await fetch(moduleInfo.html);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status} para ${moduleInfo.html}`);
         
@@ -75,11 +161,9 @@ async function navigateTo(view, params = {}) {
         container.innerHTML = html;
         container.classList.remove('hidden');
 
-        // IMPORTA E EXECUTA O JAVASCRIPT CORRESPONDENTE
         if (moduleInfo.js && moduleInfo.initFunc) {
             const module = await import(moduleInfo.js);
             if (module && typeof module[moduleInfo.initFunc] === 'function') {
-                // Chama a função de inicialização daquele módulo específico
                 await module[moduleInfo.initFunc]({ view, ...params });
                 console.log(`Maestro do Painel: Módulo '${view}' carregado e inicializado com sucesso! 🚀`);
             } else {
@@ -95,10 +179,15 @@ async function navigateTo(view, params = {}) {
         }
     }
 
-    // Atualiza o link ativo na navegação
     document.querySelectorAll('.nav-link, .nav-link-button').forEach(btn => btn.classList.remove('active'));
-    const activeLink = document.querySelector(`.nav-link[href*="view=${view}"], #nav-${view}`);
-    if (activeLink) activeLink.classList.add('active');
+    
+    const sourceId = params.sourceElementId;
+    if (sourceId) {
+        document.getElementById(sourceId)?.classList.add('active');
+    } else {
+        const activeLink = document.querySelector(`.nav-link[href*="view=${view}"], #nav-${view}`);
+        if (activeLink) activeLink.classList.add('active');
+    }
 }
 
 async function handleLogout() {
@@ -117,7 +206,7 @@ async function handleLogout() {
 function atualizarLogoPainel(url, nomeLoja) {
     const logoDesktopContainer = document.getElementById('logo-header-desktop');
     const logoMobileContainer = document.getElementById('logo-header-mobile');
-    const fallbackHtmlDesktop = `<span class="text-3xl font-bold text-principal">${nomeLoja || 'LegalConnect'}</span>`;
+    const fallbackHtmlDesktop = `<span class="text-3xl font-bold text-principal sidebar-text">${nomeLoja || 'LegalConnect'}</span>`;
     const fallbackHtmlMobile = `<span class="text-2xl font-bold text-principal">${nomeLoja || 'LegalConnect'}</span>`;
     if (url && url !== 'data:image/svg+xml;base64,') { 
         const imgDesktopHtml = `<img src="${url}" alt="${nomeLoja || 'Logo'}" class="max-h-20 w-auto">`;
@@ -182,6 +271,24 @@ function iniciarVigiaDePedidos() {
                 
                 console.log(`[VIGIA ATÔMICO] Tipo de alerta: ${tipoDeAlerta}. Disparando notificação.`);
                 
+                if (tipoDeAlerta === 'external') {
+                    const sound = document.getElementById('notification-sound');
+                    if (sound) sound.play().catch(e => console.error("Erro ao tocar som:", e));
+    
+                    Swal.fire({
+                        title: '<strong>NOVO PEDIDO NA ÁREA! 🔥</strong>',
+                        icon: 'success',
+                        html: 'Um novo pedido acabou de chegar. Corra para o painel!',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 5000,
+                        timerProgressBar: true,
+                        background: '#2c2854',
+                        color: '#ffffff'
+                    });
+                }
+                
                 window.dispatchEvent(new CustomEvent('novoPedidoRecebido', { 
                     detail: { 
                         tipo: tipoDeAlerta
@@ -196,12 +303,9 @@ function iniciarVigiaDePedidos() {
     }, VIGIA_RATE_MS);
 }
 
-// ➕ NOVA VERSÃO COMPLETA E BLINDADA 👇
 async function initApp() {
-    // Primeiro, checamos se estamos no painel principal ou em uma página externa
     const isAdminPanel = !!document.getElementById('admin-sidebar');
 
-    // Se NÃO for o painel admin (ex: cliente.html, acompanhar.html), ele roda a lógica específica e para por aqui.
     if (!isAdminPanel) {
         const pageName = window.location.pathname.split('/').pop().replace('.html', '');
         const externalPages = {
@@ -215,30 +319,24 @@ async function initApp() {
             const module = await import(pageInfo.path);
             if (module && typeof module[pageInfo.func] === 'function') module[pageInfo.func]();
         }
-        return; // Fim da execução para páginas externas.
+        return; 
     }
 
-    // --- A PARTIR DAQUI, É SÓ LÓGICA DO PAINEL DE ADMIN ---
     console.log("Maestro: Iniciando verificação de segurança do painel...");
 
-    // ✅ MURALHA DE SEGURANÇA #1: VERIFICAÇÃO DE SESSÃO
-    // Nenhuma linha de código de inicialização do painel roda antes disso.
     let session = null;
     try {
-        // Tentamos primeiro pegar uma sessão de demonstração pela URL
         session = await handleDemoAccess();
 
-        // Se não for demo, buscamos a sessão normal no Supabase
         if (!session) {
             const { data } = await supabase.auth.getSession();
             session = data.session;
         }
 
-        // O PORTEIRO: Se depois de tudo não houver sessão, a festa acaba aqui.
         if (!session) {
             console.warn("Maestro: Nenhuma sessão encontrada. Redirecionando para o login.");
             window.location.replace('login.html');
-            return; // TRAVA a execução do resto da função. Ninguém entra.
+            return; 
         }
         
         console.log("Maestro: Sessão válida encontrada. Prosseguindo com a inicialização.");
@@ -250,15 +348,11 @@ async function initApp() {
     }
 
 
-    // ✅ MURALHA DE SEGURANÇA #2: VERIFICAÇÃO DE PERFIL/ROLE
-    // Se temos uma sessão, precisamos saber QUEM é o usuário.
     try {
-        // Caso especial para o usuário de demonstração
         if (session.user.app_metadata.role === 'visitante') {
             console.log("Maestro: Usuário 'visitante' (demo) detectado.");
             sessionStorage.setItem('userRole', 'visitante');
         } else {
-            // Para usuários normais, buscamos o perfil no nosso banco de dados
             const { data: profileData, error: profileError } = await supabase
                 .from('profiles')
                 .select('role')
@@ -272,21 +366,21 @@ async function initApp() {
             console.log(`Maestro: Role '${profileData.role}' carregada para a sessão.`);
         }
     } catch (error) {
-        // Se a sessão existe mas o perfil não, é um problema grave. Desloga por segurança.
         console.error("Maestro: Erro CRÍTICO ao buscar perfil do usuário. Fazendo logout forçado.", error);
         await handleLogout();
         return;
     }
 
-    // --- INICIALIZAÇÃO DO PAINEL (SÓ RODA SE PASSAR NAS MURALHAS) ---
     console.log("Maestro: Segurança OK. Iniciando componentes do painel...");
+    
+    initSidebar();
+    initSidebarTooltips(); 
     
     fetchAndSetLogo();
     iniciarVigiaDePedidos();
     document.body.addEventListener('click', unlockAudio, { once: true });
     document.body.addEventListener('keydown', unlockAudio, { once: true });
     
-    // Listeners do menu mobile
     const sidebar = document.getElementById('admin-sidebar');
     const overlay = document.getElementById('menu-overlay');
     const closeMenu = () => { if(sidebar) sidebar.classList.add('-translate-x-full'); if(overlay) overlay.classList.add('hidden'); };
@@ -296,30 +390,40 @@ async function initApp() {
     document.getElementById('btn-close-menu')?.addEventListener('click', closeMenu);
     document.getElementById('menu-overlay')?.addEventListener('click', closeMenu);
 
-    // Listener de Logout
     document.getElementById('btn-logout')?.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
 
-    // Listeners dos links de navegação (coração da SPA)
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', (e) => {
+            // ✅ CORREÇÃO FINAL: Se for um link externo (nova aba), não faz nada.
+            if (link.getAttribute('target') === '_blank') {
+                return; // Deixa o navegador seguir o link normalmente.
+            }
+
             e.preventDefault();
             const view = new URL(link.href).searchParams.get('view') || 'dashboard';
-            history.pushState({ view }, '', `?view=${view}`);
-            navigateTo(view);
+            const params = { sourceElementId: link.id };
+            history.pushState({ view, params }, '', `?view=${view}`);
+            navigateTo(view, params);
             if (window.innerWidth < 768) closeMenu();
         });
     });
 
-    // Listener do botão "Inserir Produto"
     const btnAbrirModal = document.getElementById('btn-abrir-modal-produto');
     if (btnAbrirModal) {
         btnAbrirModal.addEventListener('click', async () => {
             if (window.innerWidth < 768) closeMenu();
             const currentView = new URLSearchParams(window.location.search).get('view') || 'dashboard';
-            if (currentView !== 'meus-produtos') {
-                 history.pushState({ view: 'meus-produtos' }, '', `?view=meus-produtos`);
-                 await navigateTo('meus-produtos');
+            const targetView = 'meus-produtos';
+            const params = { sourceElementId: 'btn-abrir-modal-produto' };
+
+            if (currentView !== targetView) {
+                 history.pushState({ view: targetView, params }, '', `?view=${targetView}`);
+                 await navigateTo(targetView, params);
+            } else {
+                document.querySelectorAll('.nav-link, .nav-link-button').forEach(btn => btn.classList.remove('active'));
+                btnAbrirModal.classList.add('active');
             }
+
             setTimeout(() => {
                 if (window.adminFunctions && typeof window.adminFunctions.abrirModalParaCriar === 'function') {
                     window.adminFunctions.abrirModalParaCriar();
@@ -328,13 +432,11 @@ async function initApp() {
         });
     }
 
-    // Listener para os botões de voltar/avançar do navegador
     window.addEventListener('popstate', (e) => {
         const view = e.state?.view || 'dashboard';
         navigateTo(view, e.state?.params || {});
     });
 
-    // Carrega a view inicial baseada na URL
     const initialView = new URLSearchParams(window.location.search).get('view') || 'dashboard';
     navigateTo(initialView);
 }

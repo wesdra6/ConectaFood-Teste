@@ -16,6 +16,7 @@ let isModalListenersAttached = false;
 let tipoPedidoEmLancamento = '';
 let idMesaEmLancamento = null;
 let numeroMesaEmLancamento = null;
+// ✅ GARANTINDO QUE A VARIÁVEL ESTÁ NO ESCOPO CORRETO
 let modalCalculadoraTroco = null;
 
 function toggleTaxaServico() {
@@ -309,28 +310,9 @@ function renderizarComanda() {
 }
 
 async function prepararModalPara(modo, dados = {}) {
-    console.log(`[CAIXA] Preparando modal para o modo: ${modo}`);
-
-    const modalEl = document.getElementById('modal-lancamento-pedido');
-    if (!modalEl) {
-        console.error("[CAIXA] Elemento do modal '#modal-lancamento-pedido' NÃO encontrado no DOM.");
-        return;
-    }
-    
-    const modalInstance = new bootstrap.Modal(modalEl);
-    console.log("[CAIXA] Nova instância do modal Bootstrap criada.");
-
-    if (!isModalListenersAttached) {
-        document.getElementById('btn-finalizar-lancamento')?.addEventListener('click', finalizarLancamento);
-        document.getElementById('btn-finalizar-checkout')?.addEventListener('click', finalizarCheckout);
-        document.getElementById('btn-toggle-taxa')?.addEventListener('click', toggleTaxaServico);
-        document.getElementById('busca-produto-caixa')?.addEventListener('keyup', (e) => {
-            const termo = e.target.value.toLowerCase();
-            const produtosFiltrados = !termo ? todosOsProdutos : todosOsProdutos.filter(p => p.nome.toLowerCase().includes(termo));
-            renderizarProdutosCaixa(produtosFiltrados);
-        });
-        isModalListenersAttached = true;
-        console.log("[CAIXA] Listeners do modal anexados.");
+    if (!modalLancamento) {
+        const modalEl = document.getElementById('modal-lancamento-pedido');
+        if (modalEl) modalLancamento = new bootstrap.Modal(modalEl);
     }
     
     const btnLancar = document.getElementById('btn-finalizar-lancamento');
@@ -381,13 +363,8 @@ async function prepararModalPara(modo, dados = {}) {
     }
     renderizarComanda();
     if (modalLancamento) modalLancamento.show();
-
-
-    renderizarComanda();
-    console.log("[CAIXA] Tentando exibir o modal...");
-    modalInstance.show();
-
 }
+
 async function finalizarLancamento() { 
     if (comandaAtual.length === 0) { 
         Swal.fire('Comanda Vazia', 'Adicione pelo menos um item.', 'warning'); 
@@ -415,9 +392,6 @@ async function finalizarLancamento() {
         total: comandaAtual.reduce((acc, item) => acc + ((item.preco_unitario || item.preco) * item.quantidade), 0) 
     }; 
     
-    const modalEl = document.getElementById('modal-lancamento-pedido');
-    const modalInstance = bootstrap.Modal.getInstance(modalEl);
-
     try { 
         const resultado = await enviarParaAPI(API_ENDPOINTS.create_order_internal, dadosPedido); 
         if (resultado.success) { 
@@ -429,19 +403,18 @@ async function finalizarLancamento() {
                 color: '#ffffff',
                 confirmButtonColor: '#ff6b35'
             }).then(() => {
-                if (modalInstance) modalInstance.hide(); 
+                if (modalLancamento) modalLancamento.hide(); 
                 fetchDadosDoCaixa(); 
             });
         } else { 
             throw new Error(resultado.message || "Erro no servidor."); 
         } 
     } catch (error) { 
-        // Silêncio aqui! O api.js já mostrou o erro.
         console.error("Erro ao finalizar lançamento, tratado globalmente:", error); 
     } 
 }
 
-// ✅ 🔄 FUNÇÃO FINAL COM FEEDBACK VISUAL DE ERRO
+// ✅ FUNÇÃO FINALIZAR CHECKOUT COM A LÓGICA DA CALCULADORA
 async function finalizarCheckout() {
     const formaPagamento = document.getElementById('caixa-forma-pagamento').value;
     if (!formaPagamento) {
@@ -464,11 +437,9 @@ async function finalizarCheckout() {
         pedidoAtualizado.forma_pagamento = formaPagamento;
 
         const htmlParaImprimir = gerarHtmlImpressao(pedidoAtualizado, lojaConfig);
-        const impressoComSucesso = imprimirComprovante(htmlParaImprimir);
-        if (!impressoComSucesso) return;
-
-        const modalEl = document.getElementById('modal-lancamento-pedido');
-        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        imprimirComprovante(htmlParaImprimir);
+        
+        if (modalLancamento) modalLancamento.hide();
 
         Swal.fire({
             title: 'Finalizando Pedido...', text: 'Aguarde...',
@@ -476,33 +447,23 @@ async function finalizarCheckout() {
         });
 
         try {
-            const payload = {
+            // ✅ CORREÇÃO: O endpoint correto é finalize_order_and_table
+            await enviarParaAPI(API_ENDPOINTS.finalize_order_and_table, {
                 pedido_id: pedidoAtualizado.id,
                 id_mesa: pedidoAtualizado.id_mesa || null,
                 forma_pagamento: formaPagamento,
-                novos_itens: comandaAtual.filter(item =>
-                    !pedidoAtualParaCheckout.itens_pedido.some(original => original.id === item.id)
-                ).map(item => ({
-                    produto_id: item.produto_id || item.id,
-                    quantidade: item.quantidade,
-                    preco_unitario: item.preco_unitario || item.preco
-                })),
                 novo_total: totalFinal
-            };
-
-            await enviarParaAPI(API_ENDPOINTS.finalize_order_and_table, payload);
+            });
 
             Swal.fire({
                 icon: 'success', title: 'Sucesso!', text: 'Pedido finalizado!',
                 background: '#2c2854', color: '#ffffff', confirmButtonColor: '#ff6b35'
             }).then(() => {
-                if (modalInstance) modalInstance.hide();
                 fetchDadosDoCaixa();
                 window.dispatchEvent(new CustomEvent('pedidoFinalizado'));
             });
 
         } catch (error) {
-            // Silêncio aqui! O api.js já mostrou o erro.
             console.error('Erro ao finalizar o pedido, tratado globalmente:', error);
         }
     };
@@ -541,14 +502,18 @@ async function finalizarCheckout() {
             }
         };
 
+        // Limpa listeners antigos para evitar duplicação
+        inputValor.onkeyup = null;
+        btnConfirmar.onclick = null;
+
         inputValor.onkeyup = calcularTrocoHandler;
 
         btnConfirmar.onclick = () => {
-            modalCalculadoraTroco.hide();
+            if(modalCalculadoraTroco) modalCalculadoraTroco.hide();
             proceedToFinalize();
         };
 
-        modalCalculadoraTroco.show();
+        if(modalCalculadoraTroco) modalCalculadoraTroco.show();
         const modalEl = document.getElementById('modal-calculadora-troco');
         modalEl.addEventListener('shown.bs.modal', () => {
             inputValor.focus();
@@ -564,6 +529,10 @@ window.caixaGlobal = { abrirModalParaFechamento: (tipo, pedido) => prepararModal
 
 export function initCaixaPage() {
     if (!isCaixaInitialized) {
+        // Inicializa o modal de lançamento principal
+        const modalEl = document.getElementById('modal-lancamento-pedido');
+        if(modalEl) modalLancamento = new bootstrap.Modal(modalEl);
+
         document.getElementById('btn-nova-comanda-balcao')?.addEventListener('click', () => {
             prepararModalPara('LANCAMENTO', {tipo: 'BALCAO'});
         });
@@ -601,6 +570,19 @@ export function initCaixaPage() {
             console.log("Caixa: Fui notificado para recarregar as mesas!");
             fetchDadosDoCaixa();
         });
+        
+        if (!isModalListenersAttached) {
+            document.getElementById('btn-finalizar-lancamento')?.addEventListener('click', finalizarLancamento);
+            document.getElementById('btn-finalizar-checkout')?.addEventListener('click', finalizarCheckout);
+            document.getElementById('btn-toggle-taxa')?.addEventListener('click', toggleTaxaServico);
+            document.getElementById('busca-produto-caixa')?.addEventListener('keyup', (e) => {
+                const termo = e.target.value.toLowerCase();
+                const produtosFiltrados = !termo ? todosOsProdutos : todosOsProdutos.filter(p => p.nome.toLowerCase().includes(termo));
+                renderizarProdutosCaixa(produtosFiltrados);
+            });
+            isModalListenersAttached = true;
+        }
+
         isCaixaInitialized = true;
     }
     fetchDadosDoCaixa();

@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="css/custom.css">
     <script>
         tailwind.config = {
             theme: {
@@ -25,191 +26,11 @@
             }
         }
     </script>
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .nav-link.active,
-        .nav-link-button.active {
-            background-color: #38326b;
-            color: #ff6b35;
-            font-weight: 600;
-        }
-
-        .tab-btn {
-            padding: 0.75rem 1rem;
-            border-bottom: 3px solid transparent;
-            font-weight: 600;
-            color: #a3a0c2;
-            transition: all 0.2s ease-in-out;
-            white-space: nowrap;
-        }
-
-        .tab-btn:hover {
-            color: #ffffff;
-        }
-
-        .tab-btn.active {
-            color: #ff6b35;
-            border-bottom-color: #ff6b35;
-        }
-
-        #admin-sidebar {
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .mesa-card {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-
-        .mesa-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        #abas-categorias-admin::-webkit-scrollbar {
-            height: 12px;
-        }
-
-        #abas-categorias-admin::-webkit-scrollbar-track {
-            background: #2c2854;
-            border-radius: 10px;
-        }
-
-        #abas-categorias-admin::-webkit-scrollbar-thumb {
-            background-color: #ff6b35;
-            border-radius: 10px;
-            border: 2px solid #2c2854;
-        }
-
-        #abas-categorias-admin::-webkit-scrollbar-thumb:hover {
-            background-color: #e65c2e;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 12px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #2c2854;
-            border-radius: 10px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: #ff6b35;
-            border-radius: 10px;
-            border: 2px solid #2c2854;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background-color: #e65c2e;
-        }
-
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-
-            #print-area,
-            #print-area * {
-                visibility: visible;
-            }
-
-            #print-area {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                font-family: 'Courier New', Courier, monospace;
-                color: #000;
-            }
-
-            @page {
-                size: 80mm;
-                margin: 2mm;
-            }
-        }
-
-        .swal2-container {
-            z-index: 99999 !important;
-        }
-
-        .modal {
-            z-index: 1060 !important;
-        }
-
-        .modal-backdrop {
-            z-index: 1059 !important;
-        }
-
-        .swiper-slide {
-            height: auto;
-        }
-
-        input[type=range].range-principal {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 8px;
-            background: #1a163a;
-            border-radius: 5px;
-            outline: none;
-        }
-
-        input[type=range].range-principal::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #ff6b35;
-            cursor: pointer;
-            border-radius: 50%;
-            border: 2px solid #fff;
-        }
-
-        input[type=range].range-principal::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #ff6b35;
-            cursor: pointer;
-            border-radius: 50%;
-            border: 2px solid #fff;
-        }
-
-        #lista-insumos-ficha::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        #lista-insumos-ficha::-webkit-scrollbar-track {
-            background: #1a163a;
-            border-radius: 10px;
-        }
-
-        #lista-insumos-ficha::-webkit-scrollbar-thumb {
-            background-color: #ff6b35;
-            border-radius: 10px;
-            border: 2px solid #2c2854;
-        }
-
-        #lista-insumos-ficha::-webkit-scrollbar-thumb:hover {
-            background-color: #e65c2e;
-        }
-    </style>
 </head>
 
-<body id="index-body" class="bg-fundo text-texto-base overflow-hidden">
+<body id="index-body" class="bg-fundo text-texto-base overflow-hidden sidebar-expanded">
     <script>window.IS_SPA_FRAMEWORK_LOADED = true;</script>
-    
+
     <div class="flex h-screen overflow-hidden">
         <header class="md:hidden bg-sidebar px-4 py-2 flex justify-between items-center w-full fixed top-0 left-0 z-30">
             <div id="logo-header-mobile" class="flex items-center h-full"><span
@@ -223,43 +44,56 @@
             <div class="flex-shrink-0">
                 <div class="flex justify-between items-center mb-2">
                     <div id="logo-header-desktop" class="hidden md:flex items-center h-full"><span
-                            class="text-3xl font-bold text-principal">LegalConnect</span></div>
+                            class="text-3xl font-bold text-principal sidebar-text">LegalConnect</span></div>
                     <div class="md:hidden w-full flex justify-end"><button id="btn-close-menu" class="text-3xl"><i
                                 class="bi bi-x"></i></button></div>
                 </div>
             </div>
-            <nav class="flex-grow min-h-0 overflow-y-auto no-scrollbar">
-                <div class="flex flex-col space-y-1">
-                    <a id="nav-dashboard" href="?view=dashboard"
+
+            <div class="flex-grow min-h-0 overflow-y-auto no-scrollbar">
+                <nav class="flex flex-col space-y-1">
+                    <a id="nav-dashboard" href="?view=dashboard" data-tooltip="Dashboard"
                         class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i
-                            class="bi bi-pie-chart-fill text-xl"></i><span>Dashboard</span></a>
-                    <a id="nav-meus-produtos" href="?view=meus-produtos"
+                            class="bi bi-pie-chart-fill text-xl"></i><span class="sidebar-text">Dashboard</span></a>
+                    <a id="nav-meus-produtos" href="?view=meus-produtos" data-tooltip="Meus Produtos"
                         class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i
-                            class="bi bi-box-seam-fill text-xl"></i><span>Meus Produtos</span></a>
-                    <button id="btn-abrir-modal-produto"
+                            class="bi bi-box-seam-fill text-xl"></i><span class="sidebar-text">Meus Produtos</span></a>
+                    <button id="btn-abrir-modal-produto" data-tooltip="Inserir Produto"
                         class="nav-link-button text-left w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i
-                            class="bi bi-plus-circle-fill text-xl"></i><span>Inserir Produto</span></button>
-                    <a id="nav-pedidos" href="?view=pedidos"
+                            class="bi bi-plus-circle-fill text-xl"></i><span class="sidebar-text">Inserir
+                            Produto</span></button>
+                    <a id="nav-pedidos" href="?view=pedidos" data-tooltip="Pedidos"
                         class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i
-                            class="bi bi-receipt-cutoff text-xl"></i><span>Pedidos</span></a>
-                    <a id="nav-caixa" href="?view=caixa"
+                            class="bi bi-receipt-cutoff text-xl"></i><span class="sidebar-text">Pedidos</span></a>
+                    <a id="nav-caixa" href="?view=caixa" data-tooltip="Caixa"
                         class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i
-                            class="bi bi-archive-fill text-xl"></i><span>Caixa</span></a>
-                    <a id="nav-configuracoes" href="?view=configuracoes"
+                            class="bi bi-archive-fill text-xl"></i><span class="sidebar-text">Caixa</span></a>
+                    <a id="nav-configuracoes" href="?view=configuracoes" data-tooltip="Configurações"
                         class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i
-                            class="bi bi-gear-fill text-xl"></i><span>Configurações</span></a>
+                            class="bi bi-gear-fill text-xl"></i><span class="sidebar-text">Configurações</span></a>
+                </nav>
+            </div>
+
+            <div class="flex-shrink-0">
+                <div class="mt-4 border-t border-borda/50 pt-4">
+                    <button id="btn-toggle-sidebar" data-tooltip="Encolher Menu"
+                        class="hidden md:flex w-full items-center space-x-3 p-3 rounded-lg hover:bg-card text-texto-muted hover:text-white transition-colors">
+                        <i class="bi bi-chevron-double-left text-xl"></i>
+                        <span class="sidebar-text font-semibold">Encolher Menu</span>
+                    </button>
                 </div>
-            </nav>
-            <div class="flex-shrink-0 pt-4">
-                <div class="flex flex-col space-y-1 border-t border-borda pt-2">
-                    <a href="cliente.html" target="_blank"
-                        class="flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i
-                            class="bi bi-eye-fill text-xl"></i><span>Ver Vitrine</span></a>
-                    <a href="#" id="btn-logout" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i
-                            class="bi bi-box-arrow-left text-xl"></i><span>Sair</span></a>
+
+                <div class="flex flex-col space-y-1 border-t border-borda pt-2 mt-4">
+                    <a href="cliente.html" target="_blank" data-tooltip="Ver Vitrine"
+                        class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i
+                            class="bi bi-eye-fill text-xl"></i><span class="sidebar-text">Ver Vitrine</span></a>
+                    <a href="#" id="btn-logout" data-tooltip="Sair"
+                        class="nav-link flex items-center space-x-3 p-3 rounded-lg hover:bg-card"><i
+                            class="bi bi-box-arrow-left text-xl"></i><span class="sidebar-text">Sair</span></a>
                     <div class="mt-2 pt-2 border-t border-borda/20 flex flex-col items-center">
-                        <span class="text-xs text-texto-muted">Powered by</span>
-                        <a href="https://uptecnology.com.br" target="_blank" class="block"><img
+                        <span class="text-xs text-texto-muted powered-by-text">Powered by</span>
+                        <!-- ✅ CLASSE ADICIONADA AQUI 👇 -->
+                        <a href="https://uptecnology.com.br" target="_blank" class="block sidebar-text"><img
                                 src="https://storage.uptecnology.com.br/u/banding-sis-food-up.png" alt="UP Tecnology"
                                 class="mt-2 h-8 opacity-70 hover:opacity-100 transition-opacity"></a>
                     </div>
@@ -278,7 +112,7 @@
         </main>
     </div>
 
-    <!-- MODAIS E SCRIPTS -->
+    <!-- ... (RESTO DO HTML, MODAIS E SCRIPTS CONTINUAM IGUAIS) ... -->
     <div class="modal fade" id="modal-produto" tabindex="-1" aria-labelledby="modal-produto-label" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content" style="background-color:#2c2854;color:white">
@@ -579,4 +413,5 @@
     <script type="module" src="js/config.js"></script>
     <script type="module" src="js/main.js"></script>
 </body>
+
 </html>

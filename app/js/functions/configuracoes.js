@@ -9,6 +9,9 @@ let iconeCategoriaUrlAtual = '';
 let bannersExistentes = [];
 let bannerImagemUrlAtual = '';
 
+// ✅ FLAG DE CONTROLE DE INICIALIZAÇÃO
+let isConfigInitialized = false;
+
 function preencherFormulario(config) {
     if (!config) return;
     document.getElementById('config-nome-loja').value = config.nome_loja || '';
@@ -146,7 +149,6 @@ async function fetchMesas() {
     }
 }
 
-// ✅ ESTA É A VERSÃO CORRETA E ÚNICA DA FUNÇÃO
 async function handleCriarMesa(event) {
     event.preventDefault();
     const numeroInput = document.getElementById('mesa-numero');
@@ -562,38 +564,29 @@ async function limparFormularioBanner() {
     resetarVisualFormularioBanner();
 }
 
-let isConfigInitialized = false;
-
 export function initConfiguracoesPage() {
-    if (!document.getElementById('form-configuracoes')) return;
-
+    // A flag garante que os listeners sejam adicionados apenas uma vez.
     if (!isConfigInitialized) {
-        document.getElementById('form-configuracoes').addEventListener('submit', salvarConfiguracoes);
-        document.getElementById('form-nova-mesa').addEventListener('submit', handleCriarMesa);
-        document.getElementById('form-nova-categoria').addEventListener('submit', handleSalvarCategoria);
-        document.getElementById('btn-limpar-form-categoria').addEventListener('click', limparFormularioCategoria);
-        document.getElementById('form-novo-banner').addEventListener('submit', handleSalvarBanner);
-        document.getElementById('btn-limpar-form-banner').addEventListener('click', limparFormularioBanner);
+        console.log("Maestro de Configs: Anexando listeners pela primeira e única vez. 🚀");
+        
+        document.getElementById('form-configuracoes')?.addEventListener('submit', salvarConfiguracoes);
+        document.getElementById('form-nova-mesa')?.addEventListener('submit', handleCriarMesa);
+        document.getElementById('form-nova-categoria')?.addEventListener('submit', handleSalvarCategoria);
+        document.getElementById('btn-limpar-form-categoria')?.addEventListener('click', limparFormularioCategoria);
+        document.getElementById('form-novo-banner')?.addEventListener('submit', handleSalvarBanner);
+        document.getElementById('btn-limpar-form-banner')?.addEventListener('click', limparFormularioBanner);
 
-        const logoUploadArea = document.getElementById('logo-upload-area');
-        const logoFileInput = document.getElementById('logo-file-input');
-        if(logoUploadArea) logoUploadArea.addEventListener('click', () => logoFileInput.click());
-        if(logoFileInput) logoFileInput.addEventListener('change', () => { if (logoFileInput.files.length > 0) handleLogoNotaFiscalUpload(logoFileInput.files[0]); });
+        document.getElementById('logo-upload-area')?.addEventListener('click', () => document.getElementById('logo-file-input').click());
+        document.getElementById('logo-file-input')?.addEventListener('change', (e) => { if (e.target.files.length > 0) handleLogoNotaFiscalUpload(e.target.files[0]); });
 
-        const vitrineUploadArea = document.getElementById('logo-vitrine-upload-area');
-        const vitrineFileInput = document.getElementById('logo-vitrine-file-input');
-        if(vitrineUploadArea) vitrineUploadArea.addEventListener('click', () => vitrineFileInput.click());
-        if(vitrineFileInput) vitrineFileInput.addEventListener('change', () => { if (vitrineFileInput.files.length > 0) handleLogoVitrineUpload(vitrineFileInput.files[0]); });
+        document.getElementById('logo-vitrine-upload-area')?.addEventListener('click', () => document.getElementById('logo-vitrine-file-input').click());
+        document.getElementById('logo-vitrine-file-input')?.addEventListener('change', (e) => { if (e.target.files.length > 0) handleLogoVitrineUpload(e.target.files[0]); });
 
-        const iconeUploadArea = document.getElementById('categoria-icone-upload-area');
-        const iconeFileInput = document.getElementById('categoria-icone-file-input');
-        if(iconeUploadArea) iconeUploadArea.addEventListener('click', () => iconeFileInput.click());
-        if(iconeFileInput) iconeFileInput.addEventListener('change', () => { if (iconeFileInput.files.length > 0) handleIconeCategoriaUpload(iconeFileInput.files[0]); });
+        document.getElementById('categoria-icone-upload-area')?.addEventListener('click', () => document.getElementById('categoria-icone-file-input').click());
+        document.getElementById('categoria-icone-file-input')?.addEventListener('change', (e) => { if (e.target.files.length > 0) handleIconeCategoriaUpload(e.target.files[0]); });
 
-        const bannerUploadArea = document.getElementById('banner-imagem-upload-area');
-        const bannerFileInput = document.getElementById('banner-imagem-file-input');
-        if(bannerUploadArea) bannerUploadArea.addEventListener('click', () => bannerFileInput.click());
-        if(bannerFileInput) bannerFileInput.addEventListener('change', () => { if (bannerFileInput.files.length > 0) handleBannerImagemUpload(bannerFileInput.files[0]); });
+        document.getElementById('banner-imagem-upload-area')?.addEventListener('click', () => document.getElementById('banner-imagem-file-input').click());
+        document.getElementById('banner-imagem-file-input')?.addEventListener('change', (e) => { if (e.target.files.length > 0) handleBannerImagemUpload(e.target.files[0]); });
 
         window.configFunctions = { 
             handleDeletarMesa,
@@ -607,6 +600,7 @@ export function initConfiguracoesPage() {
         isConfigInitialized = true;
     }
     
+    // Estas funções rodam toda vez que a página é carregada para buscar dados frescos.
     fetchConfiguracoes();
     fetchMesas();
     fetchCategorias();

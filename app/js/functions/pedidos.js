@@ -3,10 +3,9 @@ import { gerarHtmlImpressao, imprimirComprovante } from './impressao.js';
 import { criaCardProduto } from './components.js';
 import { API_ENDPOINTS, APP_CONFIG } from '../config.js';
 
-let todosOsPedidosAtivos = [], todosOsProdutosCaixa = [], pedidoEmGerenciamento = null, modalGerenciamento = null, paginaAtual = 1;
+let todosOsPedidosAtivos = [], todosOsProdutosCaixa = [], pedidoEmGerenciamento = null, modalGerenciamento = null;
 let pedidosFinalizadosAtuais = [];
-const itensPorPagina = 6;
-let filtroAtivo = 'ativos', termoBusca = '', containerAtivos;
+let termoBusca = '', containerAtivos;
 let lojaConfig = null;
 
 async function fetchLojaConfigParaImpressao() {
@@ -18,6 +17,7 @@ async function fetchLojaConfigParaImpressao() {
 }
 
 async function imprimirNotaParaEntrega(pedido) {
+    if (!pedido) return;
     if (!lojaConfig) await fetchLojaConfigParaImpressao();
     const html = gerarHtmlImpressao(pedido, lojaConfig);
     imprimirComprovante(html);
@@ -94,7 +94,7 @@ export async function abrirModalGerenciamento(pedidoId, contexto = 'CAIXA') {
         } else { 
             if(btnCancelar) btnCancelar.classList.remove('hidden');
             if(btnImprimir) btnImprimir.classList.add('hidden');
-            if(btnCancelar) btnCancelar.onclick = () => cancelarPedido();
+            if(btnCancelar) btnCancelar.onclick = () => cancelarPedido(pedidoEmGerenciamento.id);
         }
         
         renderizarCardapioGerenciamento();
@@ -153,11 +153,13 @@ function dispararNotificacaoStatus(pedido, status) {
         .catch(err => console.error("Falha ao notificar cliente via WhatsApp:", err));
 }
 
-async function cancelarPedido() {
-    if (!pedidoEmGerenciamento) return;
+async function cancelarPedido(pedidoId) {
+    const pedido = todosOsPedidosAtivos.find(p => p.id === pedidoId);
+    if (!pedido) return;
+
     const result = await Swal.fire({
         title: 'Tem certeza?',
-        text: `Deseja cancelar o pedido #${pedidoEmGerenciamento.id_pedido_publico}?`,
+        text: `Deseja cancelar o pedido #${pedido.id_pedido_publico}?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -170,11 +172,11 @@ async function cancelarPedido() {
         Swal.fire({ title: 'Cancelando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         try {
             await enviarParaAPI(API_ENDPOINTS.cancel_order, {
-                pedido_id: pedidoEmGerenciamento.id,
-                id_mesa: pedidoEmGerenciamento.id_mesa || null
+                pedido_id: pedido.id,
+                id_mesa: pedido.id_mesa || null
             });
             Swal.fire('Cancelado!', 'O pedido foi cancelado com sucesso.', 'success');
-            if (modalGerenciamento) modalGerenciamento.hide();
+            if (modalGerenciamento && modalGerenciamento._isShown) modalGerenciamento.hide();
             await buscarPedidosAtivos();
             window.dispatchEvent(new CustomEvent('recarregarMesas'));
         } catch (error) {
@@ -182,8 +184,6 @@ async function cancelarPedido() {
         }
     }
 }
-
-function mudarPagina(pg) { paginaAtual = pg; renderizarPedidosAtivos(); }
 
 async function atualizarStatusPedido(pedidoId, novoStatus) {
     const pedido = todosOsPedidosAtivos.find(p => p.id === pedidoId);
@@ -284,12 +284,14 @@ function renderizarComandaGerenciamento(contexto) {
 
 function gerarBotoesDeAcao(pedido) {
     const container = document.createElement('div');
-    container.className = "mt-2 pt-3 border-t border-borda/50 flex flex-wrap gap-2";
+    container.className = "mt-auto pt-3 border-t border-borda/50 flex items-end gap-2"; 
     const statusAtualPedido = (pedido.status || '').toUpperCase();
+
     if (statusAtualPedido === 'ENTREGUE' || statusAtualPedido === 'CANCELADO') {
         container.innerHTML = `<div class="w-full text-center py-2 px-3 text-sm rounded-md ${statusAtualPedido === 'CANCELADO' ? 'bg-red-800' : 'bg-card text-green-400'} font-semibold">PEDIDO ${statusAtualPedido}</div>`;
         return container;
     }
+    
     let statusFlow;
     switch (pedido.origem) {
         case 'BALCAO':   statusFlow = APP_CONFIG.statusFlowBalcao; break;
@@ -297,35 +299,39 @@ function gerarBotoesDeAcao(pedido) {
         case 'RETIRADA': statusFlow = APP_CONFIG.statusFlowRetirada; break;
         default:         statusFlow = APP_CONFIG.statusFlowPadrao; break;
     }
+
     const flowOrder = APP_CONFIG.flowOrder;
     const indiceStatusAtual = flowOrder.indexOf(statusAtualPedido);
-    statusFlow.forEach(step => {
-        const indiceStep = flowOrder.indexOf(step.requiredStatus);
-        const isEtapaAtiva = indiceStep === indiceStatusAtual;
-        const dataAttributes = `data-action="${step.nextStatus || (step.isPrintOnly ? 'print' : 'finalize')}" data-pedido-id="${pedido.id}"`;
-        let btnClass, icone = '', textoBotao = step.text, title, disabled = false;
-        if (isEtapaAtiva) {
-            title = 'Clique para executar esta ação';
-            btnClass = step.isFinalAction 
-                ? `w-full py-3 px-1 text-sm rounded-md font-bold text-white uppercase bg-green-600 hover:bg-green-700` 
-                : `flex-1 py-2 px-1 text-xs rounded-md font-semibold text-white uppercase bg-principal hover:opacity-80`;
-        } else if (indiceStep < indiceStatusAtual) {
-            btnClass = `flex-1 py-2 px-1 text-xs rounded-md font-semibold text-white uppercase bg-green-600 cursor-default`;
-            icone = `<i class="bi bi-check-lg mr-1"></i>`;
-            textoBotao = step.textCompleted || step.text;
-            title = 'Etapa já concluída';
-            disabled = true;
-        } else {
-            btnClass = `flex-1 py-2 px-1 text-xs rounded-md font-semibold text-white uppercase bg-gray-500/50 cursor-not-allowed opacity-60`;
-            icone = `<i class="bi bi-slash-circle mr-1"></i>`;
-            title = 'Aguardando etapa anterior';
-            disabled = true;
+    const acaoPrimaria = statusFlow.find(step => flowOrder.indexOf(step.requiredStatus) === indiceStatusAtual);
+
+    let htmlAcaoPrimaria = '';
+    if (acaoPrimaria) {
+        let textoBotao = acaoPrimaria.text;
+        let dataAction = acaoPrimaria.nextStatus || (acaoPrimaria.isFinalAction ? 'ENTREGUE' : 'finalize');
+
+        if (acaoPrimaria.text === 'IMPRIMIR NOTA') {
+            textoBotao = 'FINALIZAR';
+            dataAction = 'ENTREGUE';
         }
-        // ✅ ALTERAÇÃO CIRÚRGICA AQUI 👇
-        // Adicionamos a classe 'swiper-no-swiping' para avisar ao Swiper para não interferir.
-        btnClass += ' transition-all swiper-no-swiping';
-        container.innerHTML += `<button class="${btnClass}" ${dataAttributes} title="${title}" ${disabled ? 'disabled' : ''}>${icone}${textoBotao}</button>`;
-    });
+        
+        const dataAttributes = `data-action="${dataAction}" data-pedido-id="${pedido.id}"`;
+        const btnClass = `flex-grow py-2 px-2 text-sm rounded-md font-semibold text-white uppercase bg-principal hover:opacity-80 transition-opacity`;
+        htmlAcaoPrimaria = `<button class="${btnClass}" ${dataAttributes}>${textoBotao}</button>`;
+    }
+
+    let htmlAcoesSecundarias = `
+        <div class="flex flex-col gap-1">
+            <button data-action="gerenciar" data-pedido-id="${pedido.id}" class="flex-shrink-0 w-10 h-10 flex items-center justify-center text-sm rounded-md font-semibold text-white bg-sidebar hover:bg-fundo transition-colors" title="Gerenciar Itens"><i class="bi bi-gear-fill text-lg"></i></button>
+    `;
+
+    const isUltimaEtapaAntesDeEntregue = statusAtualPedido === 'A_CAMINHO' || statusAtualPedido === 'PRONTO_PARA_RETIRADA';
+    if (isUltimaEtapaAntesDeEntregue) {
+        htmlAcoesSecundarias += `<button data-action="print" data-pedido-id="${pedido.id}" class="flex-shrink-0 w-10 h-10 flex items-center justify-center text-sm rounded-md font-semibold text-white bg-sidebar hover:bg-fundo transition-colors" title="Imprimir Nota"><i class="bi bi-printer-fill text-lg"></i></button>`;
+    }
+    htmlAcoesSecundarias += `</div>`;
+    
+    container.innerHTML = htmlAcaoPrimaria + htmlAcoesSecundarias;
+
     return container;
 }
 
@@ -334,19 +340,18 @@ function renderizarPedidosAtivos() {
 
     const pedidosFiltrados = todosOsPedidosAtivos.filter(p => {
         if (!p || !p.id) return false;
-        const filtroOrigemOk = filtroAtivo === 'ativos' || p.origem === filtroAtivo;
         const termoBuscaOk = !termoBusca ||
                              (p.nome_cliente || '').toLowerCase().includes(termoBusca) ||
                              (p.id_pedido_publico || '').toLowerCase().includes(termoBusca);
-        return filtroOrigemOk && termoBuscaOk;
+        return termoBuscaOk;
     });
 
     const piscinas = {
-        'NOVOS': { titulo: 'Novos Pedidos', status: ['CONFIRMADO'], pedidos: [], cor: 'bg-blue-500' },
+        'NOVOS': { titulo: 'Novos', status: ['CONFIRMADO'], pedidos: [], cor: 'bg-blue-500' },
         'PREPARANDO': { titulo: 'Em Preparo', status: ['EM_PREPARO'], pedidos: [], cor: 'bg-yellow-500' },
-        'PRONTOS_ENTREGA': { titulo: 'Prontos para Entrega', status: ['PRONTO_PARA_ENTREGA'], origens: ['DELIVERY', 'WHATSAPP', 'IFOOD'], pedidos: [], cor: 'bg-purple-500' },
-        'PRONTOS_RETIRADA': { titulo: 'Prontos para Retirada', status: ['PRONTO_PARA_RETIRADA'], origens: ['RETIRADA', 'BALCAO', 'MESA'], pedidos: [], cor: 'bg-pink-500' },
-        'SAIU_PARA_ENTREGA': { titulo: 'Saiu para Entrega', status: ['A_CAMINHO'], pedidos: [], cor: 'bg-green-500' }
+        'PRONTOS_ENTREGA': { titulo: 'P/ Entrega', status: ['PRONTO_PARA_ENTREGA'], origens: ['DELIVERY', 'WHATSAPP', 'IFOOD'], pedidos: [], cor: 'bg-purple-500' },
+        'PRONTOS_RETIRADA': { titulo: 'P/ Retirada', status: ['PRONTO_PARA_ENTREGA', 'PRONTO_PARA_RETIRADA'], origens: ['RETIRADA', 'BALCAO', 'MESA'], pedidos: [], cor: 'bg-pink-500' },
+        'SAIU_PARA_ENTREGA': { titulo: 'A Caminho', status: ['A_CAMINHO'], pedidos: [], cor: 'bg-green-500' }
     };
 
     pedidosFiltrados.forEach(pedido => {
@@ -367,87 +372,87 @@ function renderizarPedidosAtivos() {
     });
 
     containerAtivos.innerHTML = '';
-    const pagContainer = document.getElementById('paginacao-container');
-    if (pagContainer) pagContainer.innerHTML = ''; 
-    containerAtivos.className = 'space-y-6'; 
-
+    containerAtivos.className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 h-full'; 
+    
     if (pedidosFiltrados.length === 0) {
-        containerAtivos.innerHTML = `<p class="text-texto-muted col-span-full text-center py-10">Nenhum pedido ativo encontrado com este filtro. ✨</p>`;
+        containerAtivos.innerHTML = `<p class="text-texto-muted col-span-full text-center py-10">Nenhum pedido ativo encontrado. ✨</p>`;
         return;
     }
 
     for (const key in piscinas) {
         const piscina = piscinas[key];
-        if (piscina.pedidos.length === 0) continue; 
+        
+        const coluna = document.createElement('div');
+        coluna.className = 'bg-card/50 rounded-lg flex flex-col h-full overflow-hidden'; 
 
-        piscina.pedidos.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-
-        const cardsHtml = piscina.pedidos.map(pedido => {
-            const card = document.createElement('div');
-            const itensHtml = (Array.isArray(pedido.itens_pedido) ? pedido.itens_pedido : []).map(item => `<div><span class="font-semibold text-principal">${item.quantidade || '??'}x</span> ${item.item || 'Item desconhecido'}</div>`).join('') || '<div class="text-red-400 font-semibold">Nenhum item neste pedido.</div>';
-            const corOrigem = APP_CONFIG.origemCores[pedido.origem] || 'bg-gray-500';
-            const horaEntrada = pedido.created_at ? new Date(pedido.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '--:--';
-            
-            card.className = "swiper-slide !w-[380px] !h-auto"; 
-            
-            // ✅ ALTERAÇÃO CIRÚRGICA AQUI 👇
-            // Adicionamos a classe 'swiper-no-swiping' no botão de gerenciar.
-            card.innerHTML = `
-                <div class="bg-card rounded-lg p-4 relative flex flex-col h-full">
-                    <div class="absolute top-0 left-0 h-full w-2 ${corOrigem}"></div>
-                    <div class="pl-4 flex flex-col flex-grow">
-                        <div class="flex justify-between items-start gap-2 min-h-[60px]">
-                            <div class="flex-grow min-w-0">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="px-2 py-1 text-xs semi-bold rounded-full text-white ${corOrigem} flex-shrink-0">${pedido.origem}</span>
-                                    <h4 class="semi-bold text-lg leading-tight break-words">${(pedido.nome_cliente || 'Cliente Indefinido').toUpperCase()}</h4>
-                                </div>
-                                <span class="text-sm text-texto-muted">#${pedido.id_pedido_publico || ''}</span>
-                            </div>
-                            <div class="flex items-center gap-2 flex-shrink-0">
-                                <span class="font-bold text-xl text-principal">R$ ${Number(pedido.total || 0).toFixed(2)}</span>
-                                <button data-action="gerenciar" data-pedido-id="${pedido.id}" class="p-2 rounded-md hover:bg-sidebar transition-colors swiper-no-swiping"><i class="bi bi-gear-fill text-lg text-blue-400"></i></button>
-                            </div>
-                        </div>
-                        <div class="text-lg semi-bold text-principal mb-2"><i class="bi bi-clock-fill"></i> Chegou às: ${horaEntrada}</div>
-                        <div class="my-2 border-t border-borda"></div>
-                        <div class="space-y-1 mb-3 text-sm flex-grow">${itensHtml}</div>
-                        <div class="text-xs space-y-1 mt-auto pt-2 pl-4">
-                            ${pedido.forma_pagamento ? `<div class="text-sm font-semibold text-principal mb-2"><i class="bi bi-credit-card-fill"></i> Pagamento: ${pedido.forma_pagamento}</div>` : ''}
-                            ${(pedido.origem !== 'BALCAO' && pedido.origem !== 'MESA' && pedido.rua && pedido.origem !== 'RETIRADA') ? `<p class="text-texto-muted text-xs"><i class="bi bi-geo-alt-fill"></i> ${pedido.bairro ? `${pedido.bairro} - ` : ''}${pedido.rua || ''}, Q ${pedido.quadra || ''}, L ${pedido.lote || ''}</p>` : ''}
-                            ${(pedido.whatsapp_cliente && pedido.whatsapp_cliente !== 'PED-INTERNO') ? `<p class="text-texto-muted text-xs"><i class="bi bi-whatsapp"></i> ${pedido.whatsapp_cliente}</p>` : ''}
-                            ${(pedido.origem === 'MESA' && pedido.garcom_responsavel) ? `<p class="text-texto-muted text-base"><i class="bi bi-person-fill"></i> Garçom: ${pedido.garcom_responsavel}</p>` : ''}
-                            ${pedido.observacoes ? `<div class="mt-2 pt-2 border-t border-borda/30"><p class="text-yellow-400 font-semibold text-sm flex items-center gap-2"><i class="bi bi-chat-left-dots-fill"></i><span>Observação:</span></p><p class="text-texto-muted text-sm pl-2 italic">"${pedido.observacoes}"</p></div>` : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-            const botoesContainer = gerarBotoesDeAcao(pedido); 
-            card.querySelector('.bg-card .pl-4').appendChild(botoesContainer);
-            return card.outerHTML;
-        }).join('');
-
-        const piscinaHtml = `
-            <div>
-                <div class="p-3 rounded-t-lg ${piscina.cor} flex items-center justify-between">
-                    <h2 class="text-xl font-bold text-black">${piscina.titulo}</h2>
-                    <span class="bg-black/20 text-white text-sm font-bold w-8 h-8 flex items-center justify-center rounded-full">${piscina.pedidos.length}</span>
-                </div>
-                <div class="swiper swiper-pedidos bg-card/50 p-2 rounded-b-lg">
-                    <div class="swiper-wrapper py-2">
-                        ${cardsHtml}
-                    </div>
-                </div>
+        const header = `
+            <div class="flex-shrink-0 p-3 rounded-t-lg ${piscina.cor} flex items-center justify-between min-h-[60px]">
+                <h2 class="text-xl font-bold text-black">${piscina.titulo}</h2>
+                <span class="bg-black/20 text-white text-sm font-bold w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0">${piscina.pedidos.length}</span>
             </div>
         `;
-        containerAtivos.innerHTML += piscinaHtml;
-    }
 
-    new Swiper('.swiper-pedidos', {
-        slidesPerView: 'auto',
-        spaceBetween: 16,
-        freeMode: true,
-    });
+        const corpo = document.createElement('div');
+        corpo.className = 'flex-grow p-2 space-y-3 overflow-y-auto custom-scrollbar min-h-0';
+        
+        if(piscina.pedidos.length === 0){
+             corpo.innerHTML = `<div class="text-center text-texto-muted p-4 text-sm flex items-center justify-center h-full">Nenhum pedido aqui.</div>`;
+        } else {
+            piscina.pedidos.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            
+            piscina.pedidos.forEach(pedido => {
+                const card = document.createElement('div');
+                const itensHtml = (Array.isArray(pedido.itens_pedido) ? pedido.itens_pedido : []).map(item => `<div><span class="font-semibold text-principal">${item.quantidade || '??'}x</span> ${item.item || 'Item desconhecido'}</div>`).join('') || '<div class="text-red-400 font-semibold">Nenhum item neste pedido.</div>';
+                const corOrigem = APP_CONFIG.origemCores[pedido.origem] || 'bg-gray-500';
+                const horaEntrada = pedido.created_at ? new Date(pedido.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '--:--';
+                
+                const iconesOrigem = {
+                    'WHATSAPP': '<i class="bi bi-whatsapp text-green-400" title="Pedido via WhatsApp"></i>',
+                    'DELIVERY': '<i class="bi bi-house-door-fill text-blue-400" title="Pedido via App/Site"></i>',
+                    'IFOOD': '<i class="bi bi-basket3-fill text-red-400" title="Pedido via iFood"></i>',
+                    'MESA': '<i class="bi bi-tablet-fill text-purple-400" title="Pedido de Mesa"></i>',
+                    'BALCAO': '<i class="bi bi-person-standing text-yellow-400" title="Pedido de Balcão"></i>',
+                    'RETIRADA': '<i class="bi bi-bag-check-fill text-pink-400" title="Pedido para Retirada"></i>'
+                };
+                const iconeHtml = iconesOrigem[pedido.origem] || '';
+
+                card.className = "bg-card rounded-lg p-3 relative flex flex-col shadow-lg"; 
+                card.innerHTML = `
+                    <div class="absolute top-0 left-0 h-full w-2 ${corOrigem} rounded-l-lg"></div>
+                    <div class="pl-3 flex flex-col flex-grow">
+                        <div class="mb-2">
+                             <div class="flex justify-between items-start gap-2">
+                                <h4 class="font-semibold text-base leading-tight flex items-center gap-2">
+                                    ${iconeHtml}
+                                    <span>${(pedido.nome_cliente || 'Cliente').toUpperCase()}</span>
+                                </h4>
+                                <span class="font-bold text-xl text-principal flex-shrink-0">R$ ${Number(pedido.total || 0).toFixed(2)}</span>
+                            </div>
+                            <span class="text-xs text-texto-muted font-mono">#${pedido.id_pedido_publico || ''}</span>
+                        </div>
+                        
+                        <div class="text-base font-semibold text-principal mb-2 flex items-center gap-2"><i class="bi bi-clock-fill"></i> Chegou às: ${horaEntrada}</div>
+                        <div class="border-t border-borda/50 my-2"></div>
+                        <div class="space-y-1 mb-3 text-sm flex-grow min-h-[50px]">${itensHtml}</div>
+
+                        <div class="mt-auto space-y-1 text-xs text-texto-muted">
+                           ${pedido.forma_pagamento ? `<div class="flex items-center gap-2"><i class="bi bi-credit-card-fill w-4 text-center"></i> <span>Pagamento: <strong>${pedido.forma_pagamento}</strong></span></div>` : ''}
+                           ${(pedido.whatsapp_cliente && pedido.whatsapp_cliente !== 'PED-INTERNO') ? `<div class="flex items-center gap-2"><i class="bi bi-whatsapp w-4 text-center"></i> <span>${pedido.whatsapp_cliente}</span></div>` : ''}
+                           ${(pedido.origem === 'MESA' && pedido.garcom_responsavel) ? `<div class="flex items-center gap-2"><i class="bi bi-person-fill w-4 text-center"></i> <span>Garçom: <strong>${pedido.garcom_responsavel}</strong></span></div>` : ''}
+                           ${pedido.observacoes ? `<div class="mt-2 pt-2 border-t border-borda/30"><p class="text-yellow-400 font-semibold text-sm flex items-start gap-2"><i class="bi bi-chat-left-dots-fill"></i><span class="italic">"${pedido.observacoes}"</span></p></div>` : ''}
+                        </div>
+                    </div>
+                `;
+                const botoesContainer = gerarBotoesDeAcao(pedido); 
+                card.querySelector('.pl-3').appendChild(botoesContainer); 
+                corpo.appendChild(card);
+            });
+        }
+        
+        coluna.innerHTML = header;
+        coluna.appendChild(corpo);
+        containerAtivos.appendChild(coluna);
+    }
 }
 
 async function mostrarDetalhesPedidoFinalizado(pedido) { 
@@ -568,45 +573,18 @@ async function buscarPedidoPorCodigo() {
     } catch (error) { console.error("Erro ao buscar pedido por código:", error); Swal.fire('Ops!', 'Não foi possível realizar a busca.', 'error'); } 
 }
 
+
 export function initPedidosPage() {
     containerAtivos = document.getElementById('lista-pedidos-admin');
     if (!containerAtivos) return;
 
+    // ✅ O LISTENER IMORTAL - AGORA NO LUGAR CERTO!
     if (!window.listenersPedidosOk) {
-        console.log("Maestro dos Pedidos: Anexando 'snipers' de eventos... 🎯");
+        console.log("Maestro dos Pedidos: Anexando 'sniper' de eventos IMORTAL... 🎯");
 
-        window.addEventListener('novoPedidoRecebido', (event) => {
-            const tipoDeAlerta = event.detail.tipo;
-            
-            if (tipoDeAlerta === 'external') {
-                const sound = document.getElementById('notification-sound');
-                if(sound) sound.play().catch(e => console.error("Erro ao tocar som:", e));
-                
-                Swal.fire({
-                    title: '<strong>NOVO PEDIDO NA ÁREA! 🔥</strong>',
-                    icon: 'success',
-                    html: 'Um novo pedido acabou de chegar pela vitrine. Corra para o painel!',
-                    showCloseButton: true,
-                    focusConfirm: false,
-                    confirmButtonText: '<i class="bi bi-eye-fill"></i> Ver Pedidos!',
-                    confirmButtonAriaLabel: 'Ver Pedidos!',
-                    confirmButtonColor: '#ff6b35',
-                    background: '#2c2854',
-                    color: '#ffffff'
-                }).then(() => {
-                    const navPedidos = document.getElementById('nav-pedidos');
-                    if(navPedidos) navPedidos.click();
-                });
-            }
-            
-            console.log("[Notificação] Novo pedido recebido. Atualizando lista de pedidos em background...");
-            buscarPedidosAtivos();
-        });
-
-        // ✅ CORREÇÃO: O 'sniper' agora mira no alvo certo: 'lista-pedidos-admin' (containerAtivos)
-        // Isso garante que ele vigie a área exata onde os cards são re-renderizados.
-        if (containerAtivos) {
-            containerAtivos.addEventListener('click', (event) => {
+        const containerPrincipalDaView = document.getElementById('pedidos-ativos-container');
+        if (containerPrincipalDaView) {
+            containerPrincipalDaView.addEventListener('click', (event) => {
                 const target = event.target.closest('button[data-action]');
                 if (!target) return;
     
@@ -619,8 +597,6 @@ export function initPedidosPage() {
                     return;
                 }
     
-                console.log(`Ação detectada: '${acao}' no pedido #${pedido.id_pedido_publico}`);
-
                 if (acao === 'gerenciar') {
                     abrirModalGerenciamentoNaView(pedidoId);
                 } else if (acao === 'print') {
@@ -631,33 +607,30 @@ export function initPedidosPage() {
             });
         }
 
+        window.addEventListener('novoPedidoRecebido', () => {
+            console.log("[Notificação] Novo pedido recebido. Atualizando lista de pedidos em background...");
+            buscarPedidosAtivos();
+        });
+
+        const btnFiltros = document.getElementById('btn-filtros-pedidos');
+        const menuPopup = document.getElementById('menu-finalizados-popup');
+        
+        btnFiltros.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menuPopup.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!menuPopup.classList.contains('hidden') && !menuPopup.contains(e.target) && !btnFiltros.contains(e.target)) {
+                menuPopup.classList.add('hidden');
+            }
+        });
+
         window.listenersPedidosOk = true;
     }
     
-    const viewContainer = document.getElementById('pedidos-page');
-    
-    viewContainer.querySelectorAll('.tab-btn').forEach(tab => { 
-        tab.onclick = () => {
-            filtroAtivo = tab.dataset.filtro;
-            paginaAtual = 1;
-            viewContainer.querySelector('.tab-btn.active')?.classList.remove('active');
-            tab.classList.add('active');
-            const containerAtivosEl = document.getElementById('pedidos-ativos-container');
-            const containerFinalizados = document.getElementById('pedidos-finalizados-container');
-            if (filtroAtivo === 'finalizados') {
-                containerAtivosEl.classList.add('hidden');
-                containerFinalizados.classList.remove('hidden');
-            } else {
-                containerAtivosEl.classList.remove('hidden');
-                containerFinalizados.classList.add('hidden');
-                buscarPedidosAtivos(); 
-            }
-        };
-    });
-    
     document.getElementById('filtro-busca-pedidos').onkeyup = (e) => {
         termoBusca = e.target.value.toLowerCase().trim();
-        paginaAtual = 1;
         renderizarPedidosAtivos();
     };
 

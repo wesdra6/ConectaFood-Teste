@@ -1,0 +1,155 @@
+/* =================================================================== */
+/* ARQUIVO DE ESTILOS GLOBAIS - CONNECTFOOD V3.2                     */
+/* Aqui ficam os estilos customizados que o Tailwind não cobre.      */
+/* =================================================================== */
+
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+/* === ESTILOS DO SIDEBAR COLAPSÁVEL === */
+#admin-sidebar {
+  transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+.nav-link.active,
+.nav-link-button.active {
+  background-color: #38326b;
+  color: #ff6b35;
+  font-weight: 600;
+}
+
+/* Estado Colapsado */
+body.sidebar-collapsed #admin-sidebar {
+  width: 80px;
+}
+
+body.sidebar-collapsed .sidebar-text,
+body.sidebar-collapsed #logo-header-desktop span,
+body.sidebar-collapsed .powered-by-text {
+  display: none;
+}
+
+body.sidebar-collapsed .nav-link,
+body.sidebar-collapsed .nav-link-button,
+body.sidebar-collapsed #btn-toggle-sidebar {
+  justify-content: center;
+}
+
+body.sidebar-collapsed #btn-toggle-sidebar .bi-chevron-double-left {
+  transform: rotate(180deg);
+}
+
+#btn-toggle-sidebar .bi-chevron-double-left {
+  transition: transform 0.3s ease;
+}
+
+/* --- NOVA LÓGICA DE TOOLTIP - JS POWERED --- */
+.sidebar-tooltip {
+  position: absolute; /* Será posicionado pelo JS */
+  background-color: #1a163a;
+  color: #e0e0e0;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #4a4480;
+  white-space: nowrap;
+  font-weight: 600;
+  font-size: 0.9rem;
+  z-index: 1070; /* Acima de quase tudo */
+  pointer-events: none; /* O mouse passa "através" dele */
+  opacity: 0;
+  transform: translateX(5px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar-tooltip.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* A setinha do tooltip */
+.sidebar-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 100%; /* Borda esquerda do balão */
+  margin-top: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent #4a4480 transparent transparent;
+}
+
+/* === ESTILOS GERAIS DE COMPONENTES === */
+
+.tab-btn {
+  padding: 0.75rem 1rem;
+  border-bottom: 3px solid transparent;
+  font-weight: 600;
+  color: #a3a0c2;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+}
+.tab-btn:hover {
+  color: #ffffff;
+}
+.tab-btn.active {
+  color: #ff6b35;
+  border-bottom-color: #ff6b35;
+}
+
+/* === ESTILOS DE SCROLLBAR CUSTOMIZADA === */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 12px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #2c2854;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #ff6b35;
+  border-radius: 10px;
+  border: 2px solid #2c2854;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #e65c2e;
+}
+
+/* === HELPERS DE Z-INDEX E IMPRESSÃO === */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #print-area,
+  #print-area * {
+    visibility: visible;
+  }
+  #print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    font-family: "Courier New", Courier, monospace;
+    color: #000;
+  }
+  @page {
+    size: 80mm;
+    margin: 2mm;
+  }
+}
+.swal2-container {
+  z-index: 99999 !important;
+}
+.modal {
+  z-index: 1060 !important;
+}
+.modal-backdrop {
+  z-index: 1059 !important;
+}

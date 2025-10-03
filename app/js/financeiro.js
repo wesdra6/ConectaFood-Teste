@@ -47,7 +47,6 @@ function renderizarResumoProdutosVendidos(produtos) {
         return;
     }
     
-    // ➕ Ordena os produtos por quantidade vendida para mostrar os mais populares primeiro
     const produtosOrdenados = produtos.sort((a, b) => b.quantidade_total - a.quantidade_total);
 
     const produtosHtml = produtosOrdenados.map(p => `
@@ -63,14 +62,12 @@ function renderizarResumoProdutosVendidos(produtos) {
     container.innerHTML = produtosHtml;
 }
 
-// ➕ NOVA FUNÇÃO PARA CALCULAR O RESUMO NO FRONT-END
 function calcularResumoProdutos(pedidos) {
     const resumo = new Map();
 
     pedidos.forEach(pedido => {
         if (pedido.itens_pedido && Array.isArray(pedido.itens_pedido)) {
             pedido.itens_pedido.forEach(item => {
-                // Ignora taxas e serviços que não são produtos
                 if (item.produto_id === 99999 || item.item?.toLowerCase().includes('taxa')) {
                     return;
                 }
@@ -128,19 +125,16 @@ async function carregarConfigDaLoja() {
     }
 }
 
-// ➖ REMOVEMOS O Promise.all E A CHAMADA POST
 async function buscarDadosFinanceiros(dataInicio, dataFim) {
     document.getElementById('kpi-container').innerHTML = `<div class="bg-card p-6 rounded-lg text-center animate-pulse col-span-full"><p>Carregando dados...</p></div>`;
     document.getElementById('tabela-pedidos-corpo').innerHTML = `<tr><td colspan="6" class="text-center p-8 text-texto-muted animate-pulse">Buscando dados no servidor... 🚀</td></tr>`;
     document.getElementById('produtos-vendidos-lista').innerHTML = `<p class="text-texto-muted text-center p-4 animate-pulse">Analisando vendas de produtos...</p>`;
     
     try {
-        // ➖ AGORA SÓ TEMOS UMA CHAMADA
         const pedidos = await fetchDeAPI(`${API_ENDPOINTS.get_financial_report}?inicio=${dataInicio}&fim=${dataFim}`);
 
         todosOsPedidosDoPeriodo = Array.isArray(pedidos) ? pedidos : [];
         
-        // ➕ CALCULAMOS E RENDERIZAMOS O RESUMO A PARTIR DOS DADOS JÁ OBTIDOS
         const produtosVendidos = calcularResumoProdutos(todosOsPedidosDoPeriodo);
         renderizarResumoProdutosVendidos(produtosVendidos);
 
@@ -169,13 +163,22 @@ async function aplicarFiltrosLocais() {
     renderizarPaginacaoFinanceiro();
 }
 
+// ✅ FUNÇÃO DE IMPRESSÃO CORRIGIDA E MAIS ROBUSTA
 async function gerarHtmlImpressaoFechamento(dados, datas) {
     const dataHora = new Date().toLocaleString('pt-BR');
     const { totaisPorOrigem, totalCouvert, totaisPorGarcom, acertoEntregadores } = dados;
     const faturamentoBruto = Object.values(totaisPorOrigem).reduce((acc, val) => acc + val, 0);
 
-    const rankingProdutos = await fetchDeAPI(`${API_ENDPOINTS.get_ranking_produtos}?inicio=${datas.inicio.split('/').reverse().join('-')}&fim=${datas.fim.split('/').reverse().join('-')}`);
-    const todosProdutosVendidos = Array.isArray(rankingProdutos) ? rankingProdutos : [];
+    let todosProdutosVendidos = [];
+    try {
+        // A busca dos produtos vendidos agora é feita aqui dentro, garantindo os dados frescos.
+        const rankingProdutos = await fetchDeAPI(`${API_ENDPOINTS.get_ranking_produtos}?inicio=${datas.inicio.split('/').reverse().join('-')}&fim=${datas.fim.split('/').reverse().join('-')}`);
+        todosProdutosVendidos = Array.isArray(rankingProdutos) ? rankingProdutos : [];
+    } catch (e) {
+        console.error("Erro ao buscar ranking de produtos para impressão:", e);
+        // Não trava a impressão, apenas mostra uma mensagem de erro no lugar.
+        todosProdutosVendidos = [{ produto_nome: 'Erro ao carregar produtos', total_vendido: 'X', faturamento_gerado: 0 }];
+    }
     
     const origemHtml = Object.entries(totaisPorOrigem).map(([origem, total]) => `<tr><td style="padding: 2px 0;">${origem}</td><td style="text-align: right;">${formatarMoeda(total)}</td></tr>`).join('');
     const garcomHtml = Object.entries(totaisPorGarcom).map(([garcom, total]) => `<tr><td style="padding: 2px 0;">${garcom}</td><td style="text-align: right;">${formatarMoeda(total * 0.10)}</td></tr>`).join('');
@@ -208,7 +211,7 @@ async function gerarHtmlImpressaoFechamento(dados, datas) {
 
 async function renderizarFechamentoCaixa(pedidos) {
     const container = document.getElementById('fechamento-caixa-container');
-    if (!container || !pedidos || !lojaConfig) { container.innerHTML = ''; return; }
+    if (!container || !pedidos || !lojaConfig) { if(container) container.innerHTML = ''; return; }
     if (pedidos.length === 0) { container.innerHTML = ''; return; }
     const totaisPorOrigem = pedidos.reduce((acc, p) => { acc[p.origem] = (acc[p.origem] || 0) + Number(p.total); return acc; }, {});
     const todosOsItens = pedidos.flatMap(p => p.itens_pedido || []);
@@ -243,18 +246,34 @@ async function renderizarFechamentoCaixa(pedidos) {
              <div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="border-b border-borda"><th class="p-3">ID Entregador</th><th class="p-3 text-center">Nº Entregas</th><th class="p-3 text-right">Total a Pagar</th></tr></thead><tbody>${entregadorHtml}</tbody></table></div>
         </div>
     `;
-    document.getElementById('btn-imprimir-fechamento')?.addEventListener('click', async () => {
-        const dadosParaImpressao = { totaisPorOrigem, totalCouvert, totaisPorGarcom, acertoEntregadores };
-        const datas = { inicio: document.getElementById('data-inicio').value.split('-').reverse().join('/'), fim: document.getElementById('data-fim').value.split('-').reverse().join('/') };
-        const html = await gerarHtmlImpressaoFechamento(dadosParaImpressao, datas);
-        const printDiv = document.getElementById('print-fechamento-diario');
-        printDiv.innerHTML = html;
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write('<html><head><title>Fechamento de Caixa</title></head><body>' + printDiv.innerHTML + '</body></html>');
-        printWindow.document.close();
-        printWindow.focus();
-        setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
-    });
+
+    // ✅ LISTENER DO BOTÃO RESSUSCITADO E CORRIGIDO
+    const btnImprimir = document.getElementById('btn-imprimir-fechamento');
+    if (btnImprimir) {
+        btnImprimir.addEventListener('click', async () => {
+            const dadosParaImpressao = { totaisPorOrigem, totalCouvert, totaisPorGarcom, acertoEntregadores };
+            const inicioEl = document.getElementById('data-inicio');
+            const fimEl = document.getElementById('data-fim');
+            if (!inicioEl || !fimEl || !inicioEl.value || !fimEl.value) {
+                Swal.fire('Ops!', 'Datas de início e fim não encontradas para gerar a impressão.', 'warning');
+                return;
+            }
+            const datas = { 
+                inicio: inicioEl.value.split('-').reverse().join('/'), 
+                fim: fimEl.value.split('-').reverse().join('/') 
+            };
+            const html = await gerarHtmlImpressaoFechamento(dadosParaImpressao, datas);
+            const printDiv = document.getElementById('print-fechamento-diario');
+            if(printDiv) {
+                printDiv.innerHTML = html;
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write('<html><head><title>Fechamento de Caixa</title></head><body>' + printDiv.innerHTML + '</body></html>');
+                printWindow.document.close();
+                printWindow.focus();
+                setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
+            }
+        });
+    }
 }
 
 function renderizarGraficoPizza() {
