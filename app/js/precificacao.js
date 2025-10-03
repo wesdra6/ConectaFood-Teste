@@ -18,17 +18,41 @@ function limparFormulario() {
     }
 }
 
+// ✅ FUNÇÃO CORRIGIDA E MAIS INTELIGENTE
 function formatarCusto(valor, unidadeCompra) {
     const valorNum = parseFloat(valor);
     if (isNaN(valorNum)) return 'N/A';
-    let unidadeMinima, custoFinal = valorNum;
-    switch(unidadeCompra.toLowerCase()) {
-        case 'kg': unidadeMinima = 'g'; custoFinal = valorNum / 1000; break;
-        case 'l': unidadeMinima = 'ml'; custoFinal = valorNum / 1000; break;
-        default: unidadeMinima = 'un.'; break;
+
+    let unidadeMinima, custoFinal;
+
+    // Converte a unidade de compra para minúsculas para consistência
+    const unidade = unidadeCompra.toLowerCase();
+
+    switch(unidade) {
+        case 'kg':
+            unidadeMinima = 'g';
+            custoFinal = valorNum / 1000;
+            break;
+        case 'l':
+            unidadeMinima = 'ml';
+            custoFinal = valorNum / 1000;
+            break;
+        case 'g': // Se a unidade de compra já é 'g'
+            unidadeMinima = 'g';
+            custoFinal = valorNum; // O custo já é por grama
+            break;
+        case 'ml': // Se a unidade de compra já é 'ml'
+            unidadeMinima = 'ml';
+            custoFinal = valorNum; // O custo já é por ml
+            break;
+        default: // Para 'Unidade', 'Caixa', 'Fardo', etc.
+            unidadeMinima = 'un.';
+            custoFinal = valorNum;
+            break;
     }
     return `${custoFinal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 4 })} / ${unidadeMinima}`;
 }
+
 
 function renderizarTabelaInsumos() {
     const container = document.getElementById('container-insumos-lista');
@@ -41,7 +65,6 @@ function renderizarTabelaInsumos() {
         return;
     }
 
-    // Estrutura para Desktop
     let desktopHtml = `
         <div class="hidden md:block">
             <table class="w-full text-left">
@@ -55,7 +78,6 @@ function renderizarTabelaInsumos() {
                 </thead>
                 <tbody>`;
     
-    // Estrutura para Mobile
     let mobileHtml = `<div class="md:hidden space-y-4">`;
 
     const insumosOrdenados = [...insumosParaRenderizar].sort((a, b) => a.nome.localeCompare(b.nome));
@@ -67,7 +89,6 @@ function renderizarTabelaInsumos() {
         const opacityClass = !insumo.ativo ? 'opacity-50' : '';
         const embalagemStr = `${insumo.qtd_embalagem} ${insumo.unidade_compra} por ${insumo.preco_compra.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
 
-        // Monta a linha da tabela para desktop
         desktopHtml += `
             <tr class="hover:bg-sidebar/50 ${opacityClass}">
                 <td class="p-3 font-semibold">${insumo.nome}</td>
@@ -82,7 +103,6 @@ function renderizarTabelaInsumos() {
                 </td>
             </tr>`;
 
-        // Monta o card para mobile
         mobileHtml += `
             <div class="bg-fundo p-4 rounded-lg space-y-3 ${opacityClass}">
                 <div class="flex justify-between items-start">
@@ -142,7 +162,6 @@ async function handleFormSubmit(event) {
         limparFormulario();
         await fetchInsumos();
     } catch (error) {
-        // Silêncio aqui! O api.js já mostrou o erro.
         console.error("Erro ao salvar insumo, tratado globalmente:", error);
     }
 }
@@ -160,12 +179,10 @@ async function toggleStatusInsumo(id) {
         Swal.fire('Sucesso!', `Insumo ${insumo.ativo ? 'inativado' : 'reativado'}!`, 'success');
         await fetchInsumos();
     } catch (error) {
-        // Silêncio aqui! O api.js já mostrou o erro.
         console.error("Erro ao alterar status do insumo, tratado globalmente:", error);
     }
 }
 
-// ✅ ➕ ADICIONANDO A FUNÇÃO QUE FALTAVA AQUI
 async function fetchInsumos() {
     try {
         const resposta = await fetchDeAPI(API_ENDPOINTS.get_all_insumos);
@@ -173,7 +190,6 @@ async function fetchInsumos() {
         renderizarTabelaInsumos();
     } catch (error) {
         console.error("Erro ao buscar insumos:", error);
-        // Garante um feedback de erro visual caso a busca falhe
         const container = document.getElementById('container-insumos-lista');
         if(container) container.innerHTML = `<p class="text-center p-8 text-red-400">Falha ao carregar os dados dos insumos.</p>`;
     }
@@ -201,7 +217,6 @@ window.precificacaoFunctions = {
                 Swal.fire('Apagado!', 'O insumo foi removido.', 'success');
                 await fetchInsumos();
             } catch (error) {
-                // Silêncio aqui! O api.js já mostrou o erro.
                 console.error("Erro ao apagar insumo, tratado globalmente:", error);
             }
         }
