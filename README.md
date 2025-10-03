@@ -1,7 +1,8 @@
-**Arquivo:** `README.md`
+✅ **REGRA DE OURO:** Reescrevendo o arquivo completo, sem abreviações, e com todas as novas informações.
 
 ### **Arquivo Atualizado: `README.md`**
 
+````markdown
 # 🍔 ConnectFood - Sistema de Delivery Full-Stack v3.2 (Titan)
 
 Olá, dev do presente e do futuro! Bem-vindo(a) ao QG do ConnectFood. Este projeto é um ecossistema robusto focado em **escalabilidade**, **segurança** e **manutenibilidade**, otimizado para deploy em ambientes como **Easypanel e VPS**.
@@ -24,7 +25,7 @@ Olá, dev do presente e do futuro! Bem-vindo(a) ao QG do ConnectFood. Este proje
   - **Evolution API:** Para integração com WhatsApp (notificações de status, etc.).
 - **Bibliotecas JS Auxiliares:**
   - `SweetAlert2`: Para alertas, confirmações e modais de feedback ricos e interativos.
-  - `Swiper.js`: Para carrosséis fluidos e responsivos (banners, categorias, pedidos no KDS).
+  - `Swiper.js`: Para carrosséis fluidos e responsivos (banners, categorias).
   - `SortableJS`: Para criar listas arrastáveis (reordenar categorias, banners).
   - `Chart.js`: Para a criação de gráficos dinâmicos nos relatórios financeiros.
   - `QRCode.js`: Para a geração de QR Codes (cardápio de mesa).
@@ -38,7 +39,7 @@ O sistema é modular e desacoplado, dividido em um **Painel Principal (SPA)**, u
 - **Modelo SPA (Single-Page Application):** A navegação dentro do `index.html` e do `gerenciamento.html` é feita dinamicamente com JavaScript, carregando o HTML e o JS de cada módulo sem recarregar a página. Isso proporciona uma experiência de usuário fluida e rápida.
 - **Configuração Central (`config.js`):** Nada de "magic strings". Todas as URLs, chaves públicas e configurações da aplicação vivem aqui. É a fonte da verdade, facilitando a manutenção e a troca entre ambientes de `dev` e `prod`.
 - **Camada de API Abstrata (`api.js`):** Ninguém fala com o backend diretamente. O `api.js` é nosso diplomata: ele anexa tokens, trata erros de forma global com `SweetAlert2`, e garante que toda a comunicação siga o mesmo padrão de segurança e feedback.
-- **Inteligência no Banco de Dados:** Lógicas de negócio pesadas, como calcular o CMV, dar baixa em estoque ou gerar relatórios complexos, são feitas através de `Views` e `Functions` no PostgreSQL. O front-end pede, o banco de dados processa e entrega o resultado pronto. Isso é performance na veia.
+- **Inteligência no Banco de Dados:** Lógicas de negócio pesadas, como criar um pedido completo de forma atômica, dar baixa em estoque ou gerar relatórios complexos, são feitas através de `Functions` e `Views` no PostgreSQL. O front-end pede, o banco de dados processa e entrega o resultado pronto. Isso é performance na veia.
 
 ### Estrutura de Arquivos Essencial
 
@@ -70,7 +71,7 @@ O sistema é modular e desacoplado, dividido em um **Painel Principal (SPA)**, u
 
 O centro estratégico do negócio, focado em dados e administração.
 
-- **Relatório Financeiro:** Análise completa de vendas com filtros, KPIs, gráficos de faturamento e um resumo para fechamento de caixa.
+- **Relatório Financeiro:** Análise completa de vendas com filtros, KPIs, gráficos de faturamento e um resumo para fechamento de caixa com opção de impressão.
 - **Gerenciar Equipe:** Cadastro de "Garçons" (para o app de comandas, com PIN) e "Funcionários" (para o painel, com e-mail/senha). Inclui atribuição de mesas.
 - **Emitir NFC-e:** Integração com a PlugNotas para emissão de Notas Fiscais ao Consumidor a partir dos pedidos finalizados.
 - **Precificação (Almoxarifado):** Cadastro de insumos e seus custos. É a base para o cálculo automático de CMV.
@@ -83,12 +84,13 @@ O centro estratégico do negócio, focado em dados e administração.
 O centro operacional do dia a dia, com uma interface redesenhada para máxima eficiência.
 
 - **Dashboard:** Visão em tempo real do status da loja (aberta/fechada), mapa de mesas interativo, feed de pedidos e atalhos rápidos para os principais módulos.
+- **Sidebar Inteligente:** O menu lateral agora é colapsável, salvando a preferência do usuário e encolhendo automaticamente na tela de pedidos para maximizar o espaço útil. Possui tooltips dinâmicos que funcionam em todos os ícones.
 - **Meus Produtos:** Catálogo completo de produtos e serviços. Inclui:
   - **✨ Marketing com IA:** Gera nomes e descrições vendedoras.
   - **📣 Social Post IA:** Cria legendas para redes sociais com um clique.
   - **🏷️ Ficha Técnica:** Onde você vincula insumos a um produto, permitindo que o sistema calcule o **CMV (Custo da Mercadoria Vendida)** e sugira um preço de venda com base no seu markup.
-- **Painel de Pedidos (KDS Híbrido):** Uma **esteira de produção (Kanban)** com seções horizontais (`Novos Pedidos`, `Em Preparo`, `Prontos`, etc.) e sliders internos, otimizada para alto volume e clareza operacional em telas de qualquer tamanho.
-- **Caixa:** Um PDV simplificado para gestão de mesas, lançamento de comandas de balcão e fechamento de contas com cálculo de troco.
+- **Painel de Pedidos (KDS Kanban):** Uma **esteira de produção Kanban** com colunas verticais (`Novos`, `Em Preparo`, `P/ Entrega`, etc.), 100% otimizada para alto volume e clareza operacional. O layout é limpo, responsivo e livre de bugs de interação.
+- **Caixa:** Um PDV simplificado para gestão de mesas, lançamento de comandas de balcão e fechamento de contas com calculadora de troco integrada.
 - **Configurações:** Onde a mágica começa. Personalização da loja, identidade visual, regras de entrega, cadastro de mesas, categorias e banners.
 
 ---
@@ -126,27 +128,31 @@ O centro operacional do dia a dia, com uma interface redesenhada para máxima ef
 
 Para manter a sanidade e a integridade do código, siga estas regras como se sua vida de dev dependesse delas.
 
-### 1. Notificação de Novos Pedidos via "Vigia Atômico"
+### 1. Criação de Pedidos Atômica (Função RPC)
 
-O sistema utiliza um `setInterval` no `main.js` para consultar um endpoint específico da API (`/rpc/obter_e_marcar_pedidos_novos`) em busca de novos pedidos.
+Para eliminar condições de corrida (`race conditions`) e garantir a integridade dos dados, a criação de novos pedidos (tanto externos quanto internos) foi centralizada em uma **Função PostgreSQL (`criar_pedido_completo`)** no Supabase.
+
+1.  **A Chamada:** O front-end envia um único objeto JSON para a API com todos os dados do pedido.
+2.  **A Execução:** A API invoca a função `criar_pedido_completo` via RPC.
+3.  **A Transação:** A função executa todas as operações necessárias (`INSERT` em `pedidos`, `INSERT` em `itens_pedido`, `UPDATE` em `mesas`) dentro de uma **única transação atômica**.
+4.  **O Resultado:** Ou **TUDO** é salvo com sucesso, ou, em caso de qualquer erro, **TUDO** é desfeito (`ROLLBACK`). Isso erradica o bug de "pedidos sem itens".
+
+### 2. Notificação de Novos Pedidos via "Vigia Atômico"
+
+O sistema utiliza um `setInterval` no `main.js` para consultar um endpoint específico (`/rpc/obter_e_marcar_pedidos_novos`) em busca de novos pedidos.
 
 1.  **O Gatilho:** O `setInterval` (Vigia Atômico) roda a cada `5` segundos.
 2.  **A Chamada:** Ele invoca uma função no Supabase que **busca pedidos com `notificado_painel = false` E os marca como `true` em uma única transação atômica**. Isso garante que um pedido nunca seja notificado duas vezes.
 3.  **A Ação:** Se a chamada retornar um ou mais pedidos, o `main.js` dispara um evento global (`novoPedidoRecebido`).
-4.  **Os Ouvintes:** Módulos como `pedidos.js` escutam este evento e disparam suas funções de atualização (tocar som, mostrar alerta, recarregar a lista).
+4.  **Os Ouvintes:** Módulos como `pedidos.js` escutam este evento e disparam suas funções de atualização (tocar som, recarregar a lista).
 
-### 2. Sincronia de Dados: A Fonte da Verdade
+### 3. Sincronia de Dados: A Fonte da Verdade
 
 **🛑 REGRA DE OURO DA CONSISTÊNCIA 🛑**
 
 > Interfaces que exibem dados críticos de um pedido (ex: resumo de mesa no Caixa, modal de gerenciamento) devem **SEMPRE** fazer uma nova consulta (`fetch`) ao backend para buscar os dados mais recentes antes de renderizar. **NUNCA confie em dados em memória ou em variáveis globais que podem estar desatualizados.**
 
 ```javascript
-// ❌ ERRADO: Confiar em um objeto que pode estar velho
-function mostrarResumoDaMesa(pedidoDaLista) {
-  renderizarModal(pedidoDaLista); // Risco de dados desatualizados!
-}
-
 // ✅ CERTO: Buscar os dados frescos sempre que a ação for crítica
 async function mostrarResumoDaMesa(pedidoId) {
   Swal.showLoading();
@@ -157,56 +163,36 @@ async function mostrarResumoDaMesa(pedidoId) {
   renderizarModal(pedidoAtualizado);
 }
 ```
-
-### 3. O Despertar dos Componentes Dinâmicos (Regra do Modal)
-
-**🛑 REGRA DE OURO DA INICIALIZAÇÃO TARDIA (Lazy Initialization) 🛑**
-
-> A instância de componentes dinâmicos (como modais do Bootstrap) deve ser criada e armazenada em uma variável na primeira vez que for usada, e então reutilizada. Isso garante que o JS não tente criar a instância antes do HTML do modal existir na página (já que ele é carregado dinamicamente pela SPA).
-
-```javascript
-let modalGerenciamento = null; // Começa como nulo
-
-export async function abrirModalGerenciamento(pedidoId) {
-  // ... busca os dados do pedido ...
-
-  if (!modalGerenciamento) {
-    // Só cria na primeira vez que for usar
-    const modalEl = document.getElementById("modal-gerenciamento-pedido");
-    modalGerenciamento = new bootstrap.Modal(modalEl);
-  }
-
-  // Agora pode usar com segurança
-  modalGerenciamento.show();
-}
-```
+````
 
 ### 4. Delegação de Eventos para Listas Dinâmicas
 
 **🛑 REGRA DE OURO DOS "BOTÕES IMORTAIS" 🛑**
 
-> Para elementos criados dinamicamente (cards de pedido, itens de comanda), **NUNCA** adicione `onclick` no HTML ou `addEventListener` a cada botão individualmente. Em vez disso, adicione um único `addEventListener` ao **container pai** que sempre existe. Este "ouvinte" interceptará os cliques e agirá com base em `data-attributes` nos elementos filhos (ex: `data-action="aceitar"`). Isso garante que os botões sempre funcionem, não importa quantas vezes a lista seja recarregada.
+> Para elementos criados dinamicamente (cards de pedido, itens de comanda), **NUNCA** adicione `onclick` ou `addEventListener` a cada botão individualmente após a renderização. Em vez disso, adicione um **único `addEventListener` ao container pai que é estático e nunca é recriado**. Este "ouvinte imortal" interceptará todos os cliques que "borbulham" de seus filhos e agirá com base em `data-attributes` (ex: `data-action="aceitar"`). Isso garante que os botões sempre funcionem, não importa quantas vezes a lista seja redesenhada (como ao receber um novo pedido).
 
 ```javascript
-// Pega o container que SEMPRE está na página
-const containerPedidos = document.getElementById("pedidos-ativos-container");
+// js/pedidos.js na função initPedidosPage
 
-// Adiciona UM ÚNICO ouvinte
-containerPedidos.addEventListener("click", (event) => {
-  // Procura o botão mais próximo que foi clicado e que tem o 'data-action'
-  const target = event.target.closest("button[data-action]");
+// Pega o container principal da VIEW, que NUNCA é recriado.
+const containerPrincipalDaView = document.getElementById(
+  "pedidos-ativos-container"
+);
 
-  if (!target) return; // Se não clicou num botão de ação, ignora
+// Adiciona UM ÚNICO ouvinte IMORTAL.
+if (containerPrincipalDaView) {
+  containerPrincipalDaView.addEventListener("click", (event) => {
+    // Procura o botão mais próximo que foi clicado e que tem o 'data-action'
+    const target = event.target.closest("button[data-action]");
 
-  const pedidoId = parseInt(target.dataset.pedidoId);
-  const acao = target.dataset.action;
+    if (!target) return; // Se não clicou num botão de ação, ignora
 
-  if (acao === "aceitar") {
-    aceitarPedido(pedidoId);
-  } else if (acao === "gerenciar") {
-    abrirModalGerenciamento(pedidoId);
-  }
-});
+    const pedidoId = parseInt(target.dataset.pedidoId);
+    const acao = target.dataset.action;
+
+    // ... lógica para tratar a 'acao' ...
+  });
+}
 ```
 
 ---
