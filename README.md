@@ -1,4 +1,10 @@
-✅ **REGRA DE OURO:** Reescrevendo o arquivo completo, sem abreviações, e com todas as novas informações.
+Entendido, comandante! A última peça do quebra-cabeça. Adicionar a documentação da nossa mais nova feature de geolocalização ao `README.md` para que nenhum dev do futuro se perca no mapa.
+
+Seguindo a regra de ouro: vou reescrever o arquivo COMPLETO, inserindo cirurgicamente a nova seção no lugar certo, sem alterar mais nada.
+
+Aqui está o seu `README.md` atualizado para a versão 3.2 (Titan), com o módulo de geolocalização devidamente documentado.
+
+---
 
 ### **Arquivo Atualizado: `README.md`**
 
@@ -163,7 +169,6 @@ async function mostrarResumoDaMesa(pedidoId) {
   renderizarModal(pedidoAtualizado);
 }
 ```
-````
 
 ### 4. Delegação de Eventos para Listas Dinâmicas
 
@@ -197,6 +202,70 @@ if (containerPrincipalDaView) {
 
 ---
 
+### 5. Validação de Entrega por Geolocalização (O "Portão de CEP") 🗺️
+
+Este fluxo impede que clientes fora da área de entrega finalizem pedidos de delivery, automatizando a verificação de endereço.
+
+1.  **Setup do Admin (A Base):**
+
+    - No `configuracoes.html`, o administrador define três novos campos na `loja_config`: `loja_latitude`, `loja_longitude` e `raio_entrega_km`. Essas coordenadas definem o ponto central da operação.
+
+2.  **A Experiência do Cliente (O "Portão"):**
+
+    - Ao abrir o `cliente.html`, se a funcionalidade de raio estiver ativa, o cardápio é ocultado. Em seu lugar, um campo solicita o **CEP** do cliente.
+    - Ao inserir o CEP, uma chamada é feita ao endpoint da API `/endereco/validar-raio`.
+
+3.  **A Mágica no Backend (O Orquestrador):**
+
+    - O workflow na API recebe o CEP.
+    - Converte o CEP em endereço via API ViaCEP.
+    - Converte o endereço em coordenadas (latitude/longitude) via API Nominatim.
+    - Invoca a função `validar_raio_entrega` no Supabase, passando as coordenadas do cliente.
+
+4.  **A Inteligência no Banco (O Cérebro):**
+
+    - A função `validar_raio_entrega` (PostgreSQL com PostGIS) usa `ST_Distance` para calcular a distância geodésica (real, na superfície da Terra) entre a loja e o cliente.
+    - Ela compara essa distância com o `raio_entrega_km` configurado e retorna `true` ou `false`.
+
+5.  **A Resposta e Ação no Front-end:**
+    - **Se `true`:** O "portão" de CEP some, o cardápio é carregado e exibido. O endereço validado é salvo na `sessionStorage` para preencher automaticamente o formulário de checkout.
+    - **Se `false`:** Um alerta (`SweetAlert2`) informa que a entrega não está disponível para aquela região, sugerindo a retirada no local caso a opção esteja habilitada.
+
+Este fluxo completo garante uma validação robusta, segura e com uma experiência de usuário clara, evitando frustrações e pedidos para fora da área de cobertura.
+
+---
+
+### 5. Validação de Entrega por Geolocalização (O "Portão de CEP") 🗺️
+
+Este fluxo impede que clientes fora da área de entrega finalizem pedidos de delivery, automatizando a verificação de endereço.
+
+1.  **Setup do Admin (A Base):**
+
+    - No `configuracoes.html`, o administrador define três novos campos na `loja_config`: `loja_latitude`, `loja_longitude` e `raio_entrega_km`. Essas coordenadas definem o ponto central da operação.
+
+2.  **A Experiência do Cliente (O "Portão"):**
+
+    - Ao abrir o `cliente.html`, se a funcionalidade de raio estiver ativa, o cardápio é ocultado. Em seu lugar, um campo solicita o **CEP** do cliente.
+    - Ao inserir o CEP, uma chamada é feita ao endpoint da API `/endereco/validar-raio`.
+
+3.  **A Mágica no Backend (O Orquestrador):**
+
+    - O workflow na API recebe o CEP.
+    - Converte o CEP em endereço via API ViaCEP.
+    - Converte o endereço em coordenadas (latitude/longitude) via API Nominatim.
+    - Invoca a função `validar_raio_entrega` no Supabase, passando as coordenadas do cliente.
+
+4.  **A Inteligência no Banco (O Cérebro):**
+
+    - A função `validar_raio_entrega` (PostgreSQL com PostGIS) usa `ST_Distance` para calcular a distância geodésica (real, na superfície da Terra) entre a loja e o cliente.
+    - Ela compara essa distância com o `raio_entrega_km` configurado e retorna `true` ou `false`.
+
+5.  **A Resposta e Ação no Front-end:**
+    - **Se `true`:** O "portão" de CEP some, o cardápio é carregado e exibido. O endereço validado é salvo na `sessionStorage` para preencher automaticamente o formulário de checkout.
+    - **Se `false`:** Um alerta (`SweetAlert2`) informa que a entrega não está disponível para aquela região, sugerindo a retirada no local caso a opção esteja habilitada.
+
+Este fluxo completo garante uma validação robusta, segura e com uma experiência de usuário clara, evitando frustrações e pedidos para fora da área de cobertura.
+
 ## 🚀 Arquitetura de Rede Otimizada (Comunicação Interna)
 
 Para máxima performance e segurança, o sistema utiliza a rede interna do Docker (gerenciada pelo Easypanel) para a comunicação entre os serviços de backend.
@@ -207,3 +276,4 @@ Para máxima performance e segurança, o sistema utiliza a rede interna do Docke
 Esta arquitetura garante que, embora as imagens no Supabase tenham URLs públicas para serem exibidas ao cliente, todo o processo interno de upload, consulta e manipulação de dados ocorra na via expressa, preservando a velocidade e a segurança do núcleo do sistema.
 
 Respeite a arquitetura, dev, e o código respeitará você. Agora, bom trabalho e que a força (e o café) esteja com você! ☕💪
+````

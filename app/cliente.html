@@ -152,7 +152,23 @@
         </nav>
 
         <main class="container mx-auto px-4 mt-8" id="cliente-page">
-            <div id="vitrine-builder-container" class="space-y-12"></div>
+            <div id="cep-gate-container" class="text-center py-10">
+                <i class="bi bi-geo-alt-fill text-6xl text-principal"></i>
+                <h1 class="text-3xl font-bold mt-4">Onde vamos entregar?</h1>
+                <p class="text-texto-muted mt-2 mb-6">Digite seu CEP para vermos se atendemos sua região e
+                    exibir nosso cardápio.</p>
+                <div class="flex gap-2 max-w-sm mx-auto">
+                    <input type="tel" id="cep-input" inputmode="numeric"
+                        class="flex-1 w-full bg-card p-4 rounded-lg border border-borda focus:ring-2 focus:ring-principal focus:outline-none text-center text-lg"
+                        placeholder="Seu CEP aqui...">
+                    <button id="btn-verificar-cep"
+                        class="bg-principal text-white font-bold h-16 w-16 flex-shrink-0 flex items-center justify-center rounded-lg hover:bg-orange-600 transition-colors"
+                        type="button">
+                        <i class="bi bi-arrow-right text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="vitrine-builder-container" class="space-y-12 hidden"></div>
         </main>
 
         <footer class="text-center py-6 mt-10 text-texto-muted border-t border-borda/20 text-sm">
@@ -205,15 +221,16 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- ✅ MUDANÇA ESTRUTURAL AQUI 👇 -->
                     <form id="form-endereco" class="space-y-4">
-                        <!-- Seção de Dados do Cliente (Sempre visível) -->
+                        <!-- ✅ VALIDAÇÃO ADICIONADA AQUI 👇 -->
                         <input type="tel" id="clienteWhatsapp" placeholder="WhatsApp (só números com DDD)"
                             class="form-control-custom" required pattern="[0-9]{10,11}"
-                            title="Digite um número válido com 10 ou 11 dígitos.">
+                            title="Digite um número válido com 10 ou 11 dígitos."
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         <input type="text" id="clienteNome" placeholder="Seu nome" class="form-control-custom" required>
+                        <input type="tel" id="clienteCep" placeholder="CEP" class="form-control-custom" required
+                            readonly>
 
-                        <!-- Seção de Endereço (Pode ser escondida) -->
                         <div id="container-campos-endereco" class="space-y-4">
                             <input type="text" id="clienteRua" placeholder="Rua" class="form-control-custom" required>
                             <input type="text" id="clienteBairro" placeholder="Bairro" class="form-control-custom"
@@ -229,7 +246,6 @@
                                 required>
                         </div>
 
-                        <!-- Seção de Observações e Pagamento (Sempre visível) -->
                         <textarea id="clienteObservacoes"
                             placeholder="Observações do pedido (Ex: sem cebola, ponto da carne, etc.)"
                             class="form-control-custom" rows="3"></textarea>

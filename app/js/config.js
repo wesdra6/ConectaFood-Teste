@@ -93,6 +93,7 @@ export const API_ENDPOINTS = {
     update_loja_config:    API_BASE_URL + 'loja/config/atualizar',
     update_loja_status:    API_BASE_URL + 'loja/status/atualizar',
     call_ia_proxy:         API_BASE_URL + 'ia/proxy/suporte',
+    endereco_validar_raio: API_BASE_URL + 'endereco/validar-raio',
 };  
 
 export const ZIPLINE_CONFIG = {

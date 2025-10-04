@@ -9,7 +9,6 @@ let iconeCategoriaUrlAtual = '';
 let bannersExistentes = [];
 let bannerImagemUrlAtual = '';
 
-// ✅ FLAG DE CONTROLE DE INICIALIZAÇÃO
 let isConfigInitialized = false;
 
 function preencherFormulario(config) {
@@ -24,6 +23,10 @@ function preencherFormulario(config) {
     document.getElementById('pedido_minimo_delivery').value = config.pedido_minimo_delivery || 0.00;
     
     document.getElementById('habilitar_retirada').checked = config.habilitar_retirada === true;
+
+    document.getElementById('config-latitude').value = config.loja_latitude || '';
+    document.getElementById('config-longitude').value = config.loja_longitude || '';
+    document.getElementById('config-raio-entrega').value = config.raio_entrega_km || '';
 
     logoUrlAtual = config.logo_url || '';
     document.getElementById('logo-preview').src = logoUrlAtual || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiMzODMyNmIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9InNlcmlmIiBmb250LXNpemU9IjIwIiBmaWxsPSIjYTNhMGMyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj5Mb2dvPC90ZXh0Pjwvc3ZnPg==';
@@ -113,6 +116,10 @@ async function salvarConfiguracoes(event) {
         custo_entrega_freela: parseFloat(document.getElementById('config-custo-entrega').value) || 0,
         pedido_minimo_delivery: parseFloat(document.getElementById('pedido_minimo_delivery').value) || 0,
         habilitar_retirada: document.getElementById('habilitar_retirada').checked,
+        // ✅ CORREÇÃO AQUI: Removemos o `parseFloat` para manter a precisão total.
+        loja_latitude: document.getElementById('config-latitude').value.replace(',', '.') || null,
+        loja_longitude: document.getElementById('config-longitude').value.replace(',', '.') || null,
+        raio_entrega_km: parseFloat(document.getElementById('config-raio-entrega').value.replace(',', '.')) || 0,
         logo_url: logoUrlAtual,
         logo_vitrine_url: logoVitrineUrlAtual
     };

@@ -2,11 +2,9 @@ import { supabase } from '../supabaseClient.js';
 
 const API_KEY = window.ENVIRONMENT_CONFIG?.API_KEY;
 
-// ✅ FUNÇÃO ATUALIZADA PARA LIDAR COM TODOS OS ERROS
 function handleApiError(error) {
     const userRole = sessionStorage.getItem('userRole');
 
-    // Tenta extrair a mensagem específica do N8N da resposta do erro
     let apiMessage = '';
     try {
         const errorBodyString = error.message.substring(error.message.indexOf('{'));
@@ -16,7 +14,6 @@ function handleApiError(error) {
         apiMessage = error.message;
     }
 
-    // Se for um visitante tentando uma ação proibida, mostramos o Swal de marketing
     if (error.message.includes('403') && userRole === 'visitante') {
         Swal.fire({
             iconHtml: '🔐',
@@ -39,7 +36,6 @@ function handleApiError(error) {
         return; 
     }
     
-    // Para todos os outros erros, mostramos um Swal de erro padrão e estiloso
     Swal.fire({ 
         icon: 'error', 
         title: 'Ops! Algo deu errado.', 
@@ -97,6 +93,7 @@ export async function fetchDeAPI(url) {
     }
 }
 
+// ✅ FUNÇÃO ADICIONADA (Já existia em outros arquivos, vamos garantir que esteja aqui)
 export async function buscarComPOST(url, data) {
     try {
         console.log("Buscando dados via POST:", { url, data });
@@ -122,6 +119,7 @@ export async function buscarComPOST(url, data) {
 
     } catch (error) {
         console.error("Falha ao BUSCAR COM POST da API:", error);
+        handleApiError(error); // Adicionamos o handler de erro aqui também
         throw error;
     }
 }

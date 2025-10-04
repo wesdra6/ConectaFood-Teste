@@ -92,7 +92,6 @@
                             class="bi bi-box-arrow-left text-xl"></i><span class="sidebar-text">Sair</span></a>
                     <div class="mt-2 pt-2 border-t border-borda/20 flex flex-col items-center">
                         <span class="text-xs text-texto-muted powered-by-text">Powered by</span>
-                        <!-- ✅ CLASSE ADICIONADA AQUI 👇 -->
                         <a href="https://uptecnology.com.br" target="_blank" class="block sidebar-text"><img
                                 src="https://storage.uptecnology.com.br/u/banding-sis-food-up.png" alt="UP Tecnology"
                                 class="mt-2 h-8 opacity-70 hover:opacity-100 transition-opacity"></a>
@@ -225,7 +224,8 @@
                         </div>
                         <div class="bg-card p-4 rounded-lg">
                             <h3 class="text-xl font-bold mb-4 text-principal">Composição e Preço</h3>
-                            <div id="lista-insumos-ficha" class="space-y-2 max-h-60 overflow-y-auto pr-2 mb-4">
+                            <!-- ✅ ALTERAÇÃO CIRÚRGICA AQUI 👇: Removido o 'pr-2' -->
+                            <div id="lista-insumos-ficha" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar mb-4">
                                 <p class="text-texto-muted text-center">Nenhum insumo adicionado.</p>
                             </div>
                             <div class="flex justify-between items-center border-t border-borda pt-3">
@@ -354,7 +354,7 @@
                         class="py-2 px-5 rounded-lg bg-red-600 hover:bg-red-700 font-bold">Cancelar Pedido</button>
                     <button type="button" id="btn-imprimir-preconta"
                         class="py-2 px-5 rounded-lg bg-blue-500 hover:bg-blue-600 font-bold hidden"><i
-                            class="bi bi-printer-fill mr-2"></i>Imprimir Pré-Conta</button>
+                                class="bi bi-printer-fill mr-2"></i>Imprimir Pré-Conta</button>
                     <div class="flex items-center gap-4">
                         <button type="button" class="py-2 px-4 rounded-lg bg-gray-500 hover:bg-gray-600"
                             data-bs-dismiss="modal">Fechar</button>
